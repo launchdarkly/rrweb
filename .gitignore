@@ -5,10 +5,6 @@ node_modules
 package-lock.json
 tsconfig.tsbuildinfo
 
-# since this repo is referenced from the highlight monorepo which has its own yarn.lock file,
-# don't include yarn.lock files from rrweb to avoid interfering with the monorepo
-yarn.lock
-
 .pnp.*
 .yarn/*
 !.yarn/patches
