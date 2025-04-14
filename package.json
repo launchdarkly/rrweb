@@ -62,5 +62,5 @@
     "defaults",
     "not op_mini all"
   ],
-  "packageManager": "yarn@1.22.19"
+  "packageManager": "yarn@4.9.1"
 }
