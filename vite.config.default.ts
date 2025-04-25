@@ -118,6 +118,82 @@ export default function (
   let formats: LibraryFormats[] = ['es', 'cjs'];
 
   return defineConfig(() => ({
+    resolve: {
+      alias: [
+        {
+          find: '@rrweb/types',
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-types/dist/rrweb-types.js',
+          ),
+        },
+        {
+          find: '@rrweb/utils',
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-utils/dist/rrweb-utils.js',
+          ),
+        },
+        {
+          find: 'rrweb-snapshot',
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-snapshot/dist/rrweb-snapshot.js',
+          ),
+        },
+        {
+          find: '@rrweb/rrweb-plugin-sequential-id-record',
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-rrweb-plugin-sequential-id-record/dist/rrweb-rrweb-plugin-sequential-id-record.js',
+          ),
+        },
+        // bare import “rrweb” → package root “dist/”
+        {
+          find: /^rrweb$/,
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb/dist/rrweb.js',
+          ),
+        },
+        // any sub-path “rrweb/...” → dist/...
+        {
+          find: /^rrweb\/(.*)$/,
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb/$1',
+          ),
+        },
+        {
+          find: /^@rrweb\/replay$/,
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-replay/dist/rrweb-replay.js',
+          ),
+        },
+        {
+          find: /^@rrweb\/replay\/(.*)$/,
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-replay/$1',
+          ),
+        },
+        {
+          find: /^@rrweb\/packer$/,
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-packer/dist/packer.js',
+          ),
+        },
+        {
+          find: /^@rrweb\/packer\/unpack$/,
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-packer/dist/unpack.js',
+          ),
+        },
+      ],
+    },
     build: {
       // See https://vitejs.dev/guide/build.html#library-mode
       lib: {

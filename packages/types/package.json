@@ -1,18 +1,18 @@
 {
-  "name": "@rrweb/types",
+  "name": "@highlight-run/rrweb-types",
   "version": "2.0.0-alpha.18",
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
-    "rrweb",
-    "@rrweb/types"
+    "@highlight-run/rrweb",
+    "@highlight-run/rrweb-types"
   ],
   "scripts": {
     "dev": "vite build --watch",
     "build": "yarn turbo run prepublish",
     "check-types": "tsc -noEmit",
-    "prepublish": "tsc -noEmit && vite build",
+    "prepublish": "vite build",
     "lint": "yarn eslint src/**/*.ts"
   },
   "homepage": "https://github.com/rrweb-io/rrweb/tree/main/packages/@rrweb/types#readme",

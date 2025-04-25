@@ -1,12 +1,12 @@
 {
-  "name": "@rrweb/_monorepo",
+  "name": "@highlight-run/rrweb-_monorepo",
   "description": "record and replay the web",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "rrweb"
+    "@highlight-run/rrweb"
   ],
   "author": "yanzhen@smartx.com",
   "license": "MIT",

@@ -25,6 +25,19 @@
     "noUnusedParameters": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rrweb/types": ["../node_modules/@highlight-run/rrweb-types"],
+      "@rrweb/utils": ["../node_modules/@highlight-run/rrweb-utils"],
+      "@rrweb/packer": ["../node_modules/@highlight-run/rrweb-packer"],
+      "@rrweb/all": ["../node_modules/@highlight-run/rrweb-all"],
+      "@rrweb/replay": ["../node_modules/@highlight-run/rrweb-replay"],
+      "@rrweb/rrweb-plugin-console-record": ["../node_modules/@highlight-run/rrweb-plugin-console-record"],
+      "@rrweb/rrweb-plugin-console-replay": ["../node_modules/@highlight-run/rrweb-plugin-console-replay"],
+      "@rrweb/rrweb-plugin-sequential-id-record": ["../node_modules/@highlight-run/rrweb-rrweb-plugin-sequential-id-record"],
+      "rrweb-snapshot": ["../node_modules/@highlight-run/rrweb-snapshot"],
+      "rrweb": ["../node_modules/@highlight-run/rrweb"],
+    },
 
     // needed for vite
     /**

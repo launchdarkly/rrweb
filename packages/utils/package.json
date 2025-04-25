@@ -1,12 +1,12 @@
 {
-  "name": "@rrweb/utils",
+  "name": "@highlight-run/rrweb-utils",
   "version": "2.0.0-alpha.18",
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
-    "rrweb",
-    "@rrweb/utils"
+    "@highlight-run/rrweb",
+    "@highlight-run/rrweb-utils"
   ],
   "scripts": {
     "dev": "vite build --watch",
