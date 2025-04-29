@@ -148,6 +148,13 @@ export default function (
             '../node_modules/@highlight-run/rrweb-rrweb-plugin-sequential-id-record/dist/rrweb-rrweb-plugin-sequential-id-record.js',
           ),
         },
+        {
+          find: '@rrweb/rrweb-plugin-console-record',
+          replacement: resolve(
+            __dirname,
+            '../node_modules/@highlight-run/rrweb-rrweb-plugin-console-record/dist/rrweb-rrweb-plugin-console-record.js',
+          ),
+        },
         // bare import “rrweb” → package root “dist/”
         {
           find: /^rrweb$/,
