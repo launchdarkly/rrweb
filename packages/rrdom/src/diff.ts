@@ -9,6 +9,7 @@ import type {
   styleDeclarationData,
   styleSheetRuleData,
 } from '@rrweb/types';
+import { IncrementalSource, EventType, CanvasContext } from '@rrweb/types';
 import type {
   IRRCDATASection,
   IRRComment,
@@ -255,17 +256,35 @@ function diffAfterUpdatingChildren(
         }
         case 'CANVAS': {
           const rrCanvasElement = newTree as RRCanvasElement;
-          // This canvas element is created with initial data in an iframe element. https://github.com/rrweb-io/rrweb/pull/944
+
+          // Treat rr_dataURL as the first mutation to avoid race conditions
           if (rrCanvasElement.rr_dataURL !== null) {
-            const image = document.createElement('img');
-            image.onload = () => {
-              const ctx = (oldElement as HTMLCanvasElement).getContext('2d');
-              if (ctx) {
-                ctx.drawImage(image, 0, 0, image.width, image.height);
-              }
+            // Create a synthetic canvas mutation for the initial dataURL
+            const syntheticMutation: canvasMutationData = {
+              source: IncrementalSource.CanvasMutation,
+              id: replayer.mirror.getId(oldTree),
+              type: CanvasContext['2D'],
+              commands: [
+                {
+                  property: 'drawImage',
+                  args: [rrCanvasElement.rr_dataURL, 0, 0],
+                },
+              ],
             };
-            image.src = rrCanvasElement.rr_dataURL;
+
+            // Apply the synthetic mutation synchronously
+            replayer.applyCanvas(
+              {
+                timestamp: 0,
+                type: EventType.IncrementalSnapshot,
+                data: syntheticMutation,
+              } as canvasEventWithTime,
+              syntheticMutation,
+              oldTree as HTMLCanvasElement,
+            );
           }
+
+          // Apply all regular mutations
           rrCanvasElement.canvasMutations.forEach((canvasMutation) =>
             replayer.applyCanvas(
               canvasMutation.event,
