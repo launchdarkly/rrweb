@@ -36,9 +36,8 @@ export function wrapCanvasContextDrawImage(
   const originalDrawImage = ctx.drawImage.bind(ctx);
 
   // Override drawImage with our wrapper that handles image loading
-  // Note: drawImage can accept string (dataURL) as first argument, but TypeScript types don't reflect this
   ctx.drawImage = function (
-    image: CanvasImageSource | string,
+    image: CanvasImageSource,
     ...args: number[]
   ): void {
     // Cancel any pending image load for this context
