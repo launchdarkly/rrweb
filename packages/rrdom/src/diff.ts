@@ -1,5 +1,6 @@
 import { type Mirror as NodeMirror } from 'rrweb-snapshot';
 import { NodeType as RRNodeType } from '@rrweb/types';
+import { wrapCanvasContextDrawImage } from '@rrweb/utils';
 import type {
   canvasMutationData,
   canvasEventWithTime,
@@ -258,13 +259,13 @@ function diffAfterUpdatingChildren(
           // This canvas element is created with initial data in an iframe element. https://github.com/rrweb-io/rrweb/pull/944
           if (rrCanvasElement.rr_dataURL !== null) {
             const image = document.createElement('img');
-            image.onload = () => {
-              const ctx = (oldElement as HTMLCanvasElement).getContext('2d');
-              if (ctx) {
-                ctx.drawImage(image, 0, 0, image.width, image.height);
-              }
-            };
             image.src = rrCanvasElement.rr_dataURL;
+            const ctx = (oldElement as HTMLCanvasElement).getContext('2d');
+            if (ctx) {
+              wrapCanvasContextDrawImage(ctx);
+              // Use 2-arg version so it uses image's natural dimensions once loaded
+              ctx.drawImage(image, 0, 0);
+            }
           }
           rrCanvasElement.canvasMutations.forEach((canvasMutation) =>
             replayer.applyCanvas(
@@ -345,12 +346,12 @@ function diffProps(
     else if (newTree.tagName === 'CANVAS' && name === 'rr_dataURL') {
       const image = document.createElement('img');
       image.src = newValue;
-      image.onload = () => {
-        const ctx = (oldTree as HTMLCanvasElement).getContext('2d');
-        if (ctx) {
-          ctx.drawImage(image, 0, 0, image.width, image.height);
-        }
-      };
+      const ctx = (oldTree as HTMLCanvasElement).getContext('2d');
+      if (ctx) {
+        wrapCanvasContextDrawImage(ctx);
+        // Use 2-arg version so it uses image's natural dimensions once loaded
+        ctx.drawImage(image, 0, 0);
+      }
     } else if (newTree.tagName === 'IFRAME' && name === 'srcdoc') continue;
     else {
       try {
