@@ -13,6 +13,7 @@ import {
   isNodeMetaEqual,
   extractFileExtension,
 } from './utils';
+import { wrapCanvasContextDrawImage } from '@rrweb/utils';
 import postcss from 'postcss';
 
 const tagMap: tagMap = {
@@ -342,13 +343,15 @@ function buildNode(
         // handle internal attributes
         if (tagName === 'canvas' && name === 'rr_dataURL') {
           const image = doc.createElement('img');
-          image.onload = () => {
-            const ctx = (node as HTMLCanvasElement).getContext('2d');
-            if (ctx) {
-              ctx.drawImage(image, 0, 0, image.width, image.height);
-            }
-          };
           image.src = value.toString();
+          const ctx = (node as HTMLCanvasElement).getContext('2d');
+          if (ctx) {
+            // Wrap the context to ensure drawImage calls are properly handled
+            // This prevents race conditions with image loading
+            wrapCanvasContextDrawImage(ctx);
+            // Use 2-arg version so it uses image's natural dimensions once loaded
+            ctx.drawImage(image, 0, 0);
+          }
           type RRCanvasElement = {
             RRNodeType: NodeType;
             rr_dataURL: string;

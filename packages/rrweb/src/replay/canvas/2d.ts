@@ -1,6 +1,7 @@
 import type { Replayer } from '../';
 import type { canvasMutationCommand } from '@rrweb/types';
 import { deserializeArg } from './deserialize-args';
+import { wrapCanvasContextDrawImage } from '@rrweb/utils';
 
 export default async function canvasMutation({
   event,
@@ -21,6 +22,9 @@ export default async function canvasMutation({
     errorHandler(mutations[0], new Error('Canvas context is null'));
     return;
   }
+
+  // Wrap drawImage on first use to enable cancellation of pending loads
+  wrapCanvasContextDrawImage(ctx);
 
   // step 1, deserialize args, they may be async
   const mutationArgsPromises = mutations.map(
