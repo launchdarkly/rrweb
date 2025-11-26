@@ -265,6 +265,9 @@ export function patch(
   }
 }
 
+import { wrapCanvasContextDrawImage } from './canvas';
+export { wrapCanvasContextDrawImage };
+
 export default {
   childNodes,
   parentNode,
@@ -279,4 +282,5 @@ export default {
   querySelectorAll,
   mutationObserver: mutationObserverCtor,
   patch,
+  wrapCanvasContextDrawImage,
 };
