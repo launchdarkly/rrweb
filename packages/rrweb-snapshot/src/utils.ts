@@ -615,7 +615,10 @@ export function obfuscateText(text: string): string {
   text =
     text
       ?.split(' ')
-      .map((word) => Math.random().toString(20).substring(2, word.length))
+      .map((word) => {
+        if (!word) return '';
+        return Math.random().toString(20).substring(2, word.length + 2)
+      })
       .join(' ') || '';
   return text;
 }
