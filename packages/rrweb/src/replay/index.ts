@@ -988,6 +988,10 @@ export class Replayer {
     }
 
     this.mirror.reset();
+    // Clear the newDocumentQueue since mirror.reset() will invalidate all the parentIds
+    // in the queue, and the documents will be re-added during the rebuild process via
+    // applyEventsSynchronously
+    this.newDocumentQueue = []; 
     rebuild(event.data.node, {
       doc: this.iframe.contentDocument,
       afterAppend,
