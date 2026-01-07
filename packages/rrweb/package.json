@@ -1,6 +1,6 @@
 {
-  "name": "rrweb",
-  "version": "2.0.0-alpha.18",
+  "name": "@highlight-run/rrweb",
+  "version": "2.0.0-lambda.3",
   "description": "record and replay the web",
   "scripts": {
     "prepare": "npm run prepack",
@@ -29,7 +29,7 @@
     "url": "git+ssh://git@github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "rrweb"
+    "@highlight-run/rrweb"
   ],
   "main": "./dist/rrweb.umd.cjs",
   "module": "./dist/rrweb.js",
@@ -81,13 +81,13 @@
     "vite-plugin-dts": "^3.9.1"
   },
   "dependencies": {
-    "@rrweb/types": "workspace:*",
-    "@rrweb/utils": "workspace:*",
+    "@highlight-run/rrdom": "workspace:*",
+    "@highlight-run/rrweb-snapshot": "workspace:*",
+    "@highlight-run/rrweb-types": "workspace:*",
+    "@highlight-run/rrweb-utils": "workspace:*",
     "@types/css-font-loading-module": "0.0.7",
     "@xstate/fsm": "^1.4.0",
     "base64-arraybuffer": "^1.0.1",
-    "mitt": "^3.0.0",
-    "rrdom": "workspace:*",
-    "rrweb-snapshot": "workspace:*"
+    "mitt": "^3.0.0"
   }
 }

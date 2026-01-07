@@ -1,12 +1,12 @@
 {
-  "name": "@rrweb/packer",
+  "name": "@highlight-run/rrweb-packer",
   "version": "2.0.0-alpha.18",
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
-    "rrweb",
-    "@rrweb/packer"
+    "@highlight-run/rrweb",
+    "@highlight-run/rrweb-packer"
   ],
   "scripts": {
     "dev": "vite build --watch",
@@ -78,7 +78,7 @@
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "@rrweb/types": "workspace:*",
+    "@highlight-run/rrweb-types": "workspace:*",
     "fflate": "^0.4.4"
   },
   "browserslist": [

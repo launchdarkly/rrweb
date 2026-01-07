@@ -1,5 +1,5 @@
 {
-  "name": "@rrweb/rrweb-plugin-console-replay",
+  "name": "@highlight-run/rrweb-rrweb-plugin-console-replay",
   "version": "2.0.0-alpha.18",
   "description": "",
   "type": "module",
@@ -34,7 +34,7 @@
     "url": "git+https://github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "rrweb"
+    "@highlight-run/rrweb"
   ],
   "author": "yanzhen@smartx.com",
   "license": "MIT",
@@ -43,14 +43,14 @@
   },
   "homepage": "https://github.com/rrweb-io/rrweb#readme",
   "devDependencies": {
-    "@rrweb/rrweb-plugin-console-record": "workspace:*",
-    "rrweb": "workspace:*",
+    "@highlight-run/rrweb": "workspace:*",
+    "@highlight-run/rrweb-rrweb-plugin-console-record": "workspace:*",
     "turbo": "^2.0.5",
     "typescript": "^5.4.5",
     "vite": "^5.3.1",
     "vite-plugin-dts": "^3.9.1"
   },
   "peerDependencies": {
-    "rrweb": "workspace:*"
+    "@highlight-run/rrweb": "workspace:*"
   }
 }
