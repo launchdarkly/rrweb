@@ -52,7 +52,7 @@
     "puppeteer": "^20.9.0",
     "turbo": "^2.0.5",
     "typescript": "^5.4.5",
-    "vite": "^5.3.1",
+    "vite": "^5.4.21",
     "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.4.0"
   },

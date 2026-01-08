@@ -2029,13 +2029,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@epic-web/invariant@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@epic-web/invariant@npm:1.0.0"
-  checksum: 10/28b36a7447f60b84f9d6a23571480042170ef4239a577577ad8447f64a2e4f1a4e57e6fe1b592e61534c5ab53ff67776130e6c88a68cbd997eb6e9c9759a5934
-  languageName: node
-  linkType: hard
-
 "@esbuild/aix-ppc64@npm:0.21.5":
   version: 0.21.5
   resolution: "@esbuild/aix-ppc64@npm:0.21.5"
@@ -2267,7 +2260,7 @@ __metadata:
     puppeteer: "npm:^9.1.1"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -2286,7 +2279,7 @@ __metadata:
     puppeteer: "npm:^17.1.3"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
   languageName: unknown
   linkType: soft
@@ -2324,7 +2317,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^5.62.0"
     browserslist: "npm:^4.22.1"
     concurrently: "npm:^7.1.0"
-    cross-env: "npm:^10.1.0"
+    cross-env: "npm:^7.0.3"
     esbuild-plugin-umd-wrapper: "npm:^2.0.0"
     eslint: "npm:^8.53.0"
     eslint-plugin-compat: "npm:^5.0.0"
@@ -2350,7 +2343,7 @@ __metadata:
     puppeteer: "npm:^20.9.0"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -2364,7 +2357,7 @@ __metadata:
     fflate: "npm:^0.4.4"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -2391,7 +2384,7 @@ __metadata:
     svelte-preprocess: "npm:^5.0.3"
     svelte2tsx: "npm:^0.7.30"
     tslib: "npm:^2.0.0"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
   languageName: unknown
   linkType: soft
 
@@ -2405,7 +2398,7 @@ __metadata:
     puppeteer: "npm:^20.9.0"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -2420,7 +2413,7 @@ __metadata:
     puppeteer: "npm:^20.9.0"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -2433,7 +2426,7 @@ __metadata:
     "@highlight-run/rrweb": "workspace:*"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
   peerDependencies:
     "@highlight-run/rrweb": "workspace:*"
@@ -2447,7 +2440,7 @@ __metadata:
     "@highlight-run/rrweb": "workspace:*"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
   peerDependencies:
     "@highlight-run/rrweb": "workspace:*"
@@ -2462,7 +2455,7 @@ __metadata:
     puppeteer: "npm:^20.9.0"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
     vitest: "npm:^1.4.0"
   peerDependencies:
@@ -2479,7 +2472,7 @@ __metadata:
     "@highlight-run/rrweb-rrweb-plugin-console-record": "workspace:*"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
   peerDependencies:
     "@highlight-run/rrweb": "workspace:*"
@@ -2493,7 +2486,7 @@ __metadata:
     "@highlight-run/rrweb": "workspace:*"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
   peerDependencies:
     "@highlight-run/rrweb": "workspace:*"
@@ -2508,7 +2501,7 @@ __metadata:
     "@highlight-run/rrweb-rrweb-plugin-sequential-id-record": "workspace:*"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
   peerDependencies:
     "@highlight-run/rrweb": "workspace:*"
@@ -2530,7 +2523,7 @@ __metadata:
     tslib: "npm:^1.9.3"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
     vitest: "npm:^1.4.0"
   languageName: unknown
@@ -2541,7 +2534,7 @@ __metadata:
   resolution: "@highlight-run/rrweb-types@workspace:packages/types"
   dependencies:
     turbo: "npm:^2.0.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
   languageName: unknown
   linkType: soft
@@ -2550,7 +2543,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@highlight-run/rrweb-utils@workspace:packages/utils"
   dependencies:
-    vite: "npm:^5.2.8"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.8.1"
   languageName: unknown
   linkType: soft
@@ -2581,7 +2574,7 @@ __metadata:
     react-router-dom: "npm:^6.4.1"
     semver: "npm:^7.6.3"
     type-fest: "npm:^2.19.0"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-web-extension: "npm:^4.1.3"
     vite-plugin-zip-pack: "npm:^1.2.2"
     webextension-polyfill: "npm:^0.10.0"
@@ -2617,7 +2610,7 @@ __metadata:
     tslib: "npm:^2.3.1"
     turbo: "npm:^2.0.5"
     typescript: "npm:^5.4.5"
-    vite: "npm:^5.3.1"
+    vite: "npm:^5.4.21"
     vite-plugin-dts: "npm:^3.9.1"
   languageName: unknown
   linkType: soft
@@ -5924,16 +5917,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-env@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "cross-env@npm:10.1.0"
+"cross-env@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "cross-env@npm:7.0.3"
   dependencies:
-    "@epic-web/invariant": "npm:^1.0.0"
-    cross-spawn: "npm:^7.0.6"
+    cross-spawn: "npm:^7.0.1"
   bin:
-    cross-env: dist/bin/cross-env.js
-    cross-env-shell: dist/bin/cross-env-shell.js
-  checksum: 10/0e5d8bdefbbcd000460b69755e0eeb22953510abac8375e4f8b638ff7c45406141acfd57b8a4c1d1cf0b5ea42f33451b302062fb9b34408753b4d465e901b845
+    cross-env: src/bin/cross-env.js
+    cross-env-shell: src/bin/cross-env-shell.js
+  checksum: 10/e99911f0d31c20e990fd92d6fd001f4b01668a303221227cc5cb42ed155f086351b1b3bd2699b200e527ab13011b032801f8ce638e6f09f854bdf744095e604c
   languageName: node
   linkType: hard
 
@@ -5955,7 +5947,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3, cross-spawn@npm:^7.0.5, cross-spawn@npm:^7.0.6":
+"cross-spawn@npm:^7.0.1, cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3, cross-spawn@npm:^7.0.5":
   version: 7.0.6
   resolution: "cross-spawn@npm:7.0.6"
   dependencies:
@@ -14009,7 +14001,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.0.0, vite@npm:^5.0.0 || ^4.1.4, vite@npm:^5.2.8, vite@npm:^5.3.1":
+"vite@npm:^5.0.0, vite@npm:^5.0.0 || ^4.1.4":
   version: 5.4.12
   resolution: "vite@npm:5.4.12"
   dependencies:
@@ -14049,6 +14041,49 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10/16a2b486164717b51f8a22db750bba1d1d5be939e28d199a27a3c3f54cea484b3f2e8618eeafaec8b5075c011aa9aafd3e86b54411ba90555617190e626fe4ef
+  languageName: node
+  linkType: hard
+
+"vite@npm:^5.4.21":
+  version: 5.4.21
+  resolution: "vite@npm:5.4.21"
+  dependencies:
+    esbuild: "npm:^0.21.3"
+    fsevents: "npm:~2.3.3"
+    postcss: "npm:^8.4.43"
+    rollup: "npm:^4.20.0"
+  peerDependencies:
+    "@types/node": ^18.0.0 || >=20.0.0
+    less: "*"
+    lightningcss: ^1.21.0
+    sass: "*"
+    sass-embedded: "*"
+    stylus: "*"
+    sugarss: "*"
+    terser: ^5.4.0
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  peerDependenciesMeta:
+    "@types/node":
+      optional: true
+    less:
+      optional: true
+    lightningcss:
+      optional: true
+    sass:
+      optional: true
+    sass-embedded:
+      optional: true
+    stylus:
+      optional: true
+    sugarss:
+      optional: true
+    terser:
+      optional: true
+  bin:
+    vite: bin/vite.js
+  checksum: 10/479a63e271d2d9e80a8e553e165444179681f33ddec1e7c84a43c4572f67c3d3abd33136389beb42703e32d3e96e1e8a930a222ee1bb64263ba057c187ccf793
   languageName: node
   linkType: hard
 
