@@ -1,12 +1,12 @@
 {
-  "name": "@rrweb/all",
+  "name": "@highlight-run/rrweb-all",
   "version": "2.0.0-alpha.18",
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
-    "rrweb",
-    "@rrweb/all"
+    "@highlight-run/rrweb",
+    "@highlight-run/rrweb-all"
   ],
   "scripts": {
     "dev": "vite build --watch",
@@ -57,9 +57,9 @@
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "@rrweb/packer": "workspace:*",
-    "@rrweb/types": "workspace:*",
-    "rrweb": "workspace:*"
+    "@highlight-run/rrweb": "workspace:*",
+    "@highlight-run/rrweb-packer": "workspace:*",
+    "@highlight-run/rrweb-types": "workspace:*"
   },
   "browserslist": [
     "supports es6-class"

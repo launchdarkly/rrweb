@@ -1,5 +1,5 @@
 {
-  "name": "@rrweb/rrweb-plugin-canvas-webrtc-record",
+  "name": "@highlight-run/rrweb-rrweb-plugin-canvas-webrtc-record",
   "version": "2.0.0-alpha.18",
   "description": "",
   "type": "module",
@@ -34,7 +34,7 @@
     "url": "git+https://github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "rrweb"
+    "@highlight-run/rrweb"
   ],
   "author": "justin@recordonce.com",
   "license": "MIT",
@@ -43,13 +43,13 @@
   },
   "homepage": "https://github.com/rrweb-io/rrweb#readme",
   "devDependencies": {
-    "rrweb": "workspace:*",
+    "@highlight-run/rrweb": "workspace:*",
     "turbo": "^2.0.5",
     "typescript": "^5.4.5",
     "vite": "^5.3.1",
     "vite-plugin-dts": "^3.9.1"
   },
   "peerDependencies": {
-    "rrweb": "workspace:*"
+    "@highlight-run/rrweb": "workspace:*"
   }
 }

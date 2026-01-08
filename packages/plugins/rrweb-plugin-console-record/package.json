@@ -1,5 +1,5 @@
 {
-  "name": "@rrweb/rrweb-plugin-console-record",
+  "name": "@highlight-run/rrweb-rrweb-plugin-console-record",
   "version": "2.0.0-alpha.18",
   "description": "",
   "type": "module",
@@ -36,7 +36,7 @@
     "url": "git+https://github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "rrweb"
+    "@highlight-run/rrweb"
   ],
   "author": "yanzhen@smartx.com",
   "license": "MIT",
@@ -45,8 +45,8 @@
   },
   "homepage": "https://github.com/rrweb-io/rrweb#readme",
   "devDependencies": {
+    "@highlight-run/rrweb": "workspace:*",
     "puppeteer": "^20.9.0",
-    "rrweb": "workspace:*",
     "turbo": "^2.0.5",
     "typescript": "^5.4.5",
     "vite": "^5.3.1",
@@ -54,7 +54,7 @@
     "vitest": "^1.4.0"
   },
   "peerDependencies": {
-    "@rrweb/utils": "workspace:*",
-    "rrweb": "workspace:*"
+    "@highlight-run/rrweb": "workspace:*",
+    "@highlight-run/rrweb-utils": "workspace:*"
   }
 }

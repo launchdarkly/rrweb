@@ -1,6 +1,6 @@
 {
-  "name": "rrweb-snapshot",
-  "version": "2.0.0-alpha.18",
+  "name": "@highlight-run/rrweb-snapshot",
+  "version": "2.0.0-lambda.5",
   "description": "rrweb's component to take a snapshot of DOM, aka DOM serializer",
   "scripts": {
     "prepare": "npm run prepack",
@@ -12,7 +12,7 @@
     "test:update": "yarn build && vitest run --update",
     "bench": "vite build && vitest bench",
     "dev": "vite build --watch",
-    "build": "yarn turbo prepublish -F rrweb-snapshot",
+    "build": "yarn turbo prepublish -F @highlight-run/rrweb-snapshot",
     "check-types": "tsc --noEmit",
     "prepublish": "yarn check-types && vite build",
     "lint": "yarn eslint src"
@@ -23,7 +23,7 @@
     "url": "git+https://github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "rrweb",
+    "@highlight-run/rrweb",
     "snapshot",
     "DOM"
   ],
@@ -54,8 +54,8 @@
   },
   "homepage": "https://github.com/rrweb-io/rrweb/tree/master/packages/rrweb-snapshot#readme",
   "devDependencies": {
-    "@rrweb/types": "workspace:*",
-    "@rrweb/utils": "workspace:*",
+    "@highlight-run/rrweb-types": "workspace:*",
+    "@highlight-run/rrweb-utils": "workspace:*",
     "@types/jsdom": "^20.0.0",
     "@types/node": "^18.15.11",
     "@types/puppeteer": "^5.4.4",

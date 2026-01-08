@@ -1,8 +1,8 @@
 {
-  "name": "rrweb-player",
+  "name": "@highlight-run/rrweb-player",
   "version": "2.0.0-alpha.18",
   "devDependencies": {
-    "@rrweb/types": "workspace:*",
+    "@highlight-run/rrweb-types": "workspace:*",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/package": "^2.0.0",
@@ -19,13 +19,12 @@
     "vite": "^5.3.1"
   },
   "dependencies": {
-    "@rrweb/packer": "workspace:*",
-    "@rrweb/replay": "workspace:*",
+    "@highlight-run/rrweb-packer": "workspace:*",
+    "@highlight-run/rrweb-replay": "workspace:*",
     "@tsconfig/svelte": "^1.0.0"
   },
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
     "prepublishOnly": "yarn build",
     "start": "vite",
     "check-types": "svelte-check --tsconfig ./tsconfig.json",
@@ -60,7 +59,7 @@
     "url": "git+https://github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "rrweb"
+    "@highlight-run/rrweb"
   ],
   "author": "yanzhen@smartx.com",
   "license": "MIT",

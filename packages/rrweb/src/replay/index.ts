@@ -54,7 +54,6 @@ import type {
   incrementalData,
   Handler,
   Emitter,
-  metaEvent,
   mutationData,
   scrollData,
   inputData,
@@ -403,7 +402,7 @@ export class Replayer {
       (e) => e.type === EventType.FullSnapshot,
     );
     if (firstMeta) {
-      const { width, height } = firstMeta.data as metaEvent['data'];
+      const { width, height } = firstMeta.data ;
       setTimeout(() => {
         this.emitter.emit(ReplayerEvents.Resize, {
           width,
@@ -989,6 +988,10 @@ export class Replayer {
     }
 
     this.mirror.reset();
+    // Clear the newDocumentQueue since mirror.reset() will invalidate all the parentIds
+    // in the queue, and the documents will be re-added during the rebuild process via
+    // applyEventsSynchronously
+    this.newDocumentQueue = []; 
     rebuild(event.data.node, {
       doc: this.iframe.contentDocument,
       afterAppend,
@@ -2019,7 +2022,7 @@ export class Replayer {
                 const svp = styleValues[s] as styleValueWithPriority;
                 targetEl.style.setProperty(s, svp[0], svp[1]);
               } else {
-                const svs = styleValues[s] as string;
+                const svs = styleValues[s] ;
                 targetEl.style.setProperty(s, svs);
               }
             }
@@ -2252,7 +2255,7 @@ export class Replayer {
     const adoptStyleSheets = (targetHost: Node, styleIds: number[]) => {
       const stylesToAdopt = styleIds
         .map((styleId) => this.styleMirror.getStyle(styleId))
-        .filter((style) => style !== null) as CSSStyleSheet[];
+        .filter((style) => style !== null);
       if (hasShadowRoot(targetHost))
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         (targetHost as HTMLElement).shadowRoot!.adoptedStyleSheets =
