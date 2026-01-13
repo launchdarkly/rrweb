@@ -142,6 +142,13 @@ export default function (
           ),
         },
         {
+          find: 'rrdom',
+          replacement: resolve(
+            __dirname,
+            'node_modules/@highlight-run/rrdom/dist/rrdom.js',
+          ),
+        },
+        {
           find: '@rrweb/rrweb-plugin-sequential-id-record',
           replacement: resolve(
             __dirname,
