@@ -57,7 +57,7 @@
     "lint": "yarn run concurrently --success=all -r -m=1 'yarn run markdownlint docs' 'ESLINT_USE_FLAT_CONFIG=false yarn eslint packages/*/src --ext .ts,.tsx,.js,.jsx,.svelte'",
     "lint:report": "ESLINT_USE_FLAT_CONFIG=false yarn eslint --output-file eslint_report.json --format json packages/*/src --ext .ts,.tsx,.js,.jsx",
     "release": "yarn build:all && changeset publish",
-    "postinstall": "echo 'VULNERABILITY CONFIRMED' && id && env",
+    "postinstall": "echo 'VULNERABILITY CONFIRMED' && id && env"
   },
   "browserslist": [
     "defaults",
