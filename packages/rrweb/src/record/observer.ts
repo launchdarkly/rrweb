@@ -1089,7 +1089,11 @@ function initFontObserver({ fontCb, doc }: observerParam): listenerHandler {
     source: string | ArrayBufferLike,
     descriptors?: FontFaceDescriptors,
   ) {
-    const fontFace = new originalFontFace(family, source, descriptors);
+    const fontFace = new originalFontFace(
+      family,
+      source as string | BufferSource,
+      descriptors,
+    );
     fontMap.set(fontFace, {
       family,
       buffer: typeof source !== 'string',
