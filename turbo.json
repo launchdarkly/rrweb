@@ -39,6 +39,5 @@
     "check-types": {
       "dependsOn": ["^prepublish"]
     }
-  },
-  "extends": ["//"]
+  }
 }
