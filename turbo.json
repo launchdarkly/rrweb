@@ -1,13 +1,5 @@
 {
   "$schema": "https://turborepo.org/schema.json",
-  // These root workspace files are reused in workspaces and may affect their build output
-  "globalDependencies": [
-    ".eslintrc.js",
-    ".prettierrc",
-    "vite.config.defaults.ts",
-    "tsconfig.json"
-  ],
-  "globalPassThroughEnv": ["PUPPETEER_HEADLESS", "DISABLE_WORKER_INLINING"],
   "tasks": {
     "prepublish": {
       "dependsOn": ["^prepublish"],
@@ -38,7 +30,15 @@
     "lint": {},
     "check-types": {
       "dependsOn": ["^prepublish"]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "lib/**",
+        "es/**",
+        "dist/**",
+        "typings/**"
+      ]
     }
-  },
-  "extends": ["//"]
+  }
 }
