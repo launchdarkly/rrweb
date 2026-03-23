@@ -37,7 +37,7 @@ jobs:
         run: PUPPETEER_HEADLESS=true xvfb-run --server-args="-screen 0 1920x1080x24" yarn test
 
       - name: Check bundle sizes
-        uses: preactjs/compressed-size-action@v2
+        uses: preactjs/compressed-size-action@8518045ed95e94e971b83333085e1cb99aa18aa8 # v2
         with:
           install-script: "yarn install --frozen-lockfile"
           build-script: "build:all"
