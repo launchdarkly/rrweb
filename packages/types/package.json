@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "dev": "vite build --watch",
-    "build": "yarn turbo run prepublish",
+    "build": "vite build",
     "check-types": "tsc -noEmit",
     "prepublish": "vite build",
     "lint": "yarn eslint src/**/*.ts"
