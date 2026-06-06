@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Format Check
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Enable Corepack
         run: corepack enable
       - name: Setup Node
@@ -79,7 +79,7 @@ jobs:
       contents: write
     name: Format Code
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
       - name: Enable Corepack
