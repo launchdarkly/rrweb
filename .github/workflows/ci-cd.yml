@@ -24,10 +24,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn'
 
       - name: Install Dependencies
-        run: yarn install --immutable
+        run: yarn install
 
       - name: Build Project
         run: NODE_OPTIONS='--max-old-space-size=4096' yarn build:all
@@ -42,7 +41,7 @@ jobs:
       - name: Check bundle sizes
         uses: preactjs/compressed-size-action@8518045ed95e94e971b83333085e1cb99aa18aa8 # v2
         with:
-          install-script: "yarn install --immutable"
+          install-script: "yarn install"
           build-script: "build:all"
           compression: "none"
           pattern: "**/dist/*.{js,cjs,mjs,css}"

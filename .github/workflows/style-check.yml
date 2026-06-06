@@ -17,9 +17,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn'
       - name: Install Dependencies
-        run: yarn install --immutable
+        run: yarn install
       - name: Build Packages
         run: NODE_OPTIONS='--max-old-space-size=4096' yarn build:all
       - name: Eslint Check
@@ -67,9 +66,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn'
       - name: Install Dependencies
-        run: yarn install --immutable
+        run: yarn install
       - name: Prettier Check
         run: yarn prettier --check '**/*.{ts,md}'
 
@@ -90,9 +88,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn'
       - name: Install Dependencies
-        run: yarn install --immutable
+        run: yarn install
       - name: Prettify Code
         run: yarn prettier --write '**/*.{ts,md}'
       - name: Commit Changes
