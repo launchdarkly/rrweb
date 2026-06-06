@@ -9,13 +9,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Enable Corepack
+        run: corepack enable
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16.15.0
-          registry-url: https://registry.npmjs.org
+          node-version: lts/*
+          cache: 'yarn'
       - name: Install
-        run: YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn
+        run: yarn install --immutable
       - name: Build Packages
         run: yarn build:all
       - name: Test Code Linting
