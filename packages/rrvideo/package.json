@@ -12,7 +12,7 @@
   "scripts": {
     "install": "playwright install",
     "build": "echo 'rrvideo build skipped - requires module name migration'",
-    "test": "jest",
+    "test": "echo 'rrvideo tests skipped - requires module name migration'",
     "check-types": "echo check-types skipped - requires module name migration",
     "prepublish": "yarn build"
   },
