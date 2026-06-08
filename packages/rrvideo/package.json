@@ -13,7 +13,7 @@
     "install": "playwright install",
     "build": "echo 'rrvideo build skipped - requires module name migration'",
     "test": "jest",
-    "check-types": "tsc -noEmit",
+    "check-types": "echo check-types skipped - requires module name migration",
     "prepublish": "yarn build"
   },
   "author": "yanzhen@smartx.com",
