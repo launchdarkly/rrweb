@@ -147,9 +147,7 @@ export default function (
         },
         {
           find: 'rrdom',
-          replacement: resolveModule(
-            '@highlight-run/rrdom/dist/rrdom.js',
-          ),
+          replacement: resolveModule('@highlight-run/rrdom/dist/rrdom.js'),
         },
         {
           find: '@rrweb/rrweb-plugin-sequential-id-record',
@@ -166,16 +164,12 @@ export default function (
         // bare import “rrweb” → package root “dist/”
         {
           find: /^rrweb$/,
-          replacement: resolveModule(
-            '@highlight-run/rrweb/dist/rrweb.js',
-          ),
+          replacement: resolveModule('@highlight-run/rrweb/dist/rrweb.js'),
         },
         // any sub-path “rrweb/...” → dist/...
         {
           find: /^rrweb\/(.*)$/,
-          replacement: resolveModule(
-            '@highlight-run/rrweb/$1',
-          ),
+          replacement: resolveModule('@highlight-run/rrweb/$1'),
         },
         {
           find: /^@rrweb\/replay$/,
@@ -185,9 +179,7 @@ export default function (
         },
         {
           find: /^@rrweb\/replay\/(.*)$/,
-          replacement: resolveModule(
-            '@highlight-run/rrweb-replay/$1',
-          ),
+          replacement: resolveModule('@highlight-run/rrweb-replay/$1'),
         },
         {
           find: /^@rrweb\/packer$/,
