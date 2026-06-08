@@ -135,6 +135,8 @@ export default defineConfig({
     alias: {
       '~': path.resolve(__dirname, './src'),
       'rrweb-player': path.resolve(__dirname, '../rrweb-player'),
+      'rrweb': path.resolve(__dirname, '../rrweb'),
+      '@rrweb/types': path.resolve(__dirname, '../types'),
     },
   },
 });
