@@ -20,6 +20,8 @@ jobs:
           node-version: lts/*
       - name: Install Dependencies
         run: yarn install
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
       - name: Build Packages
         run: NODE_OPTIONS='--max-old-space-size=4096' yarn build:all
       - name: Eslint Check
@@ -69,12 +71,14 @@ jobs:
           node-version: lts/*
       - name: Install Dependencies
         run: yarn install
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
       - name: Prettier Check
         run: yarn prettier --check '**/*.{ts,md}'
 
   prettier:
     # Skip the format code action in forked PRs
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'rrweb-io/rrweb'
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -91,6 +95,8 @@ jobs:
           node-version: lts/*
       - name: Install Dependencies
         run: yarn install
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
       - name: Prettify Code
         run: yarn prettier --write '**/*.{ts,md}'
       - name: Commit Changes
@@ -98,4 +104,4 @@ jobs:
         with:
           commit_message: Apply formatting changes
           branch: ${{ github.head_ref }}
-          file_pattern: '. :!packages/rrweb-player/.svelte-kit/**'
+          file_pattern: '*.ts *.md'

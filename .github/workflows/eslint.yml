@@ -18,6 +18,8 @@ jobs:
           node-version: lts/*
       - name: Install
         run: yarn install
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
       - name: Build Packages
         run: yarn build:all
       - name: Test Code Linting
