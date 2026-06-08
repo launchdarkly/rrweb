@@ -275,7 +275,6 @@ export function buildFromNode(
       return null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   let sn: serializedNodeWithId | null = domMirror.getMeta(node);
 
   if (rrdom instanceof RRDocument) {

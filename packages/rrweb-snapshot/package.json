@@ -15,7 +15,7 @@
     "build": "yarn check-types && vite build",
     "check-types": "tsc --noEmit",
     "prepublish": "yarn check-types && vite build",
-    "lint": "eslint src"
+    "lint": "npx eslint src"
   },
   "type": "module",
   "repository": {
