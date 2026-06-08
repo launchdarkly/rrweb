@@ -11,8 +11,8 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "tsc -noEmit && vite build",
-    "test": "vitest run",
-    "test:watch": "vitest watch",
+    "test": "npx vitest run",
+    "test:watch": "npx vitest watch",
     "check-types": "tsc -noEmit",
     "prepublish": "tsc -noEmit && vite build",
     "lint": "npx eslint src/**/*.ts"

@@ -6,12 +6,12 @@
     "prepare": "npm run prepack",
     "prepack": "npm run build",
     "retest": "cross-env PUPPETEER_HEADLESS=true yarn retest:headful",
-    "retest:headful": "vitest run --exclude test/benchmark",
+    "retest:headful": "npx npx vitest run --exclude test/benchmark",
     "build-and-test": "yarn build && yarn retest",
     "test:headless": "cross-env PUPPETEER_HEADLESS=true yarn build-and-test",
     "test:headful": "cross-env PUPPETEER_HEADLESS=false yarn build-and-test",
     "test": "yarn test:headless",
-    "test:watch": "yarn build && cross-env PUPPETEER_HEADLESS=true yarn vitest --exclude test/benchmark",
+    "test:watch": "yarn build && cross-env PUPPETEER_HEADLESS=true npx vitest --exclude test/benchmark",
     "test:update": "yarn test:headless --update",
     "retest:update": "cross-env PUPPETEER_HEADLESS=true yarn retest --update",
     "repl": "yarn build && node scripts/repl.js",
@@ -21,7 +21,7 @@
     "check-types": "tsc -noEmit",
     "prepublish": "tsc -noEmit && vite build",
     "lint": "npx eslint src",
-    "benchmark": "vitest run --maxConcurrency 1 --no-file-parallelism test/benchmark"
+    "benchmark": "npx npx vitest run --maxConcurrency 1 --no-file-parallelism test/benchmark"
   },
   "type": "module",
   "repository": {

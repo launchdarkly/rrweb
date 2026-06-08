@@ -32,8 +32,8 @@
     "dev": "vite build --watch",
     "build": "tsc -noEmit && vite build",
     "check-types": "tsc -noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "npx vitest run",
+    "test:watch": "npx vitest",
     "prepublish": "tsc -noEmit && vite build",
     "lint": "npx eslint src/**/*.ts"
   },
