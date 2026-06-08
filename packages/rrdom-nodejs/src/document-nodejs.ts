@@ -91,6 +91,10 @@ export class RRDocument extends BaseRRDocument implements IRRDocument {
     return super.insertBefore(newChild, refChild);
   }
 
+  // nwsapi requires addEventListener/removeEventListener on the document
+  addEventListener() {}
+  removeEventListener() {}
+
   querySelectorAll(selectors: string): BaseRRNode[] {
     return this.nwsapi.select(selectors) as unknown as BaseRRNode[];
   }
