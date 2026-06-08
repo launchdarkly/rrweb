@@ -25,6 +25,7 @@
   },
   "scripts": {
     "dev": "vite build --watch",
+    "build": "vite build",
     "prepublishOnly": "yarn build",
     "start": "vite",
     "check-types": "svelte-check --tsconfig ./tsconfig.json",
