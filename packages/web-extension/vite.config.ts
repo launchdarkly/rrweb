@@ -96,7 +96,8 @@ export default defineConfig({
         const BrowserName =
           process.env.TARGET_BROWSER === 'chrome' ? 'chrome' : 'firefox';
         const commonManifest = originalManifest.common;
-        const rrwebVersion = packageJson.dependencies!.rrweb!.replace('^', '');
+        const rrwebPkg = readJsonFile('../rrweb/package.json') as PackageJson;
+        const rrwebVersion = rrwebPkg.version || '2.0.0-alpha.18';
         const manifest = {
           version: getExtensionVersion(rrwebVersion),
           author: packageJson.author,
