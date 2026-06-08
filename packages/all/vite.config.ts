@@ -1,4 +1,6 @@
 import path from 'path';
 import config from '../../vite.config.default';
 
-export default config(path.resolve(__dirname, 'src/index.ts'), 'rrweb');
+export default config(path.resolve(__dirname, 'src/index.ts'), 'rrweb', {
+  fileName: 'all',
+});

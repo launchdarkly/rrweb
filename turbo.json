@@ -13,8 +13,7 @@
       ]
     },
     "test": {
-      "dependsOn": ["^prepublish"],
-      "env": ["PUPPETEER_EXECUTABLE_PATH"]
+      "dependsOn": ["^prepublish"]
     },
     "test:watch": {
       "persistent": true,
