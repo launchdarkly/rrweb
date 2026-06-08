@@ -32,7 +32,7 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Install Chrome for Puppeteer
-        run: npx @puppeteer/browsers install chrome@115.0.5763.0 --path .cache/puppeteer
+        run: npx @puppeteer/browsers install chrome@115.0.5763.0 --path ${{ github.workspace }}/.cache/puppeteer
 
       - name: Build Project
         run: NODE_OPTIONS='--max-old-space-size=4096' yarn build:all
