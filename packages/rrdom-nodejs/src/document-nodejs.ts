@@ -92,7 +92,9 @@ export class RRDocument extends BaseRRDocument implements IRRDocument {
   }
 
   // nwsapi requires addEventListener/removeEventListener on the document
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   addEventListener() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   removeEventListener() {}
 
   querySelectorAll(selectors: string): BaseRRNode[] {
