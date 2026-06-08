@@ -217,11 +217,13 @@ export default function (
 
       sourcemap: true,
 
-      // rollupOptions: {
-      //   output: {
-      //     manualChunks: {},
-      //   },
-      // },
+      rollupOptions: {
+        output: {
+          // vite 6 names CSS after the lib name; force 'style.css' for
+          // backwards compat with packages that import dist/style.css
+          assetFileNames: 'style.[ext]',
+        },
+      },
     },
     plugins: [
       dts({
