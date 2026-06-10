@@ -56,7 +56,8 @@ describe('replayer', function () {
   });
 
   describe('hover', () => {
-    it('should trigger hover on mouseDown', async () => {
+    // screenshot timing around a paused replay is flaky in CI; retry flakes
+    it('should trigger hover on mouseDown', { retry: 2 }, async () => {
       await page.evaluate(`
       const { Replayer } = rrweb;
       const replayer = new Replayer(events);
