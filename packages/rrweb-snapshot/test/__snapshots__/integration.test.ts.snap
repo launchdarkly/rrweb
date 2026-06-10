@@ -446,21 +446,6 @@ exports[`integration tests > [html file]: invalid-tagname.html 1`] = `
 </body></html>"
 `;
 
-exports[`integration tests > [html file]: mask-text.html 1`] = `
-"<!DOCTYPE html><html lang=\\"en\\"><head>
-    <meta charset=\\"UTF-8\\" />
-    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1.0\\" />
-    <meta http-equiv=\\"X-UA-Compatible\\" content=\\"ie=edge\\" />
-    <title>Document</title>
-  </head>  <body>
-    <p class=\\"highlight-mask\\">**** *</p>
-    <div class=\\"highlight-mask\\">
-      <span>**** *</span>
-    </div>
-    <div class=\\"highlight-mask\\">**** *</div>
-  </body></html>"
-`;
-
 exports[`integration tests > [html file]: picture.html 1`] = `
 "<html xmlns=\\"http://www.w3.org/1999/xhtml\\"><head></head><body>
     <picture>

@@ -46,9 +46,11 @@ file-frame-5
 file-cid-0
 @charset \\"utf-8\\";
 
-.highlight-block { background: currentcolor; }
-
 noscript { display: none !important; }
+
+.highlight-block { background: currentcolor; border-radius: 5px; }
+
+.highlight-block:hover::after { content: \\"Redacted\\"; color: white; background: black; text-align: center; width: 100%; display: block; }
 
 html.rrweb-paused *, html.rrweb-paused ::before, html.rrweb-paused ::after { animation-play-state: paused !important; }
 
@@ -126,9 +128,11 @@ file-frame-5
 file-cid-0
 @charset \\"utf-8\\";
 
-.highlight-block { background: currentcolor; }
-
 noscript { display: none !important; }
+
+.highlight-block { background: currentcolor; border-radius: 5px; }
+
+.highlight-block:hover::after { content: \\"Redacted\\"; color: white; background: black; text-align: center; width: 100%; display: block; }
 
 html.rrweb-paused *, html.rrweb-paused ::before, html.rrweb-paused ::after { animation-play-state: paused !important; }
 
@@ -199,9 +203,11 @@ file-frame-3
 file-cid-0
 @charset \\"utf-8\\";
 
-.rr-block { background: currentcolor; }
-
 noscript { display: none !important; }
+
+.highlight-block { background: currentcolor; border-radius: 5px; }
+
+.highlight-block:hover::after { content: \\"Redacted\\"; color: white; background: black; text-align: center; width: 100%; display: block; }
 
 html.rrweb-paused *, html.rrweb-paused ::before, html.rrweb-paused ::after { animation-play-state: paused !important; }
 
@@ -265,9 +271,11 @@ file-frame-2
 file-cid-0
 @charset \\"utf-8\\";
 
-.highlight-block { background: currentcolor; }
-
 noscript { display: none !important; }
+
+.highlight-block { background: currentcolor; border-radius: 5px; }
+
+.highlight-block:hover::after { content: \\"Redacted\\"; color: white; background: black; text-align: center; width: 100%; display: block; }
 
 html.rrweb-paused *, html.rrweb-paused ::before, html.rrweb-paused ::after { animation-play-state: paused !important; }
 "
@@ -316,9 +324,11 @@ file-frame-2
 file-cid-0
 @charset \\"utf-8\\";
 
-.highlight-block { background: currentcolor; }
-
 noscript { display: none !important; }
+
+.highlight-block { background: currentcolor; border-radius: 5px; }
+
+.highlight-block:hover::after { content: \\"Redacted\\"; color: white; background: black; text-align: center; width: 100%; display: block; }
 
 html.rrweb-paused *, html.rrweb-paused ::before, html.rrweb-paused ::after { animation-play-state: paused !important; }
 "
@@ -367,9 +377,11 @@ file-frame-2
 file-cid-0
 @charset \\"utf-8\\";
 
-.highlight-block { background: currentcolor; }
-
 noscript { display: none !important; }
+
+.highlight-block { background: currentcolor; border-radius: 5px; }
+
+.highlight-block:hover::after { content: \\"Redacted\\"; color: white; background: black; text-align: center; width: 100%; display: block; }
 
 html.rrweb-paused *, html.rrweb-paused ::before, html.rrweb-paused ::after { animation-play-state: paused !important; }
 "

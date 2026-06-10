@@ -186,230 +186,6 @@ exports[`record integration tests > can correctly serialize a shader and multipl
         \\"top\\": 0
       }
     }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 9,
-      \\"id\\": 16,
-      \\"type\\": 1,
-      \\"commands\\": [
-        {
-          \\"property\\": \\"createBuffer\\",
-          \\"args\\": []
-        },
-        {
-          \\"property\\": \\"bindBuffer\\",
-          \\"args\\": [
-            34962,
-            {
-              \\"rr_type\\": \\"WebGLBuffer\\",
-              \\"index\\": 0
-            }
-          ]
-        },
-        {
-          \\"property\\": \\"bufferData\\",
-          \\"args\\": [
-            34962,
-            {
-              \\"rr_type\\": \\"Float32Array\\",
-              \\"args\\": [
-                [
-                  -0.5,
-                  0.5,
-                  -0.5,
-                  -0.5,
-                  0,
-                  -0.5
-                ]
-              ]
-            },
-            35044
-          ]
-        },
-        {
-          \\"property\\": \\"bindBuffer\\",
-          \\"args\\": [
-            34962,
-            null
-          ]
-        },
-        {
-          \\"property\\": \\"createShader\\",
-          \\"args\\": [
-            35633
-          ]
-        },
-        {
-          \\"property\\": \\"shaderSource\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLShader\\",
-              \\"index\\": 0
-            },
-            \\"attribute vec2 coordinates;void main(void) { gl_Position = vec4(coordinates,0.0, 1.0);}\\"
-          ]
-        },
-        {
-          \\"property\\": \\"compileShader\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLShader\\",
-              \\"index\\": 0
-            }
-          ]
-        },
-        {
-          \\"property\\": \\"createShader\\",
-          \\"args\\": [
-            35632
-          ]
-        },
-        {
-          \\"property\\": \\"shaderSource\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLShader\\",
-              \\"index\\": 1
-            },
-            \\"void main(void) {gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);}\\"
-          ]
-        },
-        {
-          \\"property\\": \\"compileShader\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLShader\\",
-              \\"index\\": 1
-            }
-          ]
-        },
-        {
-          \\"property\\": \\"createProgram\\",
-          \\"args\\": []
-        },
-        {
-          \\"property\\": \\"attachShader\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLProgram\\",
-              \\"index\\": 0
-            },
-            {
-              \\"rr_type\\": \\"WebGLShader\\",
-              \\"index\\": 0
-            }
-          ]
-        },
-        {
-          \\"property\\": \\"attachShader\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLProgram\\",
-              \\"index\\": 0
-            },
-            {
-              \\"rr_type\\": \\"WebGLShader\\",
-              \\"index\\": 1
-            }
-          ]
-        },
-        {
-          \\"property\\": \\"linkProgram\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLProgram\\",
-              \\"index\\": 0
-            }
-          ]
-        },
-        {
-          \\"property\\": \\"useProgram\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLProgram\\",
-              \\"index\\": 0
-            }
-          ]
-        },
-        {
-          \\"property\\": \\"bindBuffer\\",
-          \\"args\\": [
-            34962,
-            {
-              \\"rr_type\\": \\"WebGLBuffer\\",
-              \\"index\\": 0
-            }
-          ]
-        },
-        {
-          \\"property\\": \\"getAttribLocation\\",
-          \\"args\\": [
-            {
-              \\"rr_type\\": \\"WebGLProgram\\",
-              \\"index\\": 0
-            },
-            \\"coordinates\\"
-          ]
-        },
-        {
-          \\"property\\": \\"vertexAttribPointer\\",
-          \\"args\\": [
-            0,
-            2,
-            5126,
-            false,
-            0,
-            0
-          ]
-        },
-        {
-          \\"property\\": \\"enableVertexAttribArray\\",
-          \\"args\\": [
-            0
-          ]
-        },
-        {
-          \\"property\\": \\"clearColor\\",
-          \\"args\\": [
-            0.5,
-            0.5,
-            0.5,
-            0.9
-          ]
-        },
-        {
-          \\"property\\": \\"enable\\",
-          \\"args\\": [
-            2929
-          ]
-        },
-        {
-          \\"property\\": \\"clear\\",
-          \\"args\\": [
-            16384
-          ]
-        },
-        {
-          \\"property\\": \\"viewport\\",
-          \\"args\\": [
-            0,
-            0,
-            300,
-            300
-          ]
-        },
-        {
-          \\"property\\": \\"drawArrays\\",
-          \\"args\\": [
-            4,
-            0,
-            3
-          ]
-        }
-      ]
-    }
   }
 ]"
 `;
@@ -767,7 +543,9 @@ exports[`record integration tests > can mask character data mutations 1`] = `
             \\"type\\": 2,
             \\"tagName\\": \\"li\\",
             \\"attributes\\": {
-              \\"class\\": \\"highlight-mask\\"
+              \\"class\\": \\"highlight-mask\\",
+              \\"rr_width\\": \\"1864px\\",
+              \\"rr_height\\": \\"18px\\"
             },
             \\"childNodes\\": [],
             \\"id\\": 20
@@ -778,7 +556,7 @@ exports[`record integration tests > can mask character data mutations 1`] = `
           \\"nextId\\": null,
           \\"node\\": {
             \\"type\\": 3,
-            \\"textContent\\": \\"*** **** ****\\",
+            \\"textContent\\": \\"2cj hf7a fi68\\",
             \\"id\\": 21
           }
         },
@@ -787,7 +565,7 @@ exports[`record integration tests > can mask character data mutations 1`] = `
           \\"nextId\\": null,
           \\"node\\": {
             \\"type\\": 3,
-            \\"textContent\\": \\"*******\\",
+            \\"textContent\\": \\"41j6h6j\\",
             \\"id\\": 22
           }
         }
@@ -801,7 +579,7 @@ exports[`record integration tests > can mask character data mutations 1`] = `
       \\"texts\\": [
         {
           \\"id\\": 22,
-          \\"value\\": \\"****** *******\\"
+          \\"value\\": \\"iai2h6 9c8a19e\\"
         }
       ],
       \\"attributes\\": [],
@@ -1000,7 +778,7 @@ exports[`record integration tests > can mask character data mutations with regex
           \\"nextId\\": null,
           \\"node\\": {
             \\"type\\": 3,
-            \\"textContent\\": \\"*** **** ****\\",
+            \\"textContent\\": \\"a65 1cb9 6502\\",
             \\"id\\": 21
           }
         },
@@ -1009,7 +787,7 @@ exports[`record integration tests > can mask character data mutations with regex
           \\"nextId\\": null,
           \\"node\\": {
             \\"type\\": 3,
-            \\"textContent\\": \\"*******\\",
+            \\"textContent\\": \\"c039heb\\",
             \\"id\\": 22
           }
         }
@@ -1023,7 +801,7 @@ exports[`record integration tests > can mask character data mutations with regex
       \\"texts\\": [
         {
           \\"id\\": 21,
-          \\"value\\": \\"********** ****** ** ****** *** **** ****\\"
+          \\"value\\": \\"5dg5b43h0f dejd4f h0 7c0a2j ee0 g7b5 1jgd\\"
         }
       ],
       \\"attributes\\": [],
@@ -7629,7 +7407,7 @@ exports[`record integration tests > should mask password value attribute with ma
         {
           \\"id\\": 18,
           \\"attributes\\": {
-            \\"type\\": \\"password\\"
+            \\"value\\": \\"********\\"
           }
         }
       ],
@@ -7772,12 +7550,14 @@ exports[`record integration tests > should mask texts 1`] = `
                     \\"type\\": 2,
                     \\"tagName\\": \\"p\\",
                     \\"attributes\\": {
-                      \\"class\\": \\"highlight-mask\\"
+                      \\"class\\": \\"highlight-mask\\",
+                      \\"rr_width\\": \\"1904px\\",
+                      \\"rr_height\\": \\"18px\\"
                     },
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"*****\\",
+                        \\"textContent\\": \\"76had\\",
                         \\"id\\": 19
                       }
                     ],
@@ -7792,12 +7572,14 @@ exports[`record integration tests > should mask texts 1`] = `
                     \\"type\\": 2,
                     \\"tagName\\": \\"div\\",
                     \\"attributes\\": {
-                      \\"class\\": \\"highlight-mask\\"
+                      \\"class\\": \\"highlight-mask\\",
+                      \\"rr_width\\": \\"1904px\\",
+                      \\"rr_height\\": \\"18px\\"
                     },
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n      \\",
+                        \\"textContent\\": \\"      \\",
                         \\"id\\": 22
                       },
                       {
@@ -7807,7 +7589,7 @@ exports[`record integration tests > should mask texts 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"*****\\",
+                            \\"textContent\\": \\"f301i\\",
                             \\"id\\": 24
                           }
                         ],
@@ -7815,7 +7597,7 @@ exports[`record integration tests > should mask texts 1`] = `
                       },
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n    \\",
+                        \\"textContent\\": \\"    \\",
                         \\"id\\": 25
                       }
                     ],
@@ -7835,7 +7617,7 @@ exports[`record integration tests > should mask texts 1`] = `
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n      \\",
+                        \\"textContent\\": \\"      \\",
                         \\"id\\": 28
                       },
                       {
@@ -7845,7 +7627,7 @@ exports[`record integration tests > should mask texts 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"\\\\n        \\",
+                            \\"textContent\\": \\"        \\",
                             \\"id\\": 30
                           },
                           {
@@ -7855,7 +7637,7 @@ exports[`record integration tests > should mask texts 1`] = `
                             \\"childNodes\\": [
                               {
                                 \\"type\\": 3,
-                                \\"textContent\\": \\"*****\\",
+                                \\"textContent\\": \\"996fe\\",
                                 \\"id\\": 32
                               }
                             ],
@@ -7863,7 +7645,7 @@ exports[`record integration tests > should mask texts 1`] = `
                           },
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"\\\\n      \\",
+                            \\"textContent\\": \\"      \\",
                             \\"id\\": 33
                           }
                         ],
@@ -7871,7 +7653,7 @@ exports[`record integration tests > should mask texts 1`] = `
                       },
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n    \\",
+                        \\"textContent\\": \\"    \\",
                         \\"id\\": 34
                       }
                     ],
@@ -8070,12 +7852,14 @@ exports[`record integration tests > should mask texts using maskTextFn 1`] = `
                     \\"type\\": 2,
                     \\"tagName\\": \\"p\\",
                     \\"attributes\\": {
-                      \\"class\\": \\"highlight-mask\\"
+                      \\"class\\": \\"highlight-mask\\",
+                      \\"rr_width\\": \\"1904px\\",
+                      \\"rr_height\\": \\"18px\\"
                     },
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"****1\\",
+                        \\"textContent\\": \\"ije1c\\",
                         \\"id\\": 19
                       }
                     ],
@@ -8090,12 +7874,14 @@ exports[`record integration tests > should mask texts using maskTextFn 1`] = `
                     \\"type\\": 2,
                     \\"tagName\\": \\"div\\",
                     \\"attributes\\": {
-                      \\"class\\": \\"highlight-mask\\"
+                      \\"class\\": \\"highlight-mask\\",
+                      \\"rr_width\\": \\"1904px\\",
+                      \\"rr_height\\": \\"18px\\"
                     },
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n      \\",
+                        \\"textContent\\": \\"      \\",
                         \\"id\\": 22
                       },
                       {
@@ -8105,7 +7891,7 @@ exports[`record integration tests > should mask texts using maskTextFn 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"****2\\",
+                            \\"textContent\\": \\"2aid5\\",
                             \\"id\\": 24
                           }
                         ],
@@ -8113,7 +7899,7 @@ exports[`record integration tests > should mask texts using maskTextFn 1`] = `
                       },
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n    \\",
+                        \\"textContent\\": \\"    \\",
                         \\"id\\": 25
                       }
                     ],
@@ -9377,417 +9163,6 @@ exports[`record integration tests > should not record blocked elements dynamical
           }
         }
       ]
-    }
-  }
-]"
-`;
-
-exports[`record integration tests > should not record input events on ignored elements 1`] = `
-"[
-  {
-    \\"type\\": 0,
-    \\"data\\": {}
-  },
-  {
-    \\"type\\": 1,
-    \\"data\\": {}
-  },
-  {
-    \\"type\\": 4,
-    \\"data\\": {
-      \\"href\\": \\"about:blank\\",
-      \\"width\\": 1920,
-      \\"height\\": 1080
-    }
-  },
-  {
-    \\"type\\": 2,
-    \\"data\\": {
-      \\"node\\": {
-        \\"type\\": 0,
-        \\"childNodes\\": [
-          {
-            \\"type\\": 1,
-            \\"name\\": \\"html\\",
-            \\"publicId\\": \\"\\",
-            \\"systemId\\": \\"\\",
-            \\"id\\": 2
-          },
-          {
-            \\"type\\": 2,
-            \\"tagName\\": \\"html\\",
-            \\"attributes\\": {
-              \\"lang\\": \\"en\\"
-            },
-            \\"childNodes\\": [
-              {
-                \\"type\\": 2,
-                \\"tagName\\": \\"head\\",
-                \\"attributes\\": {},
-                \\"childNodes\\": [
-                  {
-                    \\"type\\": 3,
-                    \\"textContent\\": \\"\\\\n    \\",
-                    \\"id\\": 5
-                  },
-                  {
-                    \\"type\\": 2,
-                    \\"tagName\\": \\"meta\\",
-                    \\"attributes\\": {
-                      \\"charset\\": \\"UTF-8\\"
-                    },
-                    \\"childNodes\\": [],
-                    \\"id\\": 6
-                  },
-                  {
-                    \\"type\\": 3,
-                    \\"textContent\\": \\"\\\\n    \\",
-                    \\"id\\": 7
-                  },
-                  {
-                    \\"type\\": 2,
-                    \\"tagName\\": \\"meta\\",
-                    \\"attributes\\": {
-                      \\"name\\": \\"viewport\\",
-                      \\"content\\": \\"width=device-width, initial-scale=1.0\\"
-                    },
-                    \\"childNodes\\": [],
-                    \\"id\\": 8
-                  },
-                  {
-                    \\"type\\": 3,
-                    \\"textContent\\": \\"\\\\n    \\",
-                    \\"id\\": 9
-                  },
-                  {
-                    \\"type\\": 2,
-                    \\"tagName\\": \\"meta\\",
-                    \\"attributes\\": {
-                      \\"http-equiv\\": \\"X-UA-Compatible\\",
-                      \\"content\\": \\"ie=edge\\"
-                    },
-                    \\"childNodes\\": [],
-                    \\"id\\": 10
-                  },
-                  {
-                    \\"type\\": 3,
-                    \\"textContent\\": \\"\\\\n    \\",
-                    \\"id\\": 11
-                  },
-                  {
-                    \\"type\\": 2,
-                    \\"tagName\\": \\"title\\",
-                    \\"attributes\\": {},
-                    \\"childNodes\\": [
-                      {
-                        \\"type\\": 3,
-                        \\"textContent\\": \\"ignore fields\\",
-                        \\"id\\": 13
-                      }
-                    ],
-                    \\"id\\": 12
-                  },
-                  {
-                    \\"type\\": 3,
-                    \\"textContent\\": \\"\\\\n  \\",
-                    \\"id\\": 14
-                  }
-                ],
-                \\"id\\": 4
-              },
-              {
-                \\"type\\": 3,
-                \\"textContent\\": \\"\\\\n\\\\n  \\",
-                \\"id\\": 15
-              },
-              {
-                \\"type\\": 2,
-                \\"tagName\\": \\"body\\",
-                \\"attributes\\": {},
-                \\"childNodes\\": [
-                  {
-                    \\"type\\": 3,
-                    \\"textContent\\": \\"\\\\n    \\",
-                    \\"id\\": 17
-                  },
-                  {
-                    \\"type\\": 2,
-                    \\"tagName\\": \\"form\\",
-                    \\"attributes\\": {},
-                    \\"childNodes\\": [
-                      {
-                        \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n      \\",
-                        \\"id\\": 19
-                      },
-                      {
-                        \\"type\\": 2,
-                        \\"tagName\\": \\"label\\",
-                        \\"attributes\\": {},
-                        \\"childNodes\\": [
-                          {
-                            \\"type\\": 3,
-                            \\"textContent\\": \\"Input ignored here: \\",
-                            \\"id\\": 21
-                          },
-                          {
-                            \\"type\\": 2,
-                            \\"tagName\\": \\"input\\",
-                            \\"attributes\\": {
-                              \\"type\\": \\"text\\",
-                              \\"class\\": \\"highlight-ignore\\"
-                            },
-                            \\"childNodes\\": [],
-                            \\"id\\": 22
-                          },
-                          {
-                            \\"type\\": 3,
-                            \\"textContent\\": \\"\\\\n      \\",
-                            \\"id\\": 23
-                          }
-                        ],
-                        \\"id\\": 20
-                      },
-                      {
-                        \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n      \\",
-                        \\"id\\": 24
-                      },
-                      {
-                        \\"type\\": 2,
-                        \\"tagName\\": \\"label\\",
-                        \\"attributes\\": {},
-                        \\"childNodes\\": [
-                          {
-                            \\"type\\": 3,
-                            \\"textContent\\": \\"Input ignored by selector here: \\",
-                            \\"id\\": 26
-                          },
-                          {
-                            \\"type\\": 2,
-                            \\"tagName\\": \\"input\\",
-                            \\"attributes\\": {
-                              \\"type\\": \\"text\\",
-                              \\"data-rr-ignore\\": \\"\\"
-                            },
-                            \\"childNodes\\": [],
-                            \\"id\\": 27
-                          },
-                          {
-                            \\"type\\": 3,
-                            \\"textContent\\": \\"\\\\n      \\",
-                            \\"id\\": 28
-                          }
-                        ],
-                        \\"id\\": 25
-                      },
-                      {
-                        \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n      \\",
-                        \\"id\\": 29
-                      },
-                      {
-                        \\"type\\": 2,
-                        \\"tagName\\": \\"label\\",
-                        \\"attributes\\": {},
-                        \\"childNodes\\": [
-                          {
-                            \\"type\\": 3,
-                            \\"textContent\\": \\"Input not ignored here: \\",
-                            \\"id\\": 31
-                          },
-                          {
-                            \\"type\\": 2,
-                            \\"tagName\\": \\"input\\",
-                            \\"attributes\\": {
-                              \\"type\\": \\"text\\",
-                              \\"class\\": \\"dont-ignore\\"
-                            },
-                            \\"childNodes\\": [],
-                            \\"id\\": 32
-                          },
-                          {
-                            \\"type\\": 3,
-                            \\"textContent\\": \\"\\\\n      \\",
-                            \\"id\\": 33
-                          }
-                        ],
-                        \\"id\\": 30
-                      },
-                      {
-                        \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n    \\",
-                        \\"id\\": 34
-                      }
-                    ],
-                    \\"id\\": 18
-                  },
-                  {
-                    \\"type\\": 3,
-                    \\"textContent\\": \\"\\\\n  \\\\n    \\",
-                    \\"id\\": 35
-                  },
-                  {
-                    \\"type\\": 2,
-                    \\"tagName\\": \\"script\\",
-                    \\"attributes\\": {},
-                    \\"childNodes\\": [
-                      {
-                        \\"type\\": 3,
-                        \\"textContent\\": \\"SCRIPT_PLACEHOLDER\\",
-                        \\"id\\": 37
-                      }
-                    ],
-                    \\"id\\": 36
-                  },
-                  {
-                    \\"type\\": 3,
-                    \\"textContent\\": \\"\\\\n    \\\\n    \\\\n\\\\n\\",
-                    \\"id\\": 38
-                  }
-                ],
-                \\"id\\": 16
-              }
-            ],
-            \\"id\\": 3
-          }
-        ],
-        \\"id\\": 1
-      },
-      \\"initialOffset\\": {
-        \\"left\\": 0,
-        \\"top\\": 0
-      }
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 2,
-      \\"type\\": 5,
-      \\"id\\": 22
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 2,
-      \\"type\\": 6,
-      \\"id\\": 22
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 2,
-      \\"type\\": 5,
-      \\"id\\": 27
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 2,
-      \\"type\\": 6,
-      \\"id\\": 27
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 2,
-      \\"type\\": 5,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"n\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"no\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"not\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"not \\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"not s\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"not se\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"not sec\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"not secr\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"not secre\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 5,
-      \\"text\\": \\"not secret\\",
-      \\"isChecked\\": false,
-      \\"id\\": 32
     }
   }
 ]"
@@ -11835,34 +11210,6 @@ exports[`record integration tests > should record canvas mutations 1`] = `
         \\"left\\": 0,
         \\"top\\": 0
       }
-    }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 9,
-      \\"id\\": 16,
-      \\"type\\": 0,
-      \\"commands\\": [
-        {
-          \\"property\\": \\"moveTo\\",
-          \\"args\\": [
-            0,
-            0
-          ]
-        },
-        {
-          \\"property\\": \\"lineTo\\",
-          \\"args\\": [
-            200,
-            100
-          ]
-        },
-        {
-          \\"property\\": \\"stroke\\",
-          \\"args\\": []
-        }
-      ]
     }
   }
 ]"
@@ -16984,31 +16331,6 @@ exports[`record integration tests > should record webgl canvas mutations 1`] = `
         \\"top\\": 0
       }
     }
-  },
-  {
-    \\"type\\": 3,
-    \\"data\\": {
-      \\"source\\": 9,
-      \\"id\\": 16,
-      \\"type\\": 1,
-      \\"commands\\": [
-        {
-          \\"property\\": \\"clearColor\\",
-          \\"args\\": [
-            1,
-            0,
-            0,
-            1
-          ]
-        },
-        {
-          \\"property\\": \\"clear\\",
-          \\"args\\": [
-            16384
-          ]
-        }
-      ]
-    }
   }
 ]"
 `;
@@ -17145,12 +16467,14 @@ exports[`record integration tests > should unmask texts using maskTextFn 1`] = `
                     \\"type\\": 2,
                     \\"tagName\\": \\"p\\",
                     \\"attributes\\": {
-                      \\"class\\": \\"rr-mask\\"
+                      \\"class\\": \\"highlight-mask\\",
+                      \\"rr_width\\": \\"1904px\\",
+                      \\"rr_height\\": \\"18px\\"
                     },
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"****1\\",
+                        \\"textContent\\": \\"1de8c\\",
                         \\"id\\": 19
                       }
                     ],
@@ -17165,12 +16489,14 @@ exports[`record integration tests > should unmask texts using maskTextFn 1`] = `
                     \\"type\\": 2,
                     \\"tagName\\": \\"div\\",
                     \\"attributes\\": {
-                      \\"class\\": \\"rr-mask\\"
+                      \\"class\\": \\"highlight-mask\\",
+                      \\"rr_width\\": \\"1904px\\",
+                      \\"rr_height\\": \\"18px\\"
                     },
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n      \\",
+                        \\"textContent\\": \\"      \\",
                         \\"id\\": 22
                       },
                       {
@@ -17180,7 +16506,7 @@ exports[`record integration tests > should unmask texts using maskTextFn 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"****2\\",
+                            \\"textContent\\": \\"j24f8\\",
                             \\"id\\": 24
                           }
                         ],
@@ -17188,7 +16514,7 @@ exports[`record integration tests > should unmask texts using maskTextFn 1`] = `
                       },
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"\\\\n    \\",
+                        \\"textContent\\": \\"    \\",
                         \\"id\\": 25
                       }
                     ],
