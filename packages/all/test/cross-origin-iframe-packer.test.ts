@@ -100,6 +100,9 @@ const setup = function (
     await ctx.page.goto('about:blank');
     await ctx.page.setContent(
       content.replace(/\{SERVER_URL\}/g, ctx.serverURL),
+      // wait for the cross-origin iframe to finish loading so the recorded
+      // full snapshot deterministically captures the loaded document
+      { waitUntil: 'networkidle0' },
     );
     ctx.events = [];
     await ctx.page.exposeFunction('emit', (e: eventWithTime) => {
