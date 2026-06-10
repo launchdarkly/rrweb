@@ -1,7 +1,4 @@
-import type {
-  ICanvas,
-  Mirror,
-} from 'rrweb-snapshot';
+import type { ICanvas, Mirror } from 'rrweb-snapshot';
 import type {
   blockClass,
   canvasManagerMutationCallback,

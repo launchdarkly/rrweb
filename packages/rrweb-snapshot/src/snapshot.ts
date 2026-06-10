@@ -1461,7 +1461,6 @@ function snapshot(
       : maskAllInputs;
   const slimDOMOptions = slimDOMDefaults(slimDOM);
 
-
   return serializeNodeWithId(n, {
     doc: n,
     mirror,

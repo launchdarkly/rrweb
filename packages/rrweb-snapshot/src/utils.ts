@@ -262,14 +262,14 @@ export function createMirror(): Mirror {
 /* Start of Highlight Code */
 // overwritten from rrweb
 export function maskInputValue({
-                                 element,
-                                 maskInputOptions,
-                                 tagName,
-                                 type,
-                                 value,
-                                 overwriteRecord,
-                                 maskInputFn,
-                               }: {
+  element,
+  maskInputOptions,
+  tagName,
+  type,
+  value,
+  overwriteRecord,
+  maskInputFn,
+}: {
   element: HTMLElement;
   maskInputOptions: MaskInputOptions;
   tagName: string;
@@ -285,7 +285,7 @@ export function maskInputValue({
       maskInputOptions,
       tagName,
       type,
-      overwriteRecord
+      overwriteRecord,
     })
   ) {
     if (maskInputFn) {
@@ -631,7 +631,9 @@ export function obfuscateText(text: string): string {
       ?.split(' ')
       .map((word) => {
         if (!word) return '';
-        return Math.random().toString(20).substring(2, word.length + 2)
+        return Math.random()
+          .toString(20)
+          .substring(2, word.length + 2);
       })
       .join(' ') || '';
   return text;

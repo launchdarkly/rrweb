@@ -121,7 +121,6 @@ async function buildFile({
   console.log(`${filename}.map`);
 }
 
-
 // @highlight-run workspace packages live in ../node_modules when this repo is
 // consumed as a workspace member of launchdarkly/observability-sdk, and in
 // ./node_modules when the repo is installed standalone (CI, local checkout).
@@ -160,15 +159,21 @@ export default function (
       alias: [
         {
           find: '@rrweb/types',
-          replacement: hlResolve('@highlight-run/rrweb-types/dist/rrweb-types.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-types/dist/rrweb-types.js',
+          ),
         },
         {
           find: '@rrweb/utils',
-          replacement: hlResolve('@highlight-run/rrweb-utils/dist/rrweb-utils.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-utils/dist/rrweb-utils.js',
+          ),
         },
         {
           find: 'rrweb-snapshot',
-          replacement: hlResolve('@highlight-run/rrweb-snapshot/dist/rrweb-snapshot.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-snapshot/dist/rrweb-snapshot.js',
+          ),
         },
         {
           find: 'rrdom',
@@ -176,11 +181,15 @@ export default function (
         },
         {
           find: '@rrweb/rrweb-plugin-sequential-id-record',
-          replacement: hlResolve('@highlight-run/rrweb-rrweb-plugin-sequential-id-record/dist/rrweb-rrweb-plugin-sequential-id-record.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-rrweb-plugin-sequential-id-record/dist/rrweb-rrweb-plugin-sequential-id-record.js',
+          ),
         },
         {
           find: '@rrweb/rrweb-plugin-console-record',
-          replacement: hlResolve('@highlight-run/rrweb-rrweb-plugin-console-record/dist/rrweb-rrweb-plugin-console-record.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-rrweb-plugin-console-record/dist/rrweb-rrweb-plugin-console-record.js',
+          ),
         },
         // bare import “rrweb” → package root “dist/”
         {
@@ -194,23 +203,33 @@ export default function (
         },
         {
           find: /^@rrweb\/record$/,
-          replacement: hlResolve('@highlight-run/rrweb-record/dist/rrweb-record.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-record/dist/rrweb-record.js',
+          ),
         },
         {
           find: /^rrweb-player$/,
-          replacement: hlResolve('@highlight-run/rrweb-player/dist/rrweb-player.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-player/dist/rrweb-player.js',
+          ),
         },
         {
           find: '@rrweb/rrweb-plugin-console-replay',
-          replacement: hlResolve('@highlight-run/rrweb-rrweb-plugin-console-replay/dist/rrweb-rrweb-plugin-console-replay.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-rrweb-plugin-console-replay/dist/rrweb-rrweb-plugin-console-replay.js',
+          ),
         },
         {
           find: '@rrweb/rrweb-plugin-network-record',
-          replacement: hlResolve('@highlight-run/rrweb-rrweb-plugin-network-record/dist/rrweb-rrweb-plugin-network-record.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-rrweb-plugin-network-record/dist/rrweb-rrweb-plugin-network-record.js',
+          ),
         },
         {
           find: /^@rrweb\/replay$/,
-          replacement: hlResolve('@highlight-run/rrweb-replay/dist/rrweb-replay.js'),
+          replacement: hlResolve(
+            '@highlight-run/rrweb-replay/dist/rrweb-replay.js',
+          ),
         },
         {
           find: /^@rrweb\/replay\/(.*)$/,

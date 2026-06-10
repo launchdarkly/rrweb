@@ -404,7 +404,7 @@ export class Replayer {
       (e) => e.type === EventType.FullSnapshot,
     );
     if (firstMeta) {
-      const { width, height } = firstMeta.data ;
+      const { width, height } = firstMeta.data;
       setTimeout(() => {
         this.emitter.emit(ReplayerEvents.Resize, {
           width,
@@ -1000,7 +1000,7 @@ export class Replayer {
     // Clear the newDocumentQueue since mirror.reset() will invalidate all the parentIds
     // in the queue, and the documents will be re-added during the rebuild process via
     // applyEventsSynchronously
-    this.newDocumentQueue = []; 
+    this.newDocumentQueue = [];
     rebuild(event.data.node, {
       doc: this.iframe.contentDocument,
       afterAppend,
@@ -2032,7 +2032,7 @@ export class Replayer {
                 const svp = styleValues[s] as styleValueWithPriority;
                 targetEl.style.setProperty(s, svp[0], svp[1]);
               } else {
-                const svs = styleValues[s] ;
+                const svs = styleValues[s];
                 targetEl.style.setProperty(s, svs);
               }
             }

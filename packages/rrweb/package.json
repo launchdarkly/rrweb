@@ -73,6 +73,7 @@
     "@types/node": "^18.15.11",
     "@types/offscreencanvas": "^2019.6.4",
     "construct-style-sheets-polyfill": "^3.1.0",
+    "cross-env": "^7.0.3",
     "fast-mhtml": "^1.1.9",
     "identity-obj-proxy": "^3.0.0",
     "ignore-styles": "^5.0.1",

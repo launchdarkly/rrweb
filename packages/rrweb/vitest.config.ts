@@ -89,7 +89,10 @@ export default mergeConfig(
     },
     test: {
       globals: true,
-      exclude: [...configDefaults.exclude, 'test/record/monkey-patched.test.ts'],
+      exclude: [
+        ...configDefaults.exclude,
+        'test/record/monkey-patched.test.ts',
+      ],
     },
   }),
 );
