@@ -1,12 +1,15 @@
 {
   "name": "@highlight-run/rrweb-packer",
-  "version": "2.0.0-alpha.18",
+  "version": "2.0.0-lambda.5",
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
-    "@highlight-run/rrweb",
-    "@highlight-run/rrweb-packer"
+    "devtools",
+    "product-analytics",
+    "real-user-monitoring",
+    "rrweb",
+    "@rrweb/packer"
   ],
   "scripts": {
     "dev": "vite build --watch",
@@ -27,19 +30,19 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "./dist/packer.cjs",
-  "module": "./dist/packer.js",
-  "unpkg": "./dist/packer.js",
-  "typings": "dist/packer.d.ts",
+  "main": "./dist/rrweb-packer.cjs",
+  "module": "./dist/rrweb-packer.js",
+  "unpkg": "./dist/rrweb-packer.js",
+  "typings": "dist/rrweb-packer.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/packer.d.ts",
-        "default": "./dist/packer.js"
+        "types": "./dist/rrweb-packer.d.ts",
+        "default": "./dist/rrweb-packer.js"
       },
       "require": {
-        "types": "./dist/packer.d.cts",
-        "default": "./dist/packer.cjs"
+        "types": "./dist/rrweb-packer.d.cts",
+        "default": "./dist/rrweb-packer.cjs"
       }
     },
     "./pack": {
@@ -71,15 +74,14 @@
     "package.json"
   ],
   "devDependencies": {
-    "turbo": "^2.0.5",
-    "typescript": "^5.4.5",
-    "vite": "^5.3.1",
+    "vite": "^6.0.1",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.4.0"
+    "vitest": "^1.4.0",
+    "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@highlight-run/rrweb-types": "workspace:*",
-    "fflate": "^0.4.4"
+    "fflate": "^0.4.4",
+    "@highlight-run/rrweb-types": "workspace:*"
   },
   "browserslist": [
     "supports es6-class"

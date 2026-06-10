@@ -5,8 +5,11 @@
     "access": "public"
   },
   "keywords": [
-    "@highlight-run/rrweb",
-    "@highlight-run/rrweb-utils"
+    "devtools",
+    "product-analytics",
+    "real-user-monitoring",
+    "rrweb",
+    "@rrweb/utils"
   ],
   "scripts": {
     "dev": "vite build --watch",
@@ -25,28 +28,31 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "./dist/utils.umd.cjs",
-  "module": "./dist/utils.js",
-  "unpkg": "./dist/utils.umd.cjs",
+  "main": "./dist/rrweb-utils.umd.cjs",
+  "module": "./dist/rrweb-utils.js",
+  "unpkg": "./dist/rrweb-utils.umd.cjs",
+  "jsdelivr": "./umd/rrweb-utils.js",
   "typings": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/utils.js"
+        "default": "./dist/rrweb-utils.js"
       },
       "require": {
         "types": "./dist/index.d.cts",
-        "default": "./dist/utils.umd.cjs"
+        "default": "./dist/rrweb-utils.umd.cjs"
       }
     }
   },
   "files": [
+    "umd",
     "dist",
     "package.json"
   ],
   "devDependencies": {
-    "vite": "^5.2.8",
+    "vite": "^6.0.1",
     "vite-plugin-dts": "^3.8.1"
-  }
+  },
+  "dependencies": {}
 }

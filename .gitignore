@@ -28,6 +28,7 @@ temp
 # output of `yarn build`
 build
 dist
+umd
 
 # turbo cache
 .turbo

@@ -59,6 +59,10 @@ export type recordOptions<T> = {
   maskTextFn?: MaskTextFn;
   slimDOMOptions?: SlimDOMOptions | 'all' | true;
   ignoreCSSAttributes?: Set<string>;
+  /**
+   * @deprecated Since 2.0.0. This option is still supported, but is planned to
+   * be superseded by future captureAssets asset recording APIs.
+   */
   inlineStylesheet?: boolean;
   hooks?: hooksParam;
   packFn?: PackFn;
@@ -70,6 +74,10 @@ export type recordOptions<T> = {
   recordAfter?: 'DOMContentLoaded' | 'load';
   userTriggeredOnInput?: boolean;
   collectFonts?: boolean;
+  /**
+   * @deprecated Since 2.0.0. This option is still supported, but is planned to
+   * be superseded by future captureAssets asset recording APIs.
+   */
   inlineImages?: boolean;
   inlineVideos?: boolean;
   plugins?: RecordPlugin[];

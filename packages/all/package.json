@@ -1,12 +1,15 @@
 {
   "name": "@highlight-run/rrweb-all",
-  "version": "2.0.0-alpha.18",
+  "version": "2.0.0-lambda.5",
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
-    "@highlight-run/rrweb",
-    "@highlight-run/rrweb-all"
+    "devtools",
+    "product-analytics",
+    "real-user-monitoring",
+    "rrweb",
+    "@rrweb/all"
   ],
   "scripts": {
     "dev": "vite build --watch",
@@ -27,39 +30,42 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "./dist/all.cjs",
-  "module": "./dist/all.js",
-  "unpkg": "./dist/all.umd.cjs",
+  "main": "./dist/rrweb-all.cjs",
+  "module": "./dist/rrweb-all.js",
+  "unpkg": "./dist/rrweb-all.umd.cjs",
+  "jsdelivr": "./umd/rrweb-all.js",
+  "style": "./dist/style.css",
   "typings": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/all.js"
+        "default": "./dist/rrweb-all.js"
       },
       "require": {
         "types": "./dist/index.d.cts",
-        "default": "./dist/all.cjs"
+        "default": "./dist/rrweb-all.cjs"
       }
-    }
+    },
+    "./dist/style.css": "./dist/style.css"
   },
   "files": [
+    "umd",
     "build",
     "dist",
     "package.json"
   ],
   "devDependencies": {
     "puppeteer": "^20.9.0",
-    "turbo": "^2.0.5",
-    "typescript": "^5.4.5",
-    "vite": "^5.3.1",
+    "vite": "^6.0.1",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.4.0"
+    "vitest": "^1.4.0",
+    "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@highlight-run/rrweb": "workspace:*",
+    "@highlight-run/rrweb-types": "workspace:*",
     "@highlight-run/rrweb-packer": "workspace:*",
-    "@highlight-run/rrweb-types": "workspace:*"
+    "@highlight-run/rrweb": "workspace:*"
   },
   "browserslist": [
     "supports es6-class"

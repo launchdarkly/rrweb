@@ -5,14 +5,17 @@
     "access": "public"
   },
   "keywords": [
-    "@highlight-run/rrweb",
-    "@highlight-run/rrweb-types"
+    "devtools",
+    "product-analytics",
+    "real-user-monitoring",
+    "rrweb",
+    "@rrweb/types"
   ],
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
+    "build": "tsc -noEmit && vite build",
     "check-types": "tsc -noEmit",
-    "prepublish": "vite build",
+    "prepublish": "tsc -noEmit && vite build",
     "lint": "yarn eslint src/**/*.ts"
   },
   "homepage": "https://github.com/rrweb-io/rrweb/tree/main/packages/@rrweb/types#readme",
@@ -28,6 +31,7 @@
   "main": "./dist/rrweb-types.umd.cjs",
   "module": "./dist/rrweb-types.js",
   "unpkg": "./dist/rrweb-types.umd.cjs",
+  "jsdelivr": "./umd/rrweb-types.js",
   "typings": "dist/index.d.ts",
   "exports": {
     ".": {
@@ -42,12 +46,12 @@
     }
   },
   "files": [
+    "umd",
     "dist",
     "package.json"
   ],
   "devDependencies": {
-    "turbo": "^2.0.5",
-    "vite": "^5.3.1",
+    "vite": "^6.0.1",
     "vite-plugin-dts": "^3.9.1"
   },
   "browserslist": [
