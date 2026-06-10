@@ -105,7 +105,9 @@ function record<T = eventWithTime>(
   } = options;
   const dataURLOptions = {
     ...options.dataURLOptions,
-    ...options.sampling?.canvas?.dataURLOptions,
+    ...(typeof options.sampling?.canvas === 'object'
+      ? options.sampling.canvas.dataURLOptions
+      : undefined),
   };
 
   registerErrorHandler(errorHandler);
@@ -304,6 +306,13 @@ function record<T = eventWithTime>(
 
   const processedNodeManager = new ProcessedNodeManager();
 
+  // accept both the upstream shape (sampling.canvas: 'all' | number) and the
+  // fork's extended shape (sampling.canvas: { fps, fpsManual, ... })
+  const canvasSampling =
+    typeof sampling?.canvas === 'object'
+      ? sampling.canvas
+      : { fps: sampling?.canvas };
+
   canvasManager = new CanvasManager({
     recordCanvas,
     recordLocalVideos: inlineImages,
@@ -313,13 +322,13 @@ function record<T = eventWithTime>(
     blockClass,
     blockSelector,
     mirror,
-    sampling: sampling?.canvas?.fps,
-    samplingManual: sampling?.canvas?.fpsManual,
-    clearWebGLBuffer: sampling?.canvas?.clearWebGLBuffer,
-    initialSnapshotDelay: sampling?.canvas?.initialSnapshotDelay,
+    sampling: canvasSampling.fps,
+    samplingManual: canvasSampling.fpsManual,
+    clearWebGLBuffer: canvasSampling.clearWebGLBuffer,
+    initialSnapshotDelay: canvasSampling.initialSnapshotDelay,
     dataURLOptions,
-    resizeFactor: sampling?.canvas?.resizeFactor,
-    maxSnapshotDimension: sampling?.canvas?.maxSnapshotDimension,
+    resizeFactor: canvasSampling.resizeFactor,
+    maxSnapshotDimension: canvasSampling.maxSnapshotDimension,
     logger: logger,
   });
 

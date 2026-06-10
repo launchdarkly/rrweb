@@ -340,7 +340,11 @@ export type SamplingStrategy = Partial<{
    * number between 1 and 60, will record an image snapshots in a web-worker a (maximum) number of times per second.
    *                          Number only supported where [`OffscreenCanvas`](http://mdn.io/offscreencanvas) is supported.
    */
-  canvas: CanvasSamplingStrategy;
+  /**
+   * Upstream rrweb accepts 'all' | number here; the fork's extended options
+   * use the CanvasSamplingStrategy object. Both shapes are supported.
+   */
+  canvas: CanvasSamplingStrategy | 'all' | number;
 }>;
 
 export interface ICrossOriginIframeMirror {

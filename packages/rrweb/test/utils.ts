@@ -807,6 +807,9 @@ export function generateRecordSnippet(options: recordOptions<eventWithTime>) {
     maskTextFn: ${options.maskTextFn},
     maskInputFn: ${options.maskInputFn},
     recordCanvas: ${options.recordCanvas},
+    // default to 'none' in tests: the fork's default privacy mode obfuscates
+    // text with randomized output, which can never match fixed snapshots
+    privacySetting: ${JSON.stringify(options.privacySetting ?? 'none')},
     recordAfter: '${options.recordAfter || 'load'}',
     inlineImages: ${options.inlineImages},
     plugins: ${options.plugins}
