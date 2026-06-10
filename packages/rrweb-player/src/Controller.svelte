@@ -291,7 +291,7 @@
     speedState = replayer.speedService.state.value;
     replayer.on(
       'state-change',
-      (states) => {
+      (states: unknown) => {
         const { player, speed } = states as { player?: PlayerMachineState; speed?: SpeedMachineState };
         if (player?.value && playerState !== player.value) {
           playerState = player.value;

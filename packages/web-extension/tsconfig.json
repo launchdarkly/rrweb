@@ -8,7 +8,19 @@
     "incremental": true,
     "resolveJsonModule": true,
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["src/*"],
+      "rrweb": [
+        "../../../node_modules/@highlight-run/rrweb",
+        "../../node_modules/@highlight-run/rrweb"
+      ],
+      "rrweb-player": [
+        "../../../node_modules/@highlight-run/rrweb-player",
+        "../../node_modules/@highlight-run/rrweb-player"
+      ],
+      "@rrweb/types": [
+        "../../../node_modules/@highlight-run/rrweb-types",
+        "../../node_modules/@highlight-run/rrweb-types"
+      ]
     },
     "jsx": "react-jsx"
   },
