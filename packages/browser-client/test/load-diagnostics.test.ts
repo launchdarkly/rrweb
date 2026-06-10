@@ -162,7 +162,8 @@ beforeEach(() => {
   sessionStorage.clear();
   document.body.innerHTML = '';
   setCurrentScript(null);
-  window.history.replaceState({}, '', 'http://localhost/');
+  // happy-dom >= 20 enforces same-origin history URLs; use a relative path
+  window.history.replaceState({}, '', '/');
 });
 
 afterEach(() => {
