@@ -123,6 +123,10 @@ describe('integration tests', function (this: ISuite) {
     }
     // monkey patching breaks rebuild code
     if (html.filePath.includes('monkey-patched-elements.html')) continue;
+    // the fork's default-privacy obfuscation (obfuscateText) produces
+    // randomized text that can never match a fixed snapshot; masking is
+    // covered deterministically in utils.test.ts
+    if (html.filePath.includes('mask-text.html')) continue;
 
     const title = '[html file]: ' + html.filePath;
     it(title, async () => {

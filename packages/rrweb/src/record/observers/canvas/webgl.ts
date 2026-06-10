@@ -50,7 +50,7 @@ function patchGLPrototype(
             saveWebGLVar(result, win, this);
             if (
               'tagName' in this.canvas &&!isBlocked(
-                this.canvas as HTMLCanvasElement,
+                this.canvas,
                 blockClass,
                 blockSelector,
                 true,
@@ -63,7 +63,7 @@ function patchGLPrototype(
                 args: recordArgs,
               };
               // TODO: this could potentially also be an OffscreenCanvas as well as HTMLCanvasElement
-              cb(this.canvas as HTMLCanvasElement, mutation);
+              cb(this.canvas, mutation);
             }
 
             return result;

@@ -412,7 +412,7 @@ export class CanvasManager {
         lastSnapshotTime &&
         timestamp - lastSnapshotTime < timeBetweenSnapshots
       ) {
-        rafId = requestAnimationFrame(takeSnapshots);
+        rafId = requestAnimationFrame((t) => void takeSnapshots(t));
         return;
       }
       lastSnapshotTime = timestamp;
@@ -535,10 +535,10 @@ export class CanvasManager {
       );
       await Promise.all(promises).catch(console.error);
 
-      rafId = requestAnimationFrame(takeSnapshots);
+      rafId = requestAnimationFrame((t) => void takeSnapshots(t));
     };
 
-    rafId = requestAnimationFrame(takeSnapshots);
+    rafId = requestAnimationFrame((t) => void takeSnapshots(t));
     this.resetObservers = () => {
       canvasContextReset();
       if (rafId) {

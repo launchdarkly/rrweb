@@ -53,7 +53,7 @@ export function wrapCanvasContextDrawImage(
       if (args.length === 2 && isHTMLImageElement(image)) {
         args.push(image.naturalWidth || image.width, image.naturalHeight || image.height);
       }
-      (originalDrawImage as any)(image, ...args);
+      (originalDrawImage as (...a: unknown[]) => void)(image, ...args);
     };
 
     // If the image is an HTMLImageElement and not yet loaded, wait for it

@@ -275,6 +275,7 @@ export function buildFromNode(
       return null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- domMirror's type resolves through the @highlight-run-aliased d.ts and degrades to any
   let sn: serializedNodeWithId | null = domMirror.getMeta(node);
 
   if (rrdom instanceof RRDocument) {

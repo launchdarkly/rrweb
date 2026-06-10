@@ -440,6 +440,7 @@ export function start(
 
   let startWhenVisible = false;
   if (!document.hidden) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- record()'s type resolves through the @highlight-run-aliased d.ts and degrades to any
     rrwebStopFn = record(recordOptions as recordOptions<eventWithTime>);
   } else {
     startWhenVisible = true;
@@ -449,6 +450,7 @@ export function start(
       'visibilitychange',
       () => {
         if (!document.hidden && startWhenVisible) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- record()'s type resolves through the @highlight-run-aliased d.ts and degrades to any
           rrwebStopFn = record(recordOptions as recordOptions<eventWithTime>);
           startWhenVisible = false;
           return;
