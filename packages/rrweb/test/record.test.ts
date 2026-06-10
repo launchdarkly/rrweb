@@ -565,6 +565,8 @@ describe('record', function (this: ISuite) {
         const { rrweb, emit } = window as unknown as IWindow;
         rrweb.record({
           emit,
+          // deterministic output for snapshots (fork default obfuscates text)
+          privacySetting: 'none',
         });
 
         setTimeout(() => {
@@ -639,6 +641,8 @@ describe('record', function (this: ISuite) {
       const { rrweb, emit } = window as unknown as IWindow;
       rrweb.record({
         emit,
+        // deterministic output for snapshots (fork default obfuscates text)
+        privacySetting: 'none',
       });
 
       setTimeout(() => {
@@ -673,6 +677,8 @@ describe('record', function (this: ISuite) {
         const { rrweb, emit } = window as unknown as IWindow;
         rrweb.record({
           emit,
+          // deterministic output for snapshots (fork default obfuscates text)
+          privacySetting: 'none',
         });
 
         setTimeout(() => {
@@ -960,6 +966,8 @@ describe('record', function (this: ISuite) {
 
         (window as unknown as IWindow).rrweb.record({
           emit: (window.top as unknown as IWindow).emit,
+          // deterministic output for snapshots (fork default obfuscates text)
+          privacySetting: 'none',
         });
 
         // Make incremental changes to shadow dom.

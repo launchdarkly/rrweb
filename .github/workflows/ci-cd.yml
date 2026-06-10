@@ -90,9 +90,8 @@ jobs:
         env:
           PUPPETEER_SKIP_DOWNLOAD: true
 
-      - name: Build rrweb-snapshot
-        run: yarn build
-        working-directory: packages/rrweb-snapshot
+      - name: Build rrweb-snapshot and rrweb (with workspace deps)
+        run: NODE_OPTIONS='--max-old-space-size=4096' yarn turbo run prepublish --filter=@highlight-run/rrweb-snapshot --filter=@highlight-run/rrweb
 
       - name: Install Playwright WebKit browser
         run: npx playwright install webkit && npx playwright install-deps webkit
@@ -100,10 +99,6 @@ jobs:
 
       - name: Run rrweb-snapshot WebKit tests
         run: BROWSER=webkit yarn workspace @highlight-run/rrweb-snapshot vitest run --config vitest.config.webkit.ts
-
-      - name: Build rrweb
-        run: yarn build
-        working-directory: packages/rrweb
 
       - name: Run rrweb WebKit tests
         run: BROWSER=webkit yarn workspace @highlight-run/rrweb vitest run --config vitest.config.webkit.ts

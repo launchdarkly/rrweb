@@ -804,7 +804,11 @@ export function generateRecordSnippet(options: recordOptions<eventWithTime>) {
     maskInputOptions: ${JSON.stringify(options.maskAllInputs)},
     userTriggeredOnInput: ${options.userTriggeredOnInput},
     maskTextClass: ${options.maskTextClass},
-    maskTextFn: ${options.maskTextFn},
+    // the fork defaults maskTextFn to randomized obfuscateText; use a
+    // deterministic masker in tests unless the test provides its own
+    maskTextFn: ${
+      options.maskTextFn ?? "(text) => text.replace(/[^\\s]/g, '*')"
+    },
     maskInputFn: ${options.maskInputFn},
     recordCanvas: ${options.recordCanvas},
     // default to 'none' in tests: the fork's default privacy mode obfuscates

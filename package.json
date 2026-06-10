@@ -62,5 +62,9 @@
     "defaults",
     "not op_mini all"
   ],
-  "packageManager": "yarn@4.9.1"
+  "packageManager": "yarn@4.9.1",
+  "resolutions": {
+    "cssom": "npm:rrweb-cssom@0.6.0",
+    "@types/dom-webcodecs": "0.1.5"
+  }
 }
