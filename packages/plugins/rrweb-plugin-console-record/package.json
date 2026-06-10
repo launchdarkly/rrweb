@@ -31,7 +31,8 @@
     "test:watch": "vitest watch",
     "build": "tsc -noEmit && vite build",
     "check-types": "tsc -noEmit",
-    "prepublish": "tsc -noEmit && vite build"
+    "prepublish": "tsc -noEmit && vite build",
+    "test:update": "vitest run -u"
   },
   "repository": {
     "type": "git",

@@ -19,7 +19,8 @@
     "test:watch": "vitest watch",
     "check-types": "tsc -noEmit",
     "prepublish": "tsc -noEmit && vite build",
-    "lint": "npx eslint src/**/*.ts"
+    "lint": "npx eslint src/**/*.ts",
+    "test:update": "yarn build && vitest run -u"
   },
   "homepage": "https://github.com/rrweb-io/rrweb/tree/main/packages/@rrweb/record#readme",
   "bugs": {
