@@ -9168,6 +9168,417 @@ exports[`record integration tests > should not record blocked elements dynamical
 ]"
 `;
 
+exports[`record integration tests > should not record input events on ignored elements 1`] = `
+"[
+  {
+    \\"type\\": 0,
+    \\"data\\": {}
+  },
+  {
+    \\"type\\": 1,
+    \\"data\\": {}
+  },
+  {
+    \\"type\\": 4,
+    \\"data\\": {
+      \\"href\\": \\"about:blank\\",
+      \\"width\\": 1920,
+      \\"height\\": 1080
+    }
+  },
+  {
+    \\"type\\": 2,
+    \\"data\\": {
+      \\"node\\": {
+        \\"type\\": 0,
+        \\"childNodes\\": [
+          {
+            \\"type\\": 1,
+            \\"name\\": \\"html\\",
+            \\"publicId\\": \\"\\",
+            \\"systemId\\": \\"\\",
+            \\"id\\": 2
+          },
+          {
+            \\"type\\": 2,
+            \\"tagName\\": \\"html\\",
+            \\"attributes\\": {
+              \\"lang\\": \\"en\\"
+            },
+            \\"childNodes\\": [
+              {
+                \\"type\\": 2,
+                \\"tagName\\": \\"head\\",
+                \\"attributes\\": {},
+                \\"childNodes\\": [
+                  {
+                    \\"type\\": 3,
+                    \\"textContent\\": \\"\\\\n    \\",
+                    \\"id\\": 5
+                  },
+                  {
+                    \\"type\\": 2,
+                    \\"tagName\\": \\"meta\\",
+                    \\"attributes\\": {
+                      \\"charset\\": \\"UTF-8\\"
+                    },
+                    \\"childNodes\\": [],
+                    \\"id\\": 6
+                  },
+                  {
+                    \\"type\\": 3,
+                    \\"textContent\\": \\"\\\\n    \\",
+                    \\"id\\": 7
+                  },
+                  {
+                    \\"type\\": 2,
+                    \\"tagName\\": \\"meta\\",
+                    \\"attributes\\": {
+                      \\"name\\": \\"viewport\\",
+                      \\"content\\": \\"width=device-width, initial-scale=1.0\\"
+                    },
+                    \\"childNodes\\": [],
+                    \\"id\\": 8
+                  },
+                  {
+                    \\"type\\": 3,
+                    \\"textContent\\": \\"\\\\n    \\",
+                    \\"id\\": 9
+                  },
+                  {
+                    \\"type\\": 2,
+                    \\"tagName\\": \\"meta\\",
+                    \\"attributes\\": {
+                      \\"http-equiv\\": \\"X-UA-Compatible\\",
+                      \\"content\\": \\"ie=edge\\"
+                    },
+                    \\"childNodes\\": [],
+                    \\"id\\": 10
+                  },
+                  {
+                    \\"type\\": 3,
+                    \\"textContent\\": \\"\\\\n    \\",
+                    \\"id\\": 11
+                  },
+                  {
+                    \\"type\\": 2,
+                    \\"tagName\\": \\"title\\",
+                    \\"attributes\\": {},
+                    \\"childNodes\\": [
+                      {
+                        \\"type\\": 3,
+                        \\"textContent\\": \\"ignore fields\\",
+                        \\"id\\": 13
+                      }
+                    ],
+                    \\"id\\": 12
+                  },
+                  {
+                    \\"type\\": 3,
+                    \\"textContent\\": \\"\\\\n  \\",
+                    \\"id\\": 14
+                  }
+                ],
+                \\"id\\": 4
+              },
+              {
+                \\"type\\": 3,
+                \\"textContent\\": \\"\\\\n\\\\n  \\",
+                \\"id\\": 15
+              },
+              {
+                \\"type\\": 2,
+                \\"tagName\\": \\"body\\",
+                \\"attributes\\": {},
+                \\"childNodes\\": [
+                  {
+                    \\"type\\": 3,
+                    \\"textContent\\": \\"\\\\n    \\",
+                    \\"id\\": 17
+                  },
+                  {
+                    \\"type\\": 2,
+                    \\"tagName\\": \\"form\\",
+                    \\"attributes\\": {},
+                    \\"childNodes\\": [
+                      {
+                        \\"type\\": 3,
+                        \\"textContent\\": \\"\\\\n      \\",
+                        \\"id\\": 19
+                      },
+                      {
+                        \\"type\\": 2,
+                        \\"tagName\\": \\"label\\",
+                        \\"attributes\\": {},
+                        \\"childNodes\\": [
+                          {
+                            \\"type\\": 3,
+                            \\"textContent\\": \\"Input ignored here: \\",
+                            \\"id\\": 21
+                          },
+                          {
+                            \\"type\\": 2,
+                            \\"tagName\\": \\"input\\",
+                            \\"attributes\\": {
+                              \\"type\\": \\"text\\",
+                              \\"class\\": \\"highlight-ignore\\"
+                            },
+                            \\"childNodes\\": [],
+                            \\"id\\": 22
+                          },
+                          {
+                            \\"type\\": 3,
+                            \\"textContent\\": \\"\\\\n      \\",
+                            \\"id\\": 23
+                          }
+                        ],
+                        \\"id\\": 20
+                      },
+                      {
+                        \\"type\\": 3,
+                        \\"textContent\\": \\"\\\\n      \\",
+                        \\"id\\": 24
+                      },
+                      {
+                        \\"type\\": 2,
+                        \\"tagName\\": \\"label\\",
+                        \\"attributes\\": {},
+                        \\"childNodes\\": [
+                          {
+                            \\"type\\": 3,
+                            \\"textContent\\": \\"Input ignored by selector here: \\",
+                            \\"id\\": 26
+                          },
+                          {
+                            \\"type\\": 2,
+                            \\"tagName\\": \\"input\\",
+                            \\"attributes\\": {
+                              \\"type\\": \\"text\\",
+                              \\"data-rr-ignore\\": \\"\\"
+                            },
+                            \\"childNodes\\": [],
+                            \\"id\\": 27
+                          },
+                          {
+                            \\"type\\": 3,
+                            \\"textContent\\": \\"\\\\n      \\",
+                            \\"id\\": 28
+                          }
+                        ],
+                        \\"id\\": 25
+                      },
+                      {
+                        \\"type\\": 3,
+                        \\"textContent\\": \\"\\\\n      \\",
+                        \\"id\\": 29
+                      },
+                      {
+                        \\"type\\": 2,
+                        \\"tagName\\": \\"label\\",
+                        \\"attributes\\": {},
+                        \\"childNodes\\": [
+                          {
+                            \\"type\\": 3,
+                            \\"textContent\\": \\"Input not ignored here: \\",
+                            \\"id\\": 31
+                          },
+                          {
+                            \\"type\\": 2,
+                            \\"tagName\\": \\"input\\",
+                            \\"attributes\\": {
+                              \\"type\\": \\"text\\",
+                              \\"class\\": \\"dont-ignore\\"
+                            },
+                            \\"childNodes\\": [],
+                            \\"id\\": 32
+                          },
+                          {
+                            \\"type\\": 3,
+                            \\"textContent\\": \\"\\\\n      \\",
+                            \\"id\\": 33
+                          }
+                        ],
+                        \\"id\\": 30
+                      },
+                      {
+                        \\"type\\": 3,
+                        \\"textContent\\": \\"\\\\n    \\",
+                        \\"id\\": 34
+                      }
+                    ],
+                    \\"id\\": 18
+                  },
+                  {
+                    \\"type\\": 3,
+                    \\"textContent\\": \\"\\\\n  \\\\n    \\",
+                    \\"id\\": 35
+                  },
+                  {
+                    \\"type\\": 2,
+                    \\"tagName\\": \\"script\\",
+                    \\"attributes\\": {},
+                    \\"childNodes\\": [
+                      {
+                        \\"type\\": 3,
+                        \\"textContent\\": \\"SCRIPT_PLACEHOLDER\\",
+                        \\"id\\": 37
+                      }
+                    ],
+                    \\"id\\": 36
+                  },
+                  {
+                    \\"type\\": 3,
+                    \\"textContent\\": \\"\\\\n    \\\\n    \\\\n\\\\n\\",
+                    \\"id\\": 38
+                  }
+                ],
+                \\"id\\": 16
+              }
+            ],
+            \\"id\\": 3
+          }
+        ],
+        \\"id\\": 1
+      },
+      \\"initialOffset\\": {
+        \\"left\\": 0,
+        \\"top\\": 0
+      }
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 2,
+      \\"type\\": 5,
+      \\"id\\": 22
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 2,
+      \\"type\\": 6,
+      \\"id\\": 22
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 2,
+      \\"type\\": 5,
+      \\"id\\": 27
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 2,
+      \\"type\\": 6,
+      \\"id\\": 27
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 2,
+      \\"type\\": 5,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"n\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"no\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"not\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"not \\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"not s\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"not se\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"not sec\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"not secr\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"not secre\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  },
+  {
+    \\"type\\": 3,
+    \\"data\\": {
+      \\"source\\": 5,
+      \\"text\\": \\"not secret\\",
+      \\"isChecked\\": false,
+      \\"id\\": 32
+    }
+  }
+]"
+`;
+
 exports[`record integration tests > should not record input values if dynamically added and maskAllInputs is true 1`] = `
 "[
   {
