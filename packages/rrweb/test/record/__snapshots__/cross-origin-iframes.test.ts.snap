@@ -243,7 +243,7 @@ exports[`cross origin iframes > audio.html > should emit contents of iframe once
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"5 c0j84g 49 db80gje\\",
+                            \\"textContent\\": \\"1 minute of silence\\",
                             \\"rootId\\": 11,
                             \\"id\\": 31
                           }

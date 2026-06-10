@@ -984,7 +984,7 @@ exports[`record > captures adopted stylesheets in shadow doms and iframe 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"4a 08 9iaee6\\",
+                            \\"textContent\\": \\"h1 in iframe\\",
                             \\"rootId\\": 20,
                             \\"id\\": 25
                           }
@@ -1620,7 +1620,7 @@ exports[`record > captures mutations on adopted stylesheets 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"1b cj h906ec\\",
+                            \\"textContent\\": \\"h1 in iframe\\",
                             \\"rootId\\": 12,
                             \\"id\\": 17
                           }

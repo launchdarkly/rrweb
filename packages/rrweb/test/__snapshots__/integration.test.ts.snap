@@ -556,7 +556,7 @@ exports[`record integration tests > can mask character data mutations 1`] = `
           \\"nextId\\": null,
           \\"node\\": {
             \\"type\\": 3,
-            \\"textContent\\": \\"2cj hf7a fi68\\",
+            \\"textContent\\": \\"*** **** ****\\",
             \\"id\\": 21
           }
         },
@@ -565,7 +565,7 @@ exports[`record integration tests > can mask character data mutations 1`] = `
           \\"nextId\\": null,
           \\"node\\": {
             \\"type\\": 3,
-            \\"textContent\\": \\"41j6h6j\\",
+            \\"textContent\\": \\"*******\\",
             \\"id\\": 22
           }
         }
@@ -579,7 +579,7 @@ exports[`record integration tests > can mask character data mutations 1`] = `
       \\"texts\\": [
         {
           \\"id\\": 22,
-          \\"value\\": \\"iai2h6 9c8a19e\\"
+          \\"value\\": \\"****** *******\\"
         }
       ],
       \\"attributes\\": [],
@@ -778,7 +778,7 @@ exports[`record integration tests > can mask character data mutations with regex
           \\"nextId\\": null,
           \\"node\\": {
             \\"type\\": 3,
-            \\"textContent\\": \\"a65 1cb9 6502\\",
+            \\"textContent\\": \\"*** **** ****\\",
             \\"id\\": 21
           }
         },
@@ -787,7 +787,7 @@ exports[`record integration tests > can mask character data mutations with regex
           \\"nextId\\": null,
           \\"node\\": {
             \\"type\\": 3,
-            \\"textContent\\": \\"c039heb\\",
+            \\"textContent\\": \\"*******\\",
             \\"id\\": 22
           }
         }
@@ -801,7 +801,7 @@ exports[`record integration tests > can mask character data mutations with regex
       \\"texts\\": [
         {
           \\"id\\": 21,
-          \\"value\\": \\"5dg5b43h0f dejd4f h0 7c0a2j ee0 g7b5 1jgd\\"
+          \\"value\\": \\"********** ****** ** ****** *** **** ****\\"
         }
       ],
       \\"attributes\\": [],
@@ -7557,7 +7557,7 @@ exports[`record integration tests > should mask texts 1`] = `
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"76had\\",
+                        \\"textContent\\": \\"a5aj4\\",
                         \\"id\\": 19
                       }
                     ],
@@ -7589,7 +7589,7 @@ exports[`record integration tests > should mask texts 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"f301i\\",
+                            \\"textContent\\": \\"3a5ic\\",
                             \\"id\\": 24
                           }
                         ],
@@ -7617,7 +7617,7 @@ exports[`record integration tests > should mask texts 1`] = `
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"      \\",
+                        \\"textContent\\": \\"\\\\n      \\",
                         \\"id\\": 28
                       },
                       {
@@ -7627,7 +7627,7 @@ exports[`record integration tests > should mask texts 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"        \\",
+                            \\"textContent\\": \\"\\\\n        \\",
                             \\"id\\": 30
                           },
                           {
@@ -7637,7 +7637,7 @@ exports[`record integration tests > should mask texts 1`] = `
                             \\"childNodes\\": [
                               {
                                 \\"type\\": 3,
-                                \\"textContent\\": \\"996fe\\",
+                                \\"textContent\\": \\"*****\\",
                                 \\"id\\": 32
                               }
                             ],
@@ -7645,7 +7645,7 @@ exports[`record integration tests > should mask texts 1`] = `
                           },
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"      \\",
+                            \\"textContent\\": \\"\\\\n      \\",
                             \\"id\\": 33
                           }
                         ],
@@ -7653,7 +7653,7 @@ exports[`record integration tests > should mask texts 1`] = `
                       },
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"    \\",
+                        \\"textContent\\": \\"\\\\n    \\",
                         \\"id\\": 34
                       }
                     ],
@@ -7859,7 +7859,7 @@ exports[`record integration tests > should mask texts using maskTextFn 1`] = `
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"ije1c\\",
+                        \\"textContent\\": \\"a5aj4\\",
                         \\"id\\": 19
                       }
                     ],
@@ -7891,7 +7891,7 @@ exports[`record integration tests > should mask texts using maskTextFn 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"2aid5\\",
+                            \\"textContent\\": \\"3a5ic\\",
                             \\"id\\": 24
                           }
                         ],
@@ -16474,7 +16474,7 @@ exports[`record integration tests > should unmask texts using maskTextFn 1`] = `
                     \\"childNodes\\": [
                       {
                         \\"type\\": 3,
-                        \\"textContent\\": \\"1de8c\\",
+                        \\"textContent\\": \\"a5aj4\\",
                         \\"id\\": 19
                       }
                     ],
@@ -16506,7 +16506,7 @@ exports[`record integration tests > should unmask texts using maskTextFn 1`] = `
                         \\"childNodes\\": [
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"j24f8\\",
+                            \\"textContent\\": \\"3a5ic\\",
                             \\"id\\": 24
                           }
                         ],
