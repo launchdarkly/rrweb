@@ -50,12 +50,12 @@
   },
   "homepage": "https://github.com/rrweb-io/rrweb#readme",
   "devDependencies": {
+    "@highlight-run/rrweb": "workspace:*",
+    "puppeteer": "^20.9.0",
     "typescript": "^5.4.5",
     "vite": "^6.0.1",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.4.0",
-    "puppeteer": "^20.9.0",
-    "@highlight-run/rrweb": "workspace:*"
+    "vitest": "^1.4.0"
   },
   "peerDependencies": {
     "@highlight-run/rrweb": "workspace:*",

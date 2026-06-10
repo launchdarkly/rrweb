@@ -30,19 +30,19 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "./dist/rrweb-packer.cjs",
-  "module": "./dist/rrweb-packer.js",
-  "unpkg": "./dist/rrweb-packer.js",
-  "typings": "dist/rrweb-packer.d.ts",
+  "main": "./dist/packer.cjs",
+  "module": "./dist/packer.js",
+  "unpkg": "./dist/packer.js",
+  "typings": "dist/packer.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/rrweb-packer.d.ts",
-        "default": "./dist/rrweb-packer.js"
+        "types": "./dist/packer.d.ts",
+        "default": "./dist/packer.js"
       },
       "require": {
-        "types": "./dist/rrweb-packer.d.cts",
-        "default": "./dist/rrweb-packer.cjs"
+        "types": "./dist/packer.d.cts",
+        "default": "./dist/packer.cjs"
       }
     },
     "./pack": {
@@ -74,14 +74,14 @@
     "package.json"
   ],
   "devDependencies": {
+    "typescript": "^5.4.5",
     "vite": "^6.0.1",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.4.0",
-    "typescript": "^5.4.5"
+    "vitest": "^1.4.0"
   },
   "dependencies": {
-    "fflate": "^0.4.4",
-    "@highlight-run/rrweb-types": "workspace:*"
+    "@highlight-run/rrweb-types": "workspace:*",
+    "fflate": "^0.4.4"
   },
   "browserslist": [
     "supports es6-class"

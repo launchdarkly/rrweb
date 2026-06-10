@@ -45,12 +45,12 @@
   },
   "homepage": "https://github.com/rrweb-io/rrweb#readme",
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "vite": "^6.0.1",
-    "vite-plugin-dts": "^3.9.1",
+    "@highlight-run/rrweb": "workspace:*",
     "@highlight-run/rrweb-rrweb-plugin-network-record": "workspace:*",
     "@highlight-run/rrweb-types": "workspace:*",
-    "@highlight-run/rrweb": "workspace:*"
+    "typescript": "^5.4.5",
+    "vite": "^6.0.1",
+    "vite-plugin-dts": "^3.9.1"
   },
   "peerDependencies": {
     "@highlight-run/rrweb": "workspace:*",

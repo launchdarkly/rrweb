@@ -61,6 +61,8 @@
   },
   "homepage": "https://github.com/rrweb-io/rrweb/tree/master/packages/rrweb-snapshot#readme",
   "devDependencies": {
+    "@highlight-run/rrweb-types": "workspace:*",
+    "@highlight-run/rrweb-utils": "workspace:*",
     "@types/jsdom": "^20.0.0",
     "@types/node": "^18.15.11",
     "@types/puppeteer": "^5.4.4",
@@ -71,9 +73,7 @@
     "typescript": "^5.4.5",
     "vite": "^6.0.1",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.4.0",
-    "@highlight-run/rrweb-types": "workspace:*",
-    "@highlight-run/rrweb-utils": "workspace:*"
+    "vitest": "^1.4.0"
   },
   "dependencies": {
     "postcss": "^8.4.38"

@@ -68,11 +68,11 @@
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "websocket-ts": "^2.2.1",
+    "@highlight-run/rrweb": "workspace:*",
     "@highlight-run/rrweb-record": "workspace:*",
     "@highlight-run/rrweb-types": "workspace:*",
     "@highlight-run/rrweb-utils": "workspace:*",
-    "@highlight-run/rrweb": "workspace:*"
+    "websocket-ts": "^2.2.1"
   },
   "browserslist": [
     "supports es6-class"

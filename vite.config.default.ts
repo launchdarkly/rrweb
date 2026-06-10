@@ -121,6 +121,21 @@ async function buildFile({
   console.log(`${filename}.map`);
 }
 
+
+// @highlight-run workspace packages live in ../node_modules when this repo is
+// consumed as a workspace member of launchdarkly/observability-sdk, and in
+// ./node_modules when the repo is installed standalone (CI, local checkout).
+const hlResolve = (sub: string) => {
+  const layouts = [
+    resolve(__dirname, '../node_modules'),
+    resolve(__dirname, 'node_modules'),
+  ];
+  const [scope, name] = sub.split('/');
+  const base =
+    layouts.find((l) => existsSync(resolve(l, scope, name))) ?? layouts[0];
+  return resolve(base, sub);
+};
+
 export default function (
   entry: LibraryOptions['entry'],
   name: LibraryOptions['name'],
@@ -135,117 +150,69 @@ export default function (
       alias: [
         {
           find: '@rrweb/types',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-types/dist/rrweb-types.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-types/dist/rrweb-types.js'),
         },
         {
           find: '@rrweb/utils',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-utils/dist/rrweb-utils.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-utils/dist/rrweb-utils.js'),
         },
         {
           find: 'rrweb-snapshot',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-snapshot/dist/rrweb-snapshot.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-snapshot/dist/rrweb-snapshot.js'),
         },
         {
           find: 'rrdom',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrdom/dist/rrdom.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrdom/dist/rrdom.js'),
         },
         {
           find: '@rrweb/rrweb-plugin-sequential-id-record',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-rrweb-plugin-sequential-id-record/dist/rrweb-rrweb-plugin-sequential-id-record.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-rrweb-plugin-sequential-id-record/dist/rrweb-rrweb-plugin-sequential-id-record.js'),
         },
         {
           find: '@rrweb/rrweb-plugin-console-record',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-rrweb-plugin-console-record/dist/rrweb-rrweb-plugin-console-record.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-rrweb-plugin-console-record/dist/rrweb-rrweb-plugin-console-record.js'),
         },
         // bare import “rrweb” → package root “dist/”
         {
           find: /^rrweb$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb/dist/rrweb.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb/dist/rrweb.js'),
         },
         // any sub-path “rrweb/...” → dist/...
         {
           find: /^rrweb\/(.*)$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb/$1',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb/$1'),
         },
         {
           find: /^@rrweb\/record$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-record/dist/rrweb-record.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-record/dist/rrweb-record.js'),
         },
         {
           find: /^rrweb-player$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-player/dist/rrweb-player.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-player/dist/rrweb-player.js'),
         },
         {
           find: '@rrweb/rrweb-plugin-console-replay',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-rrweb-plugin-console-replay/dist/rrweb-rrweb-plugin-console-replay.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-rrweb-plugin-console-replay/dist/rrweb-rrweb-plugin-console-replay.js'),
         },
         {
           find: '@rrweb/rrweb-plugin-network-record',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-rrweb-plugin-network-record/dist/rrweb-rrweb-plugin-network-record.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-rrweb-plugin-network-record/dist/rrweb-rrweb-plugin-network-record.js'),
         },
         {
           find: /^@rrweb\/replay$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-replay/dist/rrweb-replay.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-replay/dist/rrweb-replay.js'),
         },
         {
           find: /^@rrweb\/replay\/(.*)$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-replay/$1',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-replay/$1'),
         },
         {
           find: /^@rrweb\/packer$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-packer/dist/packer.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-packer/dist/packer.js'),
         },
         {
           find: /^@rrweb\/packer\/unpack$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-packer/dist/unpack.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-packer/dist/unpack.js'),
         },
       ],
     },

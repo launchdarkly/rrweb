@@ -56,14 +56,14 @@
   ],
   "devDependencies": {
     "puppeteer": "^20.9.0",
+    "typescript": "^5.4.5",
     "vite": "^6.0.1",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.4.0",
-    "typescript": "^5.4.5"
+    "vitest": "^1.4.0"
   },
   "dependencies": {
-    "@highlight-run/rrweb-types": "workspace:*",
-    "@highlight-run/rrweb": "workspace:*"
+    "@highlight-run/rrweb": "workspace:*",
+    "@highlight-run/rrweb-types": "workspace:*"
   },
   "browserslist": [
     "supports es6-class"

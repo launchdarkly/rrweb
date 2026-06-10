@@ -48,11 +48,11 @@
   },
   "homepage": "https://github.com/rrweb-io/rrweb#readme",
   "devDependencies": {
+    "@highlight-run/rrweb": "workspace:*",
+    "@highlight-run/rrweb-rrweb-plugin-sequential-id-record": "workspace:*",
     "typescript": "^5.4.5",
     "vite": "^6.0.1",
-    "vite-plugin-dts": "^3.9.1",
-    "@highlight-run/rrweb-rrweb-plugin-sequential-id-record": "workspace:*",
-    "@highlight-run/rrweb": "workspace:*"
+    "vite-plugin-dts": "^3.9.1"
   },
   "peerDependencies": {
     "@highlight-run/rrweb": "workspace:*"
