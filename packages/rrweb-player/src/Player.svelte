@@ -158,7 +158,7 @@
       ...$$props,
     });
 
-    replayer.on('resize', (dimension) => {
+    replayer.on('resize', (dimension: unknown) => {
       updateScale(
         replayer.wrapper,
         dimension as { width: number; height: number },

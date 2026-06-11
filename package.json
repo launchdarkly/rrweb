@@ -8,7 +8,7 @@
   "keywords": [
     "@highlight-run/rrweb"
   ],
-  "author": "yanzhen@smartx.com",
+  "author": "rrweb Core Team <maintainers@rrweb.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rrweb-io/rrweb/issues"
@@ -34,33 +34,36 @@
     "eslint-plugin-compat": "^5.0.0",
     "eslint-plugin-jest": "^27.6.0",
     "eslint-plugin-tsdoc": "^0.2.17",
-    "happy-dom": "^14.12.0",
     "markdownlint": "^0.25.1",
     "markdownlint-cli": "^0.31.1",
     "prettier": "2.8.4",
     "rollup-plugin-visualizer": "^5.12.0",
-    "turbo": "2.8.7",
+    "turbo": "^2.9.14",
     "typescript": "^5.4.5"
   },
   "scripts": {
-    "build:all": "NODE_OPTIONS='--max-old-space-size=4096' yarn turbo run prepublish",
+    "build:all": "NODE_OPTIONS='--max-old-space-size=4096' yarn turbo run --env-mode=loose prepublish",
     "references:update": "yarn workspaces-to-typescript-project-references",
-    "test": "yarn turbo run test --concurrency=1 --continue",
-    "test:watch": "yarn turbo run test:watch",
-    "test:update": "yarn turbo run test:update",
-    "check-types": "yarn turbo run check-types --continue",
+    "test": "yarn turbo run --env-mode=loose test --concurrency=1 --continue",
+    "test:watch": "yarn turbo run --env-mode=loose test:watch",
+    "test:update": "yarn turbo run --env-mode=loose test:update",
+    "check-types": "yarn turbo run --env-mode=loose check-types --continue",
     "format": "yarn prettier --write '**/*.{ts,md}'",
     "format:head": "git diff --name-only HEAD^ |grep '\\.ts$\\|\\.md$' |xargs yarn prettier --write",
     "dev": "yarn turbo run dev --concurrency=18",
     "repl": "cd packages/rrweb && npm run repl",
     "live-stream": "cd packages/rrweb && yarn live-stream",
-    "lint": "yarn run concurrently --success=all -r -m=1 'yarn run markdownlint docs' 'ESLINT_USE_FLAT_CONFIG=false yarn eslint packages/*/src --ext .ts,.tsx,.js,.jsx,.svelte'",
-    "lint:report": "ESLINT_USE_FLAT_CONFIG=false yarn eslint --output-file eslint_report.json --format json packages/*/src --ext .ts,.tsx,.js,.jsx",
+    "lint": "yarn run concurrently --success=all -r -m=1 'yarn run markdownlint docs' 'ESLINT_USE_FLAT_CONFIG=false yarn eslint \"packages/**/src/**/*.{ts,tsx,js,jsx,svelte}\"'",
+    "lint:report": "ESLINT_USE_FLAT_CONFIG=false yarn eslint --output-file eslint_report.json --format json \"packages/**/src/**/*.{ts,tsx,js,jsx}\"",
     "release": "yarn build:all && changeset publish"
   },
   "browserslist": [
     "defaults",
     "not op_mini all"
   ],
-  "packageManager": "yarn@4.9.1"
+  "packageManager": "yarn@4.9.1",
+  "resolutions": {
+    "cssom": "npm:rrweb-cssom@0.6.0",
+    "@types/dom-webcodecs": "0.1.5"
+  }
 }

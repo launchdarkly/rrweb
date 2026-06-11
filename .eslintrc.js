@@ -1,5 +1,6 @@
 // TODO: add .eslintignore. More info: https://bobbyhadz.com/blog/typescript-parseroptions-project-has-been-set-for
 module.exports = {
+  root: true,
   env: {
     browser: true,
     es2021: true,

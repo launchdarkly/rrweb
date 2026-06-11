@@ -1,3 +1,15 @@
+/**
+ * Legacy shared utility module.
+ *
+ * This file currently contains helpers used by both snapshot and rebuild paths
+ * and is also part of the public API surface, re-exported from index.ts.
+ *
+ * Migration intent:
+ * - snapshot.ts should consume snapshot-domain helpers via snapshot-utils.ts
+ * - rebuild.ts should consume rebuild-domain helpers via rebuild-utils.ts
+ * - when safe, split internals into snapshot-only / rebuild-only / shared
+ *   modules while keeping this module as a compatibility shim for external users
+ */
 import type {
   idNodeMap,
   MaskInputFn,
@@ -118,9 +130,9 @@ export function stringifyStylesheet(s: CSSStyleSheet): string | null {
       return null;
     }
     let sheetHref = s.href;
-    if (!sheetHref && s.ownerNode && s.ownerNode.ownerDocument) {
+    if (!sheetHref && s.ownerNode) {
       // an inline <style> element
-      sheetHref = s.ownerNode.ownerDocument.location.href;
+      sheetHref = s.ownerNode.baseURI;
     }
     const stringifiedRules = Array.from(rules, (rule: CSSRule) =>
       stringifyRule(rule, sheetHref),
@@ -250,14 +262,14 @@ export function createMirror(): Mirror {
 /* Start of Highlight Code */
 // overwritten from rrweb
 export function maskInputValue({
-                                 element,
-                                 maskInputOptions,
-                                 tagName,
-                                 type,
-                                 value,
-                                 overwriteRecord,
-                                 maskInputFn,
-                               }: {
+  element,
+  maskInputOptions,
+  tagName,
+  type,
+  value,
+  overwriteRecord,
+  maskInputFn,
+}: {
   element: HTMLElement;
   maskInputOptions: MaskInputOptions;
   tagName: string;
@@ -273,7 +285,7 @@ export function maskInputValue({
       maskInputOptions,
       tagName,
       type,
-      overwriteRecord
+      overwriteRecord,
     })
   ) {
     if (maskInputFn) {
@@ -437,8 +449,10 @@ export function absolutifyURLs(cssText: string | null, href: string): string {
           extractOrigin(href) + filePath
         }${maybeQuote})`;
       }
-      const stack = href.split('/');
-      const parts = filePath.split('/');
+      const filePathNoHash = filePath.split('#')[0];
+      const maybeHash = filePath.substring(filePathNoHash.length);
+      const stack = href.split('#')[0].split('/');
+      const parts = filePathNoHash.split('/');
       stack.pop();
       for (const part of parts) {
         if (part === '.') {
@@ -449,7 +463,7 @@ export function absolutifyURLs(cssText: string | null, href: string): string {
           stack.push(part);
         }
       }
-      return `url(${maybeQuote}${stack.join('/')}${maybeQuote})`;
+      return `url(${maybeQuote}${stack.join('/')}${maybeHash}${maybeQuote})`;
     },
   );
 }
@@ -617,7 +631,9 @@ export function obfuscateText(text: string): string {
       ?.split(' ')
       .map((word) => {
         if (!word) return '';
-        return Math.random().toString(20).substring(2, word.length + 2)
+        return Math.random()
+          .toString(20)
+          .substring(2, word.length + 2);
       })
       .join(' ') || '';
   return text;

@@ -1,0 +1,58 @@
+name: Update Test Snapshots
+
+# Regenerates vitest/image snapshots on the canonical CI browser and commits
+# them back to the pushed branch. Trigger by pushing the branch you want
+# updated to snapshot-update/<name>.
+on:
+  push:
+    branches:
+      - 'snapshot-update/**'
+
+jobs:
+  update:
+    name: Regenerate snapshots
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js lts/*
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Dependencies
+        run: yarn install
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
+
+      - name: Build Project
+        run: NODE_OPTIONS='--max-old-space-size=4096' yarn build:all
+
+      - name: Read Puppeteer browser revision
+        id: puppeteer-browser
+        run: |
+          revision=$(node -p "require('./.puppeteerrc.cjs').browserRevision")
+          echo "revision=${revision}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2
+        with:
+          chrome-version: ${{ steps.puppeteer-browser.outputs.revision }}
+
+      - name: Update snapshots
+        # test failures are expected here; the point is the regenerated files
+        continue-on-error: true
+        run: PUPPETEER_EXECUTABLE_PATH=${{ steps.setup-chrome.outputs.chrome-path }} PUPPETEER_HEADLESS=true xvfb-run --server-args="-screen 0 1920x1080x24" yarn test:update
+
+      - name: Commit updated snapshots
+        uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a # v4
+        with:
+          commit_message: Regenerate test snapshots on CI browser
+          file_pattern: '**/__snapshots__/** **/__image_snapshots__/**'

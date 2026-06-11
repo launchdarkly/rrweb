@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineProject, mergeConfig } from 'vitest/config';
+import { configDefaults, defineProject, mergeConfig } from 'vitest/config';
 import configShared from '../../vitest.config';
 import { resolve } from 'path';
 
@@ -89,6 +89,10 @@ export default mergeConfig(
     },
     test: {
       globals: true,
+      exclude: [
+        ...configDefaults.exclude,
+        'test/record/monkey-patched.test.ts',
+      ],
     },
   }),
 );

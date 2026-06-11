@@ -24,9 +24,13 @@ describe('canvas2DMutation', () => {
     const promise = new Promise((r) => {
       resolve = r;
     });
+    // hold direct references: the fork wraps ctx.drawImage on first use
+    // (wrapCanvasContextDrawImage), replacing the property with a wrapper
+    const clearRectSpy = vi.fn();
+    const drawImageSpy = vi.fn();
     const context = {
-      clearRect: vi.fn(),
-      drawImage: vi.fn(),
+      clearRect: clearRectSpy,
+      drawImage: drawImageSpy,
     } as unknown as CanvasRenderingContext2D;
     vi.spyOn(canvas, 'getContext').mockImplementation(() => {
       return context;
@@ -68,14 +72,14 @@ describe('canvas2DMutation', () => {
 
     await expect(createImageBitmapMock).toHaveBeenCalled();
 
-    expect(context.clearRect).not.toBeCalled();
-    expect(context.drawImage).not.toBeCalled();
+    expect(clearRectSpy).not.toBeCalled();
+    expect(drawImageSpy).not.toBeCalled();
 
     await vi.advanceTimersByTimeAsync(1000);
 
     await mutation;
 
-    expect(context.clearRect).toHaveBeenCalledWith(0, 0, 1000, 1000);
-    expect(context.drawImage).toHaveBeenCalled();
+    expect(clearRectSpy).toHaveBeenCalledWith(0, 0, 1000, 1000);
+    expect(drawImageSpy).toHaveBeenCalled();
   });
 });

@@ -49,12 +49,8 @@ function patchGLPrototype(
             const result = original.apply(this, args);
             saveWebGLVar(result, win, this);
             if (
-              'tagName' in this.canvas &&!isBlocked(
-                this.canvas as HTMLCanvasElement,
-                blockClass,
-                blockSelector,
-                true,
-              )
+              'tagName' in this.canvas &&
+              !isBlocked(this.canvas, blockClass, blockSelector, true)
             ) {
               const recordArgs = serializeArgs(args, win, this);
               const mutation: canvasMutationWithType = {
@@ -63,7 +59,7 @@ function patchGLPrototype(
                 args: recordArgs,
               };
               // TODO: this could potentially also be an OffscreenCanvas as well as HTMLCanvasElement
-              cb(this.canvas as HTMLCanvasElement, mutation);
+              cb(this.canvas, mutation);
             }
 
             return result;
@@ -99,16 +95,18 @@ export default function initCanvasWebGLMutationObserver(
 ): listenerHandler {
   const handlers: listenerHandler[] = [];
 
-  handlers.push(
-    ...patchGLPrototype(
-      win.WebGLRenderingContext.prototype,
-      CanvasContext.WebGL,
-      cb,
-      blockClass,
-      blockSelector,
-      win,
-    ),
-  );
+  if (typeof win.WebGLRenderingContext !== 'undefined') {
+    handlers.push(
+      ...patchGLPrototype(
+        win.WebGLRenderingContext.prototype,
+        CanvasContext.WebGL,
+        cb,
+        blockClass,
+        blockSelector,
+        win,
+      ),
+    );
+  }
 
   if (typeof win.WebGL2RenderingContext !== 'undefined') {
     handlers.push(

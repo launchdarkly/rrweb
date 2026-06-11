@@ -1,11 +1,12 @@
 {
   "name": "@highlight-run/rrweb-rrweb-plugin-console-record",
-  "version": "2.0.0-alpha.18",
+  "version": "2.0.0-lambda.5",
   "description": "",
   "type": "module",
   "main": "./dist/rrweb-rrweb-plugin-console-record.umd.cjs",
   "module": "./dist/rrweb-rrweb-plugin-console-record.js",
   "unpkg": "./dist/rrweb-rrweb-plugin-console-record.umd.cjs",
+  "jsdelivr": "./umd/rrweb-rrweb-plugin-console-record.js",
   "typings": "dist/index.d.ts",
   "exports": {
     ".": {
@@ -20,6 +21,7 @@
     }
   },
   "files": [
+    "umd",
     "dist",
     "package.json"
   ],
@@ -29,16 +31,20 @@
     "test:watch": "vitest watch",
     "build": "tsc -noEmit && vite build",
     "check-types": "tsc -noEmit",
-    "prepublish": "tsc -noEmit && vite build"
+    "prepublish": "tsc -noEmit && vite build",
+    "test:update": "vitest run -u"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "@highlight-run/rrweb"
+    "devtools",
+    "product-analytics",
+    "real-user-monitoring",
+    "rrweb"
   ],
-  "author": "yanzhen@smartx.com",
+  "author": "rrweb Core Team <maintainers@rrweb.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rrweb-io/rrweb/issues"
@@ -47,11 +53,10 @@
   "devDependencies": {
     "@highlight-run/rrweb": "workspace:*",
     "puppeteer": "^20.9.0",
-    "turbo": "^2.0.5",
     "typescript": "^5.4.5",
-    "vite": "^5.3.1",
+    "vite": "^6.4.2",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^1.4.0"
+    "vitest": "^3.2.6"
   },
   "peerDependencies": {
     "@highlight-run/rrweb": "workspace:*",

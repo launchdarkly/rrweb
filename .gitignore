@@ -28,6 +28,7 @@ temp
 # output of `yarn build`
 build
 dist
+umd
 
 # turbo cache
 .turbo
@@ -50,3 +51,7 @@ vite.config.ts.timestamp-*
 
 # bundle analysis files
 *-bundle-analysis.html
+
+# Lockfile is owned by the launchdarkly/observability-sdk workspace; a local
+# yarn.lock only marks this directory as a standalone yarn project.
+/yarn.lock

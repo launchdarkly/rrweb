@@ -1,11 +1,12 @@
 {
   "name": "@highlight-run/rrweb-rrweb-plugin-canvas-webrtc-record",
-  "version": "2.0.0-alpha.18",
+  "version": "2.0.0-lambda.5",
   "description": "",
   "type": "module",
   "main": "./dist/rrweb-rrweb-plugin-canvas-webrtc-record.umd.cjs",
   "module": "./dist/rrweb-rrweb-plugin-canvas-webrtc-record.js",
   "unpkg": "./dist/rrweb-rrweb-plugin-canvas-webrtc-record.umd.cjs",
+  "jsdelivr": "./umd/rrweb-rrweb-plugin-canvas-webrtc-record.js",
   "typings": "dist/index.d.ts",
   "exports": {
     ".": {
@@ -20,6 +21,7 @@
     }
   },
   "files": [
+    "umd",
     "dist",
     "package.json"
   ],
@@ -34,9 +36,12 @@
     "url": "git+https://github.com/rrweb-io/rrweb.git"
   },
   "keywords": [
-    "@highlight-run/rrweb"
+    "devtools",
+    "product-analytics",
+    "real-user-monitoring",
+    "rrweb"
   ],
-  "author": "justin@recordonce.com",
+  "author": "rrweb Core Team <maintainers@rrweb.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rrweb-io/rrweb/issues"
@@ -44,9 +49,8 @@
   "homepage": "https://github.com/rrweb-io/rrweb#readme",
   "devDependencies": {
     "@highlight-run/rrweb": "workspace:*",
-    "turbo": "^2.0.5",
     "typescript": "^5.4.5",
-    "vite": "^5.3.1",
+    "vite": "^6.4.2",
     "vite-plugin-dts": "^3.9.1"
   },
   "peerDependencies": {

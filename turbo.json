@@ -33,12 +33,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        "lib/**",
-        "es/**",
-        "dist/**",
-        "typings/**"
-      ]
+      "outputs": ["lib/**", "es/**", "dist/**", "typings/**"]
     }
   }
 }

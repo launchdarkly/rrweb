@@ -96,7 +96,12 @@ export default defineConfig({
         const BrowserName =
           process.env.TARGET_BROWSER === 'chrome' ? 'chrome' : 'firefox';
         const commonManifest = originalManifest.common;
-        const rrwebVersion = packageJson.dependencies!.rrweb!.replace('^', '');
+        // rrweb is a workspace dependency (@highlight-run/rrweb: workspace:*),
+        // so read its version from the workspace package itself.
+        const rrwebPackageJson = readJsonFile(
+          path.join(__dirname, '..', 'rrweb', 'package.json'),
+        ) as PackageJson;
+        const rrwebVersion = rrwebPackageJson.version!.replace('^', '');
         const manifest = {
           version: getExtensionVersion(rrwebVersion),
           author: packageJson.author,
@@ -133,6 +138,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './src'),
+      // source imports use upstream names; the workspace packages are
+      // published under the @highlight-run scope
+      'rrweb-player': '@highlight-run/rrweb-player',
+      rrweb: '@highlight-run/rrweb',
     },
   },
 });

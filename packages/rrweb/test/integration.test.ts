@@ -33,6 +33,12 @@ describe('record integration tests', function (this: ISuite) {
     <script>
       ${code}
       window.Date.now = () => new Date(Date.UTC(2018, 10, 15, 8)).valueOf();
+      /* deterministic Math.random so the fork's obfuscateText is stable */
+      window.__rrwebSeed = 1;
+      Math.random = () => {
+        window.__rrwebSeed = (window.__rrwebSeed * 1103515245 + 12345) % 2147483648;
+        return window.__rrwebSeed / 2147483648;
+      };
       ${generateRecordSnippet(options)}
     </script>
     </body>

@@ -565,6 +565,8 @@ describe('record', function (this: ISuite) {
         const { rrweb, emit } = window as unknown as IWindow;
         rrweb.record({
           emit,
+          // deterministic output for snapshots (fork default obfuscates text)
+          privacySetting: 'none',
         });
 
         setTimeout(() => {
@@ -639,6 +641,8 @@ describe('record', function (this: ISuite) {
       const { rrweb, emit } = window as unknown as IWindow;
       rrweb.record({
         emit,
+        // deterministic output for snapshots (fork default obfuscates text)
+        privacySetting: 'none',
       });
 
       setTimeout(() => {
@@ -673,6 +677,8 @@ describe('record', function (this: ISuite) {
         const { rrweb, emit } = window as unknown as IWindow;
         rrweb.record({
           emit,
+          // deterministic output for snapshots (fork default obfuscates text)
+          privacySetting: 'none',
         });
 
         setTimeout(() => {
@@ -960,6 +966,8 @@ describe('record', function (this: ISuite) {
 
         (window as unknown as IWindow).rrweb.record({
           emit: (window.top as unknown as IWindow).emit,
+          // deterministic output for snapshots (fork default obfuscates text)
+          privacySetting: 'none',
         });
 
         // Make incremental changes to shadow dom.
@@ -988,6 +996,27 @@ describe('record', function (this: ISuite) {
     await waitForRAF(ctx.page); // wait till events get sent
 
     await assertSnapshot(ctx.events);
+  });
+
+  it('does not throw error when stopping recording after iframe becomes cross-origin', async () => {
+    await ctx.page.evaluate(async () => {
+      const { record } = (window as unknown as IWindow).rrweb;
+      const stopRecord = record({
+        emit: (window as unknown as IWindow).emit,
+      });
+      const iframe = document.createElement('iframe');
+      (window as any).stopRecord = stopRecord;
+      (window as any).iframe = iframe;
+      document.body.appendChild(iframe);
+    });
+    await waitForRAF(ctx.page);
+    await ctx.page.evaluate(async () => {
+      (window as any).iframe.src = 'https://www.example.com'; // Change the same origin iframe to a cross origin iframe after it's recorded
+    });
+    await waitForRAF(ctx.page);
+    await ctx.page.evaluate(() => {
+      (window as any).stopRecord?.();
+    });
   });
 });
 

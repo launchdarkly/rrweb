@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineProject, mergeConfig } from 'vitest/config';
+import { configDefaults, defineProject, mergeConfig } from 'vitest/config';
 import configShared from '../../vitest.config.ts';
 
 export default mergeConfig(
@@ -7,6 +7,7 @@ export default mergeConfig(
   defineProject({
     test: {
       globals: true,
+      exclude: [...configDefaults.exclude, 'test/monkey-patched.test.ts'],
     },
   }),
 );

@@ -240,12 +240,18 @@ export function stringifySnapshots(snapshots: eventWithTime[]): string {
       }),
     null,
     2,
-  ).replace(
-    // servers might get run on a random port,
-    // so we need to normalize the port number
-    /http:\/\/localhost:\d+/g,
-    'http://localhost:3030',
-  );
+  )
+    .replace(
+      // servers might get run on a random port,
+      // so we need to normalize the port number
+      /http:\/\/localhost:\d+/g,
+      'http://localhost:3030',
+    )
+    .replace(
+      // lit-html generates a random template marker on every page load
+      /lit\$\d+\$/g,
+      'lit$00000000$',
+    );
 }
 
 function stripBlobURLsFromAttributes(node: {
@@ -726,9 +732,11 @@ export const polyfillWebGLGlobals = () => {
   global.WebGL2RenderingContext = WebGL2RenderingContext as any;
 };
 
-export async function waitForRAF(
-  pageOrFrame: puppeteer.Page | puppeteer.Frame,
-) {
+interface PageOrFrameWithEvaluate {
+  evaluate<T>(pageFunction: () => T | Promise<T>): Promise<T>;
+}
+
+export async function waitForRAF(pageOrFrame: PageOrFrameWithEvaluate) {
   return await pageOrFrame.evaluate(() => {
     return new Promise((resolve) => {
       requestAnimationFrame(() => {
@@ -796,9 +804,16 @@ export function generateRecordSnippet(options: recordOptions<eventWithTime>) {
     maskInputOptions: ${JSON.stringify(options.maskAllInputs)},
     userTriggeredOnInput: ${options.userTriggeredOnInput},
     maskTextClass: ${options.maskTextClass},
-    maskTextFn: ${options.maskTextFn},
+    // the fork defaults maskTextFn to randomized obfuscateText; use a
+    // deterministic masker in tests unless the test provides its own
+    maskTextFn: ${
+      options.maskTextFn ?? "(text) => text.replace(/[^\\s]/g, '*')"
+    },
     maskInputFn: ${options.maskInputFn},
     recordCanvas: ${options.recordCanvas},
+    // default to 'none' in tests: the fork's default privacy mode obfuscates
+    // text with randomized output, which can never match fixed snapshots
+    privacySetting: ${JSON.stringify(options.privacySetting ?? 'none')},
     recordAfter: '${options.recordAfter || 'load'}',
     inlineImages: ${options.inlineImages},
     plugins: ${options.plugins}

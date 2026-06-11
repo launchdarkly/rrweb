@@ -1,9 +1,9 @@
 /// <reference types="vite/client" />
 import dts from 'vite-plugin-dts';
-import { copyFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, existsSync } from 'node:fs';
 import { defineConfig, LibraryOptions, LibraryFormats, Plugin } from 'vite';
 import { build, Format } from 'esbuild';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
 import { umdWrapper } from 'esbuild-plugin-umd-wrapper';
 import * as fs from 'node:fs';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -51,22 +51,32 @@ function minifyAndUMDPlugin({
               outDir,
             });
           } else {
+            const umdDir = resolve(dirname(outputOptions.dir!), 'umd');
+            if (!existsSync(umdDir)) {
+              mkdirSync(umdDir);
+            }
+            const outUmd = `${outputFilePath}.umd.cjs`;
             await buildFile({
               name,
               input: inputFilePath,
-              output: `${outputFilePath}.umd.cjs`,
+              output: outUmd,
               minify: false,
               isCss: false,
               outDir,
             });
+            // Workaround because jsDelivr does not use correct MIME types for .umd.cjs.
+            // More info: https://github.com/jsdelivr/jsdelivr/issues/18584 https://github.com/rrweb-io/rrweb/pull/1704
+            copyFileSync(outUmd, resolve(umdDir, `${baseFileName}.js`));
+            const outUmdMin = `${outputFilePath}.umd.min.cjs`;
             await buildFile({
               name,
               input: inputFilePath,
-              output: `${outputFilePath}.umd.min.cjs`,
+              output: outUmdMin,
               minify: true,
               isCss: false,
               outDir,
             });
+            copyFileSync(outUmdMin, resolve(umdDir, `${baseFileName}.min.js`));
           }
         }
       }
@@ -103,17 +113,44 @@ async function buildFile({
       }),
     ],
   });
-  const filename = output.replace(new RegExp(`^.+/(${outDir}/)`), '$1');
+  const filename = output.replace(
+    new RegExp(`^.+[/\\\\](${outDir}[/\\\\])`),
+    '$1',
+  );
   console.log(filename);
   console.log(`${filename}.map`);
 }
 
+// @highlight-run workspace packages live in ../node_modules when this repo is
+// consumed as a workspace member of launchdarkly/observability-sdk, and in
+// ./node_modules when the repo is installed standalone (CI, local checkout).
+const hlResolve = (sub: string) => {
+  const layouts = [
+    resolve(__dirname, '../node_modules'),
+    resolve(__dirname, 'node_modules'),
+  ];
+  const [scope, name] = sub.split('/');
+  const base =
+    layouts.find((l) => existsSync(resolve(l, scope, name))) ?? layouts[0];
+  return resolve(base, sub);
+};
+
 export default function (
   entry: LibraryOptions['entry'],
   name: LibraryOptions['name'],
-  options?: { outputDir?: string; fileName?: string; plugins?: Plugin[] },
+  options?: {
+    outputDir?: string;
+    fileName?: string;
+    plugins?: Plugin[];
+    rollupTypes?: boolean;
+  },
 ) {
-  const { fileName, outputDir: outDir = 'dist', plugins = [] } = options || {};
+  const {
+    fileName,
+    outputDir: outDir = 'dist',
+    plugins = [],
+    rollupTypes = true,
+  } = options || {};
 
   let formats: LibraryFormats[] = ['es', 'cjs'];
 
@@ -122,95 +159,96 @@ export default function (
       alias: [
         {
           find: '@rrweb/types',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-types/dist/rrweb-types.js',
+          replacement: hlResolve(
+            '@highlight-run/rrweb-types/dist/rrweb-types.js',
           ),
         },
         {
           find: '@rrweb/utils',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-utils/dist/rrweb-utils.js',
+          replacement: hlResolve(
+            '@highlight-run/rrweb-utils/dist/rrweb-utils.js',
           ),
         },
         {
           find: 'rrweb-snapshot',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-snapshot/dist/rrweb-snapshot.js',
+          replacement: hlResolve(
+            '@highlight-run/rrweb-snapshot/dist/rrweb-snapshot.js',
           ),
         },
         {
           find: 'rrdom',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrdom/dist/rrdom.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrdom/dist/rrdom.js'),
         },
         {
           find: '@rrweb/rrweb-plugin-sequential-id-record',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-rrweb-plugin-sequential-id-record/dist/rrweb-rrweb-plugin-sequential-id-record.js',
+          replacement: hlResolve(
+            '@highlight-run/rrweb-rrweb-plugin-sequential-id-record/dist/rrweb-rrweb-plugin-sequential-id-record.js',
           ),
         },
         {
           find: '@rrweb/rrweb-plugin-console-record',
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-rrweb-plugin-console-record/dist/rrweb-rrweb-plugin-console-record.js',
+          replacement: hlResolve(
+            '@highlight-run/rrweb-rrweb-plugin-console-record/dist/rrweb-rrweb-plugin-console-record.js',
           ),
         },
         // bare import “rrweb” → package root “dist/”
         {
           find: /^rrweb$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb/dist/rrweb.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb/dist/rrweb.js'),
         },
         // any sub-path “rrweb/...” → dist/...
         {
           find: /^rrweb\/(.*)$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb/$1',
+          replacement: hlResolve('@highlight-run/rrweb/$1'),
+        },
+        {
+          find: /^@rrweb\/record$/,
+          replacement: hlResolve(
+            '@highlight-run/rrweb-record/dist/rrweb-record.js',
+          ),
+        },
+        {
+          find: /^rrweb-player$/,
+          replacement: hlResolve(
+            '@highlight-run/rrweb-player/dist/rrweb-player.js',
+          ),
+        },
+        {
+          find: '@rrweb/rrweb-plugin-console-replay',
+          replacement: hlResolve(
+            '@highlight-run/rrweb-rrweb-plugin-console-replay/dist/rrweb-rrweb-plugin-console-replay.js',
+          ),
+        },
+        {
+          find: '@rrweb/rrweb-plugin-network-record',
+          replacement: hlResolve(
+            '@highlight-run/rrweb-rrweb-plugin-network-record/dist/rrweb-rrweb-plugin-network-record.js',
           ),
         },
         {
           find: /^@rrweb\/replay$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-replay/dist/rrweb-replay.js',
+          replacement: hlResolve(
+            '@highlight-run/rrweb-replay/dist/rrweb-replay.js',
           ),
         },
         {
           find: /^@rrweb\/replay\/(.*)$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-replay/$1',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-replay/$1'),
         },
         {
           find: /^@rrweb\/packer$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-packer/dist/packer.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-packer/dist/packer.js'),
         },
         {
           find: /^@rrweb\/packer\/unpack$/,
-          replacement: resolve(
-            __dirname,
-            '../node_modules/@highlight-run/rrweb-packer/dist/unpack.js',
-          ),
+          replacement: hlResolve('@highlight-run/rrweb-packer/dist/unpack.js'),
         },
       ],
     },
     build: {
       // See https://vitejs.dev/guide/build.html#library-mode
       lib: {
+        cssFileName: 'style', // maintain same file output name as Vite 5 after upgrade to 6
         entry,
         name,
         fileName,
@@ -229,17 +267,11 @@ export default function (
       minify: false,
 
       sourcemap: true,
-
-      // rollupOptions: {
-      //   output: {
-      //     manualChunks: {},
-      //   },
-      // },
     },
     plugins: [
       dts({
         insertTypesEntry: true,
-        rollupTypes: true,
+        rollupTypes,
         afterBuild: (emittedFiles: Map<string, string>) => {
           // To pass publint (`npm x publint@latest`) and ensure the
           // package is supported by all consumers, we must export types that are

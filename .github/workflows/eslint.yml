@@ -5,19 +5,25 @@ on: [pull_request]
 jobs:
   eslint_check_upload:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     name: ESLint Check and Report Upload
+    timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Enable Corepack
+        run: corepack enable
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16.15.0
-          registry-url: https://registry.npmjs.org
+          node-version: lts/*
       - name: Install
-        run: YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn
+        run: yarn install
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
       - name: Build Packages
-        run: yarn build:all
+        run: NODE_OPTIONS='--max-old-space-size=4096' yarn build:all
       - name: Test Code Linting
         run: yarn turbo run lint
       - name: Save Code Linting Report JSON
@@ -25,19 +31,20 @@ jobs:
         # Continue to the next step even if this fails
         continue-on-error: true
       - name: Upload ESLint report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: eslint_report.json
           path: eslint_report.json
 
-  Annotation:
-    # Skip the annotation action in PRs from the forked repositories
-    if: github.event.pull_request.head.repo.full_name == 'rrweb-io/rrweb'
+  annotation:
+    # Skip the annotation action in PRs from forked repositories
+    if: github.event.pull_request.head.repo.full_name == 'launchdarkly/rrweb'
+    permissions:
+      checks: write
     needs: eslint_check_upload
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: eslint_report.json
       - name: Annotate Code Linting Results

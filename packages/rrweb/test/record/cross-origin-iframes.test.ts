@@ -63,11 +63,19 @@ async function injectRecordScript(
   }
   options = options || {};
   await frame.evaluate((options) => {
+    /* deterministic Math.random so the fork's obfuscateText is stable */
+    let seed = 1;
+    Math.random = () => {
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      return seed / 2147483648;
+    };
     (window as unknown as IWindow).snapshots = [];
     const { record } = (window as unknown as IWindow).rrweb;
     const config: recordOptions<eventWithTime> = {
       recordCrossOriginIframes: true,
       recordCanvas: true,
+      // deterministic output for snapshots (fork default obfuscates text)
+      privacySetting: 'none',
       emit(event) {
         (window as unknown as IWindow).snapshots.push(event);
         (window as unknown as IWindow).emit(event);

@@ -61,6 +61,10 @@ function viteSvelteDts(): Plugin {
 }
 
 export default config(path.resolve(__dirname, 'src/main.ts'), 'rrwebPlayer', {
+  // api-extractor cannot follow the relative node_modules type imports that
+  // the @highlight-run package aliasing bakes into dependency d.ts files, so
+  // ship per-file declarations instead of a rolled-up one.
+  rollupTypes: false,
   plugins: [
     viteSvelteDts(),
     svelte({

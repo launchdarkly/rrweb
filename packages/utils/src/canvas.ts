@@ -36,10 +36,7 @@ export function wrapCanvasContextDrawImage(
   const originalDrawImage = ctx.drawImage.bind(ctx);
 
   // Override drawImage with our wrapper that handles image loading
-  ctx.drawImage = function (
-    image: CanvasImageSource,
-    ...args: number[]
-  ): void {
+  ctx.drawImage = function (image: CanvasImageSource, ...args: number[]): void {
     // Cancel any pending image load for this context
     const pending = pendingImageLoads.get(ctx);
     if (pending) {
@@ -51,9 +48,12 @@ export function wrapCanvasContextDrawImage(
       // Use spread operator - drawImage accepts 2, 4, or 8 numeric arguments
       // If only 2 args provided (dx, dy), add width/height to use natural image dimensions
       if (args.length === 2 && isHTMLImageElement(image)) {
-        args.push(image.naturalWidth || image.width, image.naturalHeight || image.height);
+        args.push(
+          image.naturalWidth || image.width,
+          image.naturalHeight || image.height,
+        );
       }
-      (originalDrawImage as any)(image, ...args);
+      (originalDrawImage as (...a: unknown[]) => void)(image, ...args);
     };
 
     // If the image is an HTMLImageElement and not yet loaded, wait for it
@@ -95,4 +95,3 @@ export function wrapCanvasContextDrawImage(
     }
   };
 }
-
