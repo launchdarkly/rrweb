@@ -91,7 +91,7 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: true
 
       - name: Build rrweb-snapshot and rrweb (with workspace deps)
-        run: NODE_OPTIONS='--max-old-space-size=4096' yarn turbo run prepublish --filter=@highlight-run/rrweb-snapshot --filter=@highlight-run/rrweb
+        run: NODE_OPTIONS='--max-old-space-size=4096' yarn turbo run --env-mode=loose prepublish --filter=@highlight-run/rrweb-snapshot --filter=@highlight-run/rrweb
 
       - name: Install Playwright WebKit browser
         run: npx playwright install webkit && npx playwright install-deps webkit

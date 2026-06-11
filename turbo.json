@@ -2,7 +2,6 @@
   "$schema": "https://turborepo.org/schema.json",
   "tasks": {
     "prepublish": {
-      "passThroughEnv": ["PUPPETEER_EXECUTABLE_PATH", "PUPPETEER_HEADLESS", "DISABLE_WORKER_INLINING"],
       "dependsOn": ["^prepublish"],
       "outputs": [
         "lib/**",
@@ -14,7 +13,6 @@
       ]
     },
     "test": {
-      "passThroughEnv": ["PUPPETEER_EXECUTABLE_PATH", "PUPPETEER_HEADLESS", "DISABLE_WORKER_INLINING"],
       "dependsOn": ["^prepublish"]
     },
     "test:watch": {
@@ -22,7 +20,6 @@
       "cache": false
     },
     "test:update": {
-      "passThroughEnv": ["PUPPETEER_EXECUTABLE_PATH", "PUPPETEER_HEADLESS", "DISABLE_WORKER_INLINING"],
       "dependsOn": ["^prepublish"]
     },
     "dev": {
