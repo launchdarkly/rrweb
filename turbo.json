@@ -1,19 +1,8 @@
 {
   "$schema": "https://turborepo.org/schema.json",
-  // These root workspace files are reused in workspaces and may affect their build output
-  "globalDependencies": [
-    ".eslintrc.js",
-    ".prettierrc",
-    "vite.config.default.ts",
-    "tsconfig.json"
-  ],
-  "globalPassThroughEnv": [
-    "PUPPETEER_EXECUTABLE_PATH",
-    "PUPPETEER_HEADLESS",
-    "DISABLE_WORKER_INLINING"
-  ],
   "tasks": {
     "prepublish": {
+      "passThroughEnv": ["PUPPETEER_EXECUTABLE_PATH", "PUPPETEER_HEADLESS", "DISABLE_WORKER_INLINING"],
       "dependsOn": ["^prepublish"],
       "outputs": [
         "lib/**",
@@ -25,6 +14,7 @@
       ]
     },
     "test": {
+      "passThroughEnv": ["PUPPETEER_EXECUTABLE_PATH", "PUPPETEER_HEADLESS", "DISABLE_WORKER_INLINING"],
       "dependsOn": ["^prepublish"]
     },
     "test:watch": {
@@ -32,6 +22,7 @@
       "cache": false
     },
     "test:update": {
+      "passThroughEnv": ["PUPPETEER_EXECUTABLE_PATH", "PUPPETEER_HEADLESS", "DISABLE_WORKER_INLINING"],
       "dependsOn": ["^prepublish"]
     },
     "dev": {
