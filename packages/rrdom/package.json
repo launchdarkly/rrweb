@@ -49,6 +49,7 @@
     "@typescript-eslint/eslint-plugin": "^5.23.0",
     "@typescript-eslint/parser": "^5.23.0",
     "eslint": "^8.15.0",
+    "happy-dom": "^20.8.9",
     "puppeteer": "^17.1.3",
     "typescript": "^5.4.5",
     "vite": "^6.4.2",
