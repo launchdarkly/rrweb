@@ -205,6 +205,15 @@ export type playerConfig = {
   insertStyleRules: string[];
   triggerFocus: boolean;
   UNSAFE_replayCanvas: boolean;
+  /**
+   * Optional Content-Security-Policy applied to the replay iframe. When set, a
+   * `<meta http-equiv="Content-Security-Policy">` carrying this policy is added
+   * to the iframe's <head> during full-snapshot rebuild, before the rebuilt DOM
+   * is connected, so it governs the replayed document. Use it to constrain what
+   * the replayed content may load or do (e.g. restricting script or connection
+   * sources) independently of the iframe sandbox.
+   */
+  cspContent?: string;
   pauseAnimation?: boolean;
   mouseTail:
     | boolean

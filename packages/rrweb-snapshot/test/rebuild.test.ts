@@ -412,6 +412,107 @@ describe('rebuild', function () {
     });
   });
 
+  describe('getTagName remaps tags regardless of casing', function () {
+    // tagMap entries are keyed in lower case, so the remap must apply for any
+    // casing of the incoming tag name.
+    it.each(['foreignobject', 'FOREIGNOBJECT', 'ForeignObject'])(
+      'remaps SVG tagName %j to its canonical camelCase form',
+      function (tagName) {
+        const node = buildNodeWithSN(
+          {
+            id: 1,
+            tagName,
+            type: NodeType.Element,
+            isSVG: true,
+            attributes: {},
+            childNodes: [],
+          },
+          {
+            doc: document,
+            mirror,
+            hackCss: false,
+            cache,
+          },
+        ) as SVGElement;
+        expect(node.tagName).toBe('foreignObject');
+      },
+    );
+  });
+
+  describe('cspContent adds a CSP meta to the rebuilt document', function () {
+    function docNode(headChildren: unknown[] = []): unknown {
+      return {
+        type: NodeType.Document,
+        id: 1,
+        childNodes: [
+          {
+            type: NodeType.Element,
+            id: 2,
+            tagName: 'html',
+            attributes: {},
+            childNodes: [
+              ...headChildren,
+              {
+                type: NodeType.Element,
+                id: 5,
+                tagName: 'body',
+                attributes: {},
+                childNodes: [],
+              },
+            ],
+          },
+        ],
+      };
+    }
+    const headNode = {
+      type: NodeType.Element,
+      id: 3,
+      tagName: 'head',
+      attributes: {},
+      childNodes: [],
+    };
+
+    function rebuildInto(node: unknown, cspContent?: string): Document {
+      const targetDoc = document.implementation.createHTMLDocument('');
+      buildNodeWithSN(node as Parameters<typeof buildNodeWithSN>[0], {
+        doc: targetDoc,
+        mirror: createMirror(),
+        hackCss: false,
+        cache: createCache(),
+        cspContent,
+      });
+      return targetDoc;
+    }
+
+    it('injects the CSP meta as the first head child, ahead of <body>', function () {
+      const doc = rebuildInto(docNode([headNode]), "script-src 'none'");
+      const meta = doc.head.firstElementChild as HTMLMetaElement;
+      expect(meta.tagName).toBe('META');
+      expect(meta.getAttribute('http-equiv')).toBe('Content-Security-Policy');
+      expect(meta.getAttribute('content')).toBe("script-src 'none'");
+      // meta must precede <body> in document order so the policy is in effect
+      // for the rest of the document
+      expect(
+        meta.compareDocumentPosition(doc.body) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+
+    it('creates a <head> when the recording omitted one', function () {
+      const doc = rebuildInto(docNode([]), "script-src 'none'");
+      expect(doc.head).toBeTruthy();
+      const meta = doc.head.firstElementChild as HTMLMetaElement;
+      expect(meta.getAttribute('http-equiv')).toBe('Content-Security-Policy');
+    });
+
+    it('injects nothing when cspContent is not provided', function () {
+      const doc = rebuildInto(docNode([headNode]));
+      expect(
+        doc.querySelector('meta[http-equiv="Content-Security-Policy"]'),
+      ).toBeNull();
+    });
+  });
+
   describe('rr_width/rr_height', function () {
     it('rebuild blocked element with correct dimensions', function () {
       const node = buildNodeWithSN(

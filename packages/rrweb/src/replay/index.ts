@@ -1007,6 +1007,7 @@ export class Replayer {
       cache: this.cache,
       mirror: this.mirror,
       UNSAFE_allowUnprotectedRebuild: this.UNSAFE_replayCanvas,
+      cspContent: this.config.cspContent,
     });
     afterAppend(this.iframe.contentDocument, event.data.node.id);
 
