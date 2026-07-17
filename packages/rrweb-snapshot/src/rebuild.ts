@@ -57,8 +57,13 @@ const tagMap: tagMap = {
   radialgradient: 'radialGradient',
 };
 function getTagName(n: elementNode): string {
-  let tagName = tagMap[n.tagName] ? tagMap[n.tagName] : n.tagName;
-  if (tagName === 'link' && n.attributes._cssText) {
+  // tagMap is keyed in lower case, so look up with a lowercased tag name to
+  // remap consistently regardless of the casing present in the snapshot.
+  const lowerCasedTagName = String(n.tagName).toLowerCase();
+  let tagName = tagMap[lowerCasedTagName]
+    ? tagMap[lowerCasedTagName]
+    : n.tagName;
+  if (lowerCasedTagName === 'link' && n.attributes._cssText) {
     tagName = 'style';
   }
   return tagName;
@@ -124,6 +129,12 @@ type RebuildOptions = {
    * browser document and can execute scripts from replay data.
    */
   UNSAFE_allowUnprotectedRebuild?: boolean;
+  /**
+   * When set, a `<meta http-equiv="Content-Security-Policy">` carrying this
+   * policy is added to the rebuilt document's <head> before the DOM is
+   * connected, so it applies to the document as it is attached.
+   */
+  cspContent?: string;
 };
 
 /**
@@ -565,6 +576,11 @@ export function buildNodeWithSN(
      */
     afterAppend?: (n: Node, id: number) => unknown;
     cache: BuildCache;
+    /**
+     * Optional CSP policy applied to the rebuilt document. See rebuild()'s
+     * `cspContent` option.
+     */
+    cspContent?: string;
   },
 ): Node | null {
   const {
@@ -574,6 +590,7 @@ export function buildNodeWithSN(
     hackCss = true,
     afterAppend,
     cache,
+    cspContent,
   } = options;
   /**
    * Add a check to see if the node is already in the mirror. If it is, we can skip the whole process.
@@ -653,6 +670,12 @@ export function buildNodeWithSN(
         childN.type == NodeType.Element
       ) {
         const htmlElement = childNode as HTMLElement;
+        // Apply the CSP to the still-detached <head> before the subtree is
+        // connected below, so the policy governs the document from the start
+        // (a meta policy only applies to content that connects after it).
+        if (cspContent) {
+          injectDocumentCSP(htmlElement, cspContent, doc);
+        }
         let body: HTMLBodyElement | null = null;
         htmlElement.childNodes.forEach((child) => {
           if (child.nodeName === 'BODY') body = child as HTMLBodyElement;
@@ -720,6 +743,28 @@ function handleScroll(node: Node, mirror: Mirror) {
   }
 }
 
+/**
+ * Add a Content-Security-Policy <meta> as the first child of the given
+ * documentElement's <head>, creating a <head> if the markup omitted one.
+ * Call this while `htmlElement` is still detached so the policy is in place
+ * before the subtree is connected to the live document.
+ */
+function injectDocumentCSP(
+  htmlElement: HTMLElement,
+  cspContent: string,
+  doc: Document,
+): void {
+  let head = htmlElement.querySelector('head');
+  if (!head) {
+    head = doc.createElement('head');
+    htmlElement.insertBefore(head, htmlElement.firstChild);
+  }
+  const cspMeta = doc.createElement('meta');
+  cspMeta.setAttribute('http-equiv', 'Content-Security-Policy');
+  cspMeta.setAttribute('content', cspContent);
+  head.insertBefore(cspMeta, head.firstChild);
+}
+
 function rebuild(
   n: serializedNodeWithId,
   options: RebuildOptions,
@@ -733,6 +778,7 @@ function rebuild(
     afterAppend,
     cache,
     mirror = new Mirror(),
+    cspContent,
   } = options;
   const node = buildNodeWithSN(n, {
     doc,
@@ -741,6 +787,7 @@ function rebuild(
     hackCss,
     afterAppend,
     cache,
+    cspContent,
   });
   visit(mirror, (visitedNode) => {
     if (onVisit) {
