@@ -20,7 +20,11 @@ describe('embedded replay protocol', () => {
       expect(isEnvelope(null)).toBe(false);
       expect(isEnvelope({})).toBe(false);
       expect(
-        isEnvelope({ channel: 'other', version: 1, message: { type: 'ready' } }),
+        isEnvelope({
+          channel: 'other',
+          version: 1,
+          message: { type: 'ready' },
+        }),
       ).toBe(false);
       expect(
         isEnvelope({

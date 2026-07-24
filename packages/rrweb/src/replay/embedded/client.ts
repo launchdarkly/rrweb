@@ -52,7 +52,10 @@ export class EmbeddedReplayerClient {
   private readyResolvers: Array<() => void> = [];
   private disposed = false;
 
-  constructor(iframe: HTMLIFrameElement, options: EmbeddedReplayerClientOptions = {}) {
+  constructor(
+    iframe: HTMLIFrameElement,
+    options: EmbeddedReplayerClientOptions = {},
+  ) {
     this.iframe = iframe;
     this.hostOrigin = options.hostOrigin ?? '*';
     window.addEventListener('message', this.onMessage);

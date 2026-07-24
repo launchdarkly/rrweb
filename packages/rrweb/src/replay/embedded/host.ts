@@ -217,7 +217,10 @@ export class EmbeddedReplayerHost {
     if (this.timer !== null) return;
     this.timer = setInterval(() => {
       if (this.replayer) {
-        this.post({ type: 'time', currentTime: this.replayer.getCurrentTime() });
+        this.post({
+          type: 'time',
+          currentTime: this.replayer.getCurrentTime(),
+        });
       }
     }, this.timeUpdateIntervalMs);
   }
@@ -234,7 +237,10 @@ export class EmbeddedReplayerHost {
     // before the origin is pinned (the `ready` handshake). We never send app
     // secrets over this channel — only replay telemetry — so "*" is acceptable
     // for that single pre-pinning message.
-    this.parentWindow.postMessage(wrap(message), this.expectedParentOrigin ?? '*');
+    this.parentWindow.postMessage(
+      wrap(message),
+      this.expectedParentOrigin ?? '*',
+    );
   }
 }
 

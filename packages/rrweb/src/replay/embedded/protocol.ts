@@ -96,7 +96,12 @@ export function pickSerializableConfig(
 /* -------------------------------------------------------------------------- */
 
 export type HostCommand =
-  | { type: 'init'; events: eventWithTime[]; config?: SerializableReplayerConfig; autoplay?: boolean }
+  | {
+      type: 'init';
+      events: eventWithTime[];
+      config?: SerializableReplayerConfig;
+      autoplay?: boolean;
+    }
   | { type: 'play'; timeOffset?: number }
   | { type: 'pause'; timeOffset?: number }
   | { type: 'resume'; timeOffset?: number }
