@@ -29,7 +29,5 @@ export {
   type SerializableConfigKey,
   type HostCommand,
   type HostMessage,
-  type HostRequestMethod,
-  type PlayerMetaDataLike,
   type Envelope,
 } from './protocol';

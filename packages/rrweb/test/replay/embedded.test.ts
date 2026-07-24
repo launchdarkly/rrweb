@@ -138,11 +138,25 @@ describe('EmbeddedReplayerClient', () => {
     expect(client.getCurrentTime()).toBe(4200);
   });
 
-  it('resolves RPC responses by id', async () => {
+  it('caches metadata and activity intervals from the initialized message', () => {
     const { client } = makeClient();
-    const p = client.getActivityIntervals();
-    deliver({ type: 'response', id: 1, ok: true, data: [{ start: 0 }] });
-    await expect(p).resolves.toEqual([{ start: 0 }]);
+    expect(client.getMetaData()).toBeNull();
+    expect(client.getActivityIntervals()).toEqual([]);
+
+    deliver({
+      type: 'initialized',
+      metadata: { startTime: 0, endTime: 5000, totalTime: 5000 },
+      activityIntervals: [
+        { startTime: 0, endTime: 1000, duration: 1000, active: true },
+      ],
+    });
+
+    expect(client.getMetaData()).toEqual({
+      startTime: 0,
+      endTime: 5000,
+      totalTime: 5000,
+    });
+    expect(client.getActivityIntervals()).toHaveLength(1);
   });
 
   it('ignores messages from an untrusted source', () => {

@@ -26,7 +26,11 @@
  */
 
 import type { playerConfig } from '../../types';
-import type { eventWithTime } from '@rrweb/types';
+import type {
+  eventWithTime,
+  playerMetaData,
+  SessionInterval,
+} from '@rrweb/types';
 
 /** Namespaces our traffic so unrelated `postMessage` chatter is ignored. */
 export const RRWEB_EMBEDDED_CHANNEL = 'rrweb-embedded' as const;
@@ -101,14 +105,7 @@ export type HostCommand =
   | { type: 'addEvent'; event: eventWithTime }
   | { type: 'enableInteract' }
   | { type: 'disableInteract' }
-  | { type: 'destroy' }
-  | { type: 'request'; id: number; method: HostRequestMethod };
-
-/** Getter RPCs the parent can await a reply to. */
-export type HostRequestMethod =
-  | 'getMetaData'
-  | 'getCurrentTime'
-  | 'getActivityIntervals';
+  | { type: 'destroy' };
 
 /* -------------------------------------------------------------------------- */
 /* Host -> Parent (events / telemetry / replies)                              */
@@ -117,26 +114,22 @@ export type HostRequestMethod =
 export type HostMessage =
   /** Host script booted and the message listener is installed (pre-init). */
   | { type: 'ready' }
-  /** `Replayer` constructed; carries its (serializable) metadata. */
-  | { type: 'initialized'; metadata: PlayerMetaDataLike }
+  /**
+   * `Replayer` constructed (or its events replaced). Carries the stable getters
+   * the viewer needs — metadata and activity intervals — so the parent reads
+   * them from cache instead of pulling them synchronously across the boundary.
+   */
+  | {
+      type: 'initialized';
+      metadata: playerMetaData;
+      activityIntervals: SessionInterval[];
+    }
   /** A forwarded `Replayer` event (`replayer.on(...)`). Payload is optional and always plain data. */
-  | { type: 'replayer-event'; event: string; payload?: SerializablePayload }
+  | { type: 'replayer-event'; event: string; payload?: unknown }
   /** Periodic current-time push while playing, so the parent scrubber can track without sync getters. */
   | { type: 'time'; currentTime: number }
-  /** Reply to a `request` command. */
-  | { type: 'response'; id: number; ok: true; data: SerializablePayload }
-  | { type: 'response'; id: number; ok: false; error: string }
   /** Host-side failure surfaced for logging. */
   | { type: 'error'; message: string };
-
-export type PlayerMetaDataLike = {
-  startTime: number;
-  endTime: number;
-  totalTime: number;
-};
-
-/** Anything that survives structured clone; kept loose on purpose. */
-export type SerializablePayload = unknown;
 
 /* -------------------------------------------------------------------------- */
 /* Envelope + guards                                                          */

@@ -25,7 +25,6 @@ import {
   wrap,
   type HostCommand,
   type HostMessage,
-  type HostRequestMethod,
 } from './protocol';
 
 export interface EmbeddedReplayerHostOptions {
@@ -33,8 +32,8 @@ export interface EmbeddedReplayerHostOptions {
    * The exact origin the parent page is served from (e.g.
    * "https://app.launchdarkly.com"). Messages from any other origin are
    * ignored. If omitted, it is read from the `parentOrigin` query parameter of
-   * this iframe's URL; if that is also absent, the host pins the origin of the
-   * first well-formed message it receives and warns.
+   * this iframe's URL; if that is also absent, the host ignores all messages
+   * (and warns once on start).
    */
   expectedParentOrigin?: string;
   /** Element the `Replayer` renders into. Defaults to `document.body`. */
@@ -56,11 +55,11 @@ export class EmbeddedReplayerHost {
   private readonly root: HTMLElement;
   private readonly parentWindow: Window;
   private readonly timeUpdateIntervalMs: number;
-  private expectedParentOrigin: string | null;
+  private readonly expectedParentOrigin: string | null;
 
   private replayer: Replayer | null = null;
   private playing = false;
-  private rafHandle: number | null = null;
+  private timer: ReturnType<typeof setInterval> | null = null;
   private started = false;
 
   constructor(options: EmbeddedReplayerHostOptions = {}) {
@@ -77,6 +76,11 @@ export class EmbeddedReplayerHost {
   start(): void {
     if (this.started) return;
     this.started = true;
+    if (this.expectedParentOrigin === null) {
+      console.warn(
+        '[rrweb-embedded] no parentOrigin configured; all incoming messages will be ignored',
+      );
+    }
     window.addEventListener('message', this.onMessage);
     this.post({ type: 'ready' });
   }
@@ -91,18 +95,11 @@ export class EmbeddedReplayerHost {
   }
 
   private onMessage = (event: MessageEvent): void => {
-    // Authenticate the peer before looking at anything else.
+    // Authenticate the peer before acting on anything.
     if (event.source !== this.parentWindow) return;
+    if (this.expectedParentOrigin === null) return;
+    if (event.origin !== this.expectedParentOrigin) return;
     if (!isEnvelope<HostCommand>(event.data)) return;
-    if (this.expectedParentOrigin === null) {
-      // No pre-declared parent: trust-on-first-message, then pin.
-      this.expectedParentOrigin = event.origin;
-      console.warn(
-        `[rrweb-embedded] pinning parent origin to "${event.origin}" (no parentOrigin provided)`,
-      );
-    } else if (event.origin !== this.expectedParentOrigin) {
-      return;
-    }
 
     try {
       this.handle(event.data.message);
@@ -135,7 +132,10 @@ export class EmbeddedReplayerHost {
         this.replayer?.setConfig(pickSerializableConfig(command.config));
         return;
       case 'replaceEvents':
-        this.replayer?.replaceEvents(command.events);
+        if (this.replayer) {
+          this.replayer.replaceEvents(command.events);
+          this.postInitialized(); // metadata/intervals may have changed
+        }
         return;
       case 'addEvent':
         this.replayer?.addEvent(command.event);
@@ -148,9 +148,6 @@ export class EmbeddedReplayerHost {
         return;
       case 'destroy':
         this.stop();
-        return;
-      case 'request':
-        this.reply(command.id, command.method);
         return;
     }
   }
@@ -174,8 +171,7 @@ export class EmbeddedReplayerHost {
 
     this.replayer = new Replayer(events, replayerConfig);
     this.wireEvents(this.replayer);
-
-    this.post({ type: 'initialized', metadata: this.replayer.getMetaData() });
+    this.postInitialized();
 
     if (autoplay) {
       this.replayer.play(0);
@@ -183,43 +179,27 @@ export class EmbeddedReplayerHost {
     }
   }
 
+  /** Push the stable getters (metadata, activity intervals) to the parent. */
+  private postInitialized(): void {
+    if (!this.replayer) return;
+    this.post({
+      type: 'initialized',
+      metadata: this.replayer.getMetaData(),
+      activityIntervals: this.replayer.getActivityIntervals(),
+    });
+  }
+
   private wireEvents(replayer: Replayer): void {
     // Forward every Replayer event by name; attach a payload only for the
-    // curated, plainly-serializable ones. A DataCloneError (non-cloneable
-    // payload) degrades to a name-only forward rather than dropping the event.
+    // curated events whose payloads are plain, structured-cloneable data.
     for (const name of Object.values(ReplayerEvents)) {
       replayer.on(name, (payload?: unknown) => {
         if (name === ReplayerEvents.Finish) this.setPlaying(false);
-        const withPayload =
+        this.post(
           PAYLOAD_EVENTS.has(name) && payload !== undefined
-            ? { type: 'replayer-event' as const, event: name, payload }
-            : { type: 'replayer-event' as const, event: name };
-        try {
-          this.post(withPayload);
-        } catch {
-          this.post({ type: 'replayer-event', event: name });
-        }
-      });
-    }
-  }
-
-  private reply(id: number, method: HostRequestMethod): void {
-    if (!this.replayer) {
-      this.post({ type: 'response', id, ok: false, error: 'no replayer' });
-      return;
-    }
-    try {
-      let data: unknown;
-      if (method === 'getMetaData') data = this.replayer.getMetaData();
-      else if (method === 'getCurrentTime') data = this.replayer.getCurrentTime();
-      else data = this.replayer.getActivityIntervals();
-      this.post({ type: 'response', id, ok: true, data });
-    } catch (err) {
-      this.post({
-        type: 'response',
-        id,
-        ok: false,
-        error: err instanceof Error ? err.message : String(err),
+            ? { type: 'replayer-event', event: name, payload }
+            : { type: 'replayer-event', event: name },
+        );
       });
     }
   }
@@ -234,23 +214,18 @@ export class EmbeddedReplayerHost {
   }
 
   private startTimePump(): void {
-    if (this.rafHandle !== null) return;
-    let last = 0;
-    const tick = (now: number): void => {
-      if (!this.playing || !this.replayer) return;
-      if (now - last >= this.timeUpdateIntervalMs) {
-        last = now;
+    if (this.timer !== null) return;
+    this.timer = setInterval(() => {
+      if (this.replayer) {
         this.post({ type: 'time', currentTime: this.replayer.getCurrentTime() });
       }
-      this.rafHandle = requestAnimationFrame(tick);
-    };
-    this.rafHandle = requestAnimationFrame(tick);
+    }, this.timeUpdateIntervalMs);
   }
 
   private stopTimePump(): void {
-    if (this.rafHandle !== null) {
-      cancelAnimationFrame(this.rafHandle);
-      this.rafHandle = null;
+    if (this.timer !== null) {
+      clearInterval(this.timer);
+      this.timer = null;
     }
   }
 

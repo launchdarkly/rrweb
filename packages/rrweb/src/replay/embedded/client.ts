@@ -3,7 +3,7 @@
  * `EmbeddedReplayerHost` living in an isolated iframe, over `postMessage`.
  *
  * It mirrors the subset of the `Replayer` API the viewer actually needs
- * (playback control + an `on(...)` event surface + async getters), so callers
+ * (playback control + an `on(...)` event surface + cached getters), so callers
  * can treat it much like a local `Replayer` without any same-origin access to
  * the replay document.
  *
@@ -18,11 +18,13 @@ import {
   wrap,
   type HostCommand,
   type HostMessage,
-  type HostRequestMethod,
-  type PlayerMetaDataLike,
   type SerializableReplayerConfig,
 } from './protocol';
-import type { eventWithTime } from '@rrweb/types';
+import type {
+  eventWithTime,
+  playerMetaData,
+  SessionInterval,
+} from '@rrweb/types';
 
 export interface EmbeddedReplayerClientOptions {
   /**
@@ -42,13 +44,9 @@ export class EmbeddedReplayerClient {
   private readonly hostOrigin: string;
 
   private readonly listeners = new Map<string, Set<Listener>>();
-  private readonly pending = new Map<
-    number,
-    { resolve: (v: unknown) => void; reject: (e: Error) => void }
-  >();
-  private nextRequestId = 1;
 
-  private metadata: PlayerMetaDataLike | null = null;
+  private metadata: playerMetaData | null = null;
+  private activityIntervals: SessionInterval[] = [];
   private lastCurrentTime = 0;
   private ready = false;
   private readyResolvers: Array<() => void> = [];
@@ -117,8 +115,6 @@ export class EmbeddedReplayerClient {
     } finally {
       window.removeEventListener('message', this.onMessage);
       this.listeners.clear();
-      this.pending.forEach((p) => p.reject(new Error('client destroyed')));
-      this.pending.clear();
     }
   }
 
@@ -139,33 +135,24 @@ export class EmbeddedReplayerClient {
 
   /* --- getters ---------------------------------------------------------- */
 
-  /** Best-effort last-known current time (pushed by the host while playing). */
+  // Cached getters mirroring the local Replayer's synchronous ones. Metadata
+  // and activity intervals arrive on `initialized` (re-sent on replaceEvents);
+  // current time is streamed by the host while playing.
+
+  /** Last-known current time (pushed by the host while playing). */
   getCurrentTime(): number {
     return this.lastCurrentTime;
   }
 
-  getMetaData(): Promise<PlayerMetaDataLike> {
-    if (this.metadata) return Promise.resolve(this.metadata);
-    return this.request('getMetaData') as Promise<PlayerMetaDataLike>;
+  getMetaData(): playerMetaData | null {
+    return this.metadata;
   }
 
-  getActivityIntervals(): Promise<unknown> {
-    return this.request('getActivityIntervals');
-  }
-
-  requestCurrentTime(): Promise<number> {
-    return this.request('getCurrentTime') as Promise<number>;
+  getActivityIntervals(): SessionInterval[] {
+    return this.activityIntervals;
   }
 
   /* --- internals -------------------------------------------------------- */
-
-  private request(method: HostRequestMethod): Promise<unknown> {
-    const id = this.nextRequestId++;
-    return new Promise<unknown>((resolve, reject) => {
-      this.pending.set(id, { resolve, reject });
-      this.send({ type: 'request', id, method });
-    });
-  }
 
   private send(command: HostCommand): void {
     const target = this.iframe.contentWindow;
@@ -188,6 +175,7 @@ export class EmbeddedReplayerClient {
         return;
       case 'initialized':
         this.metadata = message.metadata;
+        this.activityIntervals = message.activityIntervals;
         this.emit('initialized', message.metadata);
         return;
       case 'replayer-event':
@@ -197,14 +185,6 @@ export class EmbeddedReplayerClient {
         this.lastCurrentTime = message.currentTime;
         this.emit('time', message.currentTime);
         return;
-      case 'response': {
-        const pending = this.pending.get(message.id);
-        if (!pending) return;
-        this.pending.delete(message.id);
-        if (message.ok) pending.resolve(message.data);
-        else pending.reject(new Error(message.error));
-        return;
-      }
       case 'error':
         this.emit('error', message.message);
         return;
