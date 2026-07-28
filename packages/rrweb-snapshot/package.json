@@ -72,9 +72,9 @@
     "ts-node": "^7.0.1",
     "tslib": "^1.9.3",
     "typescript": "^5.4.5",
-    "vite": "^6.4.2",
+    "vite": "^8.0.16",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^3.2.6"
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "postcss": "^8.4.38"
