@@ -62,8 +62,15 @@ export class EmbeddedReplayerClient {
     // If the host booted before this client attached (e.g. a client re-created
     // on a long-lived iframe), its one-shot `ready` announcement is gone —
     // probe so it re-announces. Harmless when the iframe hasn't loaded yet:
-    // the message is dropped and the host's own boot-time `ready` arrives.
-    this.send({ type: 'ping' });
+    // the message lands on the placeholder document, which has no listener, and
+    // the host's own boot-time `ready` arrives later.
+    //
+    // Targeted at "*" rather than hostOrigin on purpose: a freshly created
+    // iframe is still on its initial about:blank document, which carries the
+    // PARENT's origin, so a hostOrigin-targeted post would be refused and
+    // logged as a console error on every attach. The probe carries no data
+    // beyond its own type, so it is safe to leave the target open.
+    this.probe();
   }
 
   /** Resolves once the host iframe has loaded and announced readiness. */
@@ -166,6 +173,11 @@ export class EmbeddedReplayerClient {
     const target = this.iframe.contentWindow;
     if (!target) return;
     target.postMessage(wrap(command), this.hostOrigin);
+  }
+
+  /** Data-free handshake probe; see the note in the constructor. */
+  private probe(): void {
+    this.iframe.contentWindow?.postMessage(wrap({ type: 'ping' }), '*');
   }
 
   private onMessage = (event: MessageEvent): void => {
