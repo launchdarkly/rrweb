@@ -335,6 +335,17 @@ export function replaceLast(str: string, find: string, replace: string) {
   return str.substring(0, index) + replace + str.substring(index + find.length);
 }
 
+// For anchors like '<head>' that must target the document's real head: the
+// inlined rrweb bundle can contain the same text in a string literal (e.g.
+// buildHostDocument's HTML template), so the last occurrence is not safe.
+export function replaceFirst(str: string, find: string, replace: string) {
+  const index = str.indexOf(find);
+  if (index === -1) {
+    return str;
+  }
+  return str.substring(0, index) + replace + str.substring(index + find.length);
+}
+
 export async function assertDomSnapshot(page: puppeteer.Page) {
   const cdp = await page.target().createCDPSession();
   const { data } = await cdp.send('Page.captureSnapshot', {

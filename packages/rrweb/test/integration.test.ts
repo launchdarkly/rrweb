@@ -9,6 +9,7 @@ import {
   launchPuppeteer,
   waitForRAF,
   waitForIFrameLoad,
+  replaceFirst,
   replaceLast,
   generateRecordSnippet,
   ISuite,
@@ -1221,8 +1222,9 @@ describe('record integration tests', function (this: ISuite) {
     const page: puppeteer.Page = await browser.newPage();
     await page.goto('about:blank');
     await page.setContent(
-      // insert shadydom script
-      replaceLast(
+      // insert shadydom script (first '<head>' = the document's real head; the
+      // inlined rrweb bundle also contains that text in a string literal)
+      replaceFirst(
         getHtml.call(this, 'polyfilled-shadowdom-mutation.html'),
         '<head>',
         `
@@ -1255,8 +1257,9 @@ describe('record integration tests', function (this: ISuite) {
     const page: puppeteer.Page = await browser.newPage();
     await page.goto('about:blank');
     await page.setContent(
-      // insert lwc's synthetic-shadow script
-      replaceLast(
+      // insert lwc's synthetic-shadow script (first '<head>' = the document's
+      // real head; the inlined rrweb bundle also contains that text)
+      replaceFirst(
         getHtml.call(this, 'polyfilled-shadowdom-mutation.html'),
         '<head>',
         `
