@@ -127,6 +127,7 @@ export class EmbeddedReplayerHost {
       case 'pause':
         this.replayer?.pause(command.timeOffset);
         this.setPlaying(false);
+        this.postTime(); // settled position, after the pump has stopped
         return;
       case 'resume':
         this.replayer?.resume(command.timeOffset ?? 0);
@@ -200,7 +201,10 @@ export class EmbeddedReplayerHost {
     // curated events whose payloads are plain, structured-cloneable data.
     for (const name of Object.values(ReplayerEvents)) {
       replayer.on(name, (payload?: unknown) => {
-        if (name === ReplayerEvents.Finish) this.setPlaying(false);
+        if (name === ReplayerEvents.Finish) {
+          this.setPlaying(false);
+          this.postTime(); // settled end position, after the pump has stopped
+        }
         this.post(
           PAYLOAD_EVENTS.has(name) && payload !== undefined
             ? { type: 'replayer-event', event: name, payload }
@@ -221,14 +225,23 @@ export class EmbeddedReplayerHost {
 
   private startTimePump(): void {
     if (this.timer !== null) return;
-    this.timer = setInterval(() => {
-      if (this.replayer) {
-        this.post({
-          type: 'time',
-          currentTime: this.replayer.getCurrentTime(),
-        });
-      }
-    }, this.timeUpdateIntervalMs);
+    this.timer = setInterval(() => this.postTime(), this.timeUpdateIntervalMs);
+  }
+
+  /**
+   * Push the current playback position across the bridge.
+   *
+   * The parent cannot read the position synchronously — it lives in this realm
+   * behind an origin boundary — so the client's `getCurrentTime()` is only ever
+   * as fresh as the last push. While playing, the pump keeps it current. When
+   * playback stops the pump stops too, so the last pumped value would be up to
+   * one interval stale; callers that seek from it (`play(getCurrentTime())` to
+   * resume) would drift backwards. Pausing and finishing therefore push one
+   * final, settled value.
+   */
+  private postTime(): void {
+    if (!this.replayer) return;
+    this.post({ type: 'time', currentTime: this.replayer.getCurrentTime() });
   }
 
   private stopTimePump(): void {

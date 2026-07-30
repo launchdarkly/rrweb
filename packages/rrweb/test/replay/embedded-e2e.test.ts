@@ -178,6 +178,50 @@ describe('embedded replayer e2e', function (this: ISuite) {
     );
   });
 
+  it('pushes a settled position on pause, so the parent can resume without rewinding', async () => {
+    await bootEmbedded();
+
+    await page.evaluate(
+      'window.__client.init(JSON.parse(window.__eventsJson), {}, false)',
+    );
+    await page.waitForFunction('window.__received.initializedCount > 0');
+
+    await page.evaluate('window.__client.play(0)');
+    await page.waitForFunction('window.__received.times.length >= 3');
+
+    // Seek-and-pause far ahead of where playback currently is (a few hundred ms
+    // in). Any pump tick still in flight reports the old position, so only a
+    // final push made *after* the pause can land near the seek target.
+    const SEEK_TO = 3000;
+    await page.evaluate(`window.__client.pause(${SEEK_TO})`);
+    await page.waitForFunction(
+      `Math.abs(window.__client.getCurrentTime() - ${SEEK_TO}) < 250`,
+      { timeout: 10_000 },
+    );
+
+    // The position must also hold still while paused — no further pushes.
+    const atRest = (await page.evaluate(
+      'window.__client.getCurrentTime()',
+    )) as number;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(await page.evaluate('window.__client.getCurrentTime()')).toBe(
+      atRest,
+    );
+
+    // Resuming from the cached position must continue forward from there rather
+    // than restart, which is what a viewer's play button has to do given that
+    // Replayer.play(timeOffset) always seeks.
+    await page.evaluate(
+      'window.__client.play(window.__client.getCurrentTime())',
+    );
+    await page.waitForFunction(`window.__client.getCurrentTime() > ${atRest}`, {
+      timeout: 10_000,
+    });
+    expect(
+      (await page.evaluate('window.__received.times')) as number[],
+    ).not.toContain(0);
+  });
+
   it('resolves whenReady for a client attached after the host booted', async () => {
     await bootEmbedded();
 
