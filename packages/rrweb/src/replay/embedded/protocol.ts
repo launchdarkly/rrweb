@@ -2,14 +2,13 @@
  * Wire protocol for running the rrweb `Replayer` inside an isolated iframe and
  * driving it from a parent page over `postMessage`.
  *
- * Motivation (SEC-8885): today the `Replayer` runs in the host page and rebuilds
- * the recorded DOM downward into a child iframe. Canvas replay reconstructs
- * command arguments via `new window[rr_type](...)` in that host realm, so a
- * poisoned `Promise(Function("code"))` executes as first-party JS on the app
- * origin. Relocating the `Replayer` *into* a cookieless, cross-origin iframe
- * moves every bit of untrusted-data handling out of the privileged origin: even
- * if attacker JS runs, it runs somewhere with no app cookies, no same-origin API
- * access, and no reach into the parent window.
+ * Motivation: a recorded session is untrusted input, and by default the
+ * `Replayer` runs in the embedding page's own realm — so the whole replay path
+ * operates with the embedding origin's privileges. This opt-in mode lets an
+ * embedder relocate the `Replayer` into a separate, cross-site origin instead,
+ * where it has no app cookies, no same-origin access to app APIs, and no reach
+ * into the parent window. Purely additive: in-parent `Replayer` usage is
+ * unchanged, and embedders who do not opt in are unaffected.
  *
  * This module defines the messages exchanged across that boundary. Two rules are
  * load-bearing and MUST hold for the isolation to be worth anything:
@@ -20,9 +19,9 @@
  *    message content into code.
  * 2. Both sides authenticate their peer before acting on a message. The host
  *    checks `event.origin` against the parent origin it was told to trust; the
- *    client checks `event.source` identity against its iframe's `contentWindow`
- *    (a sandboxed opaque-origin iframe reports `event.origin === "null"`, so
- *    origin-string matching is not usable on the client side).
+ *    client checks `event.source` identity against its iframe's
+ *    `contentWindow`, which holds regardless of the origin the host document
+ *    is served from.
  */
 
 import type { playerConfig } from '../../types';
@@ -96,6 +95,12 @@ export function pickSerializableConfig(
 /* -------------------------------------------------------------------------- */
 
 export type HostCommand =
+  /**
+   * Handshake probe. The host answers with `ready`. Sent by the client on
+   * construction so that a client attached to an already-booted host (whose
+   * one-shot `ready` announcement it missed) still resolves `whenReady()`.
+   */
+  | { type: 'ping' }
   | {
       type: 'init';
       events: eventWithTime[];

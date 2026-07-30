@@ -8,9 +8,9 @@
  * the replay document.
  *
  * Peer authentication: the client identifies host messages by `event.source`
- * identity against the iframe's `contentWindow`. A sandboxed opaque-origin
- * iframe reports `event.origin === "null"`, so origin-string matching is not
- * usable here — source identity is the reliable check.
+ * identity against the iframe's `contentWindow`. Source identity holds no
+ * matter what origin the host document ends up on (it even survives the frame
+ * navigating), so it is the robust check on this side of the boundary.
  */
 
 import {
@@ -28,11 +28,11 @@ import type {
 
 export interface EmbeddedReplayerClientOptions {
   /**
-   * Target origin used when posting to the iframe. For a sandboxed
-   * opaque-origin host this must be "*" (an opaque frame's origin is "null",
-   * which cannot be named as a targetOrigin). Only replay data — never app
-   * secrets — is ever posted, so "*" is acceptable. When the host is served
-   * from a dedicated named origin, pass that origin for a tighter target.
+   * Target origin used when posting to the iframe. Pass the dedicated host
+   * origin (e.g. the origin `buildHostDocument`'s shell is served from) so
+   * replay data can only be delivered to the document it is meant for. The
+   * default is "*", which works before the host origin is known; only replay
+   * data — never app secrets — is ever posted over this channel.
    */
   hostOrigin?: string;
 }
@@ -59,6 +59,11 @@ export class EmbeddedReplayerClient {
     this.iframe = iframe;
     this.hostOrigin = options.hostOrigin ?? '*';
     window.addEventListener('message', this.onMessage);
+    // If the host booted before this client attached (e.g. a client re-created
+    // on a long-lived iframe), its one-shot `ready` announcement is gone —
+    // probe so it re-announces. Harmless when the iframe hasn't loaded yet:
+    // the message is dropped and the host's own boot-time `ready` arrives.
+    this.send({ type: 'ping' });
   }
 
   /** Resolves once the host iframe has loaded and announced readiness. */

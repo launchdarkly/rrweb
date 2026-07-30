@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>embedded replayer host</title>
+  </head>
+  <body>
+    <!-- Serves the embedded replayer host for the e2e suite. The trusted
+         parent origin arrives via the ?parentOrigin= query parameter, which
+         startEmbeddedReplayerHost() reads — the same served-URL wiring the
+         real integration uses. -->
+    <script src="/rrweb.umd.cjs"></script>
+    <script>
+      window.rrweb.startEmbeddedReplayerHost({ timeUpdateIntervalMs: 20 });
+    </script>
+  </body>
+</html>

@@ -22,8 +22,9 @@ import './replay/styles/style.css';
 
 export type { recordOptions, ReplayPlugin } from './types';
 
-// Origin-isolated replay: run the Replayer inside a cookieless, cross-origin
-// iframe and drive it over postMessage (SEC-8885). See ./replay/embedded.
+// Optional origin-isolated replay: run the Replayer inside a sandboxed iframe
+// on a separate, cross-site origin and drive it over postMessage.
+// See ./replay/embedded.
 export {
   EmbeddedReplayerHost,
   startEmbeddedReplayerHost,

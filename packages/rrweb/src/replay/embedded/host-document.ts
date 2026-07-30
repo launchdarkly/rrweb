@@ -2,20 +2,35 @@
  * Builds the minimal HTML shell that hosts the embedded replayer inside the
  * sandboxed iframe.
  *
- * Intended usage (served-URL mode): serve this document at a static URL and
- * point an iframe at it with `sandbox="allow-scripts"` (NOTE: no
- * `allow-same-origin`). The sandbox attribute forces the document into an
- * opaque origin regardless of the URL it is served from, which is what makes it
- * cookieless and cross-site to the app — so escaped replay JS has no app
- * cookies, no same-origin API access, and no reach into the parent window. The
- * parent origin to trust is passed at runtime via the iframe's `parentOrigin`
- * query parameter, which the host bootstrap reads.
+ * Intended usage: serve this document from a DEDICATED origin that is
+ * cross-site to the embedding app (so it never receives app cookies), and
+ * point an iframe at it with `sandbox="allow-scripts allow-same-origin"`. The
+ * isolation comes from the origin boundary: everything the replayer does runs
+ * with no app cookies, no same-origin access to app APIs, and no reach into the
+ * parent window. The parent origin to trust is passed at runtime via the
+ * iframe's `parentOrigin` query parameter, which the host bootstrap reads.
  *
- * The `<meta>` CSP below governs the realm the replayer ACTUALLY runs in (unlike
- * today's policy, which only covered the rebuilt-DOM child). `script-src` omits
- * `unsafe-eval`, which kills the `new Function(...)` canvas-deserializer path
- * (SEC-8885) even inside the sandbox — defense in depth on top of the origin
- * isolation itself.
+ * `allow-same-origin` is REQUIRED, which is why an opaque-origin
+ * (`allow-scripts`-only) deployment is not possible: nested browsing contexts
+ * inherit the sandbox flags, so inside an opaque-origin document every child
+ * iframe lands in a fresh opaque origin of its own and its `contentDocument`
+ * is unreachable — and the `Replayer` rebuilds the recorded DOM into exactly
+ * such a child iframe (see `createSandboxedIframe` in rrweb-snapshot).
+ * Corollary: NEVER serve this document from the app's own origin — with
+ * `allow-same-origin` the frame would then be same-origin with the app, which
+ * removes the boundary this mode exists to create.
+ *
+ * The `<meta>` CSP below governs the realm the replayer itself runs in, not just
+ * the rebuilt-DOM child document. `script-src` names only the host bundle and
+ * omits `unsafe-eval`, so the replay realm loads no other script and compiles
+ * no code from strings — defense in depth on top of the origin isolation.
+ *
+ * Integration notes:
+ * - This package ships no prebuilt host bundle: `scriptUrl` must point at a
+ *   consumer-built module that calls `startEmbeddedReplayerHost()`.
+ * - Module scripts are CORS-gated: if `scriptUrl` is not same-origin with the
+ *   host document, its server must send `Access-Control-Allow-Origin` for the
+ *   host origin or the host silently never boots.
  */
 
 export interface HostDocumentOptions {

@@ -1,7 +1,8 @@
 /**
- * Origin-isolated replay: run the rrweb `Replayer` inside a cookieless,
- * cross-origin (sandboxed opaque-origin) iframe and drive it from the parent
- * over `postMessage`. See ./protocol.ts for the rationale (SEC-8885).
+ * Origin-isolated replay (opt-in): run the rrweb `Replayer` inside a sandboxed
+ * iframe on a separate, cross-site origin and drive it from the parent over
+ * `postMessage`. See ./protocol.ts for the rationale and the deployment
+ * requirements.
  *
  * - `EmbeddedReplayerHost` / `startEmbeddedReplayerHost`: run inside the iframe.
  * - `EmbeddedReplayerClient`: run in the parent to control the host.

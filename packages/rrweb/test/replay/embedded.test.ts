@@ -9,6 +9,7 @@ import {
   type HostMessage,
 } from '../../src/replay/embedded/protocol';
 import { EmbeddedReplayerClient } from '../../src/replay/embedded/client';
+import { EmbeddedReplayerHost } from '../../src/replay/embedded/host';
 
 describe('embedded replay protocol', () => {
   describe('isEnvelope', () => {
@@ -102,11 +103,23 @@ describe('EmbeddedReplayerClient', () => {
     window.dispatchEvent(event);
   }
 
+  it('probes the host with a ping on construction', () => {
+    const { posted } = makeClient();
+    // A client attached to an already-booted host missed the one-shot `ready`
+    // announcement; the construction-time ping makes the host re-announce.
+    expect(posted).toHaveLength(1);
+    expect(posted[0]).toMatchObject({
+      channel: RRWEB_EMBEDDED_CHANNEL,
+      version: RRWEB_EMBEDDED_PROTOCOL_VERSION,
+      message: { type: 'ping' },
+    });
+  });
+
   it('posts namespaced command envelopes', () => {
     const { client, posted } = makeClient();
     client.play(1234);
-    expect(posted).toHaveLength(1);
-    expect(posted[0]).toMatchObject({
+    expect(posted).toHaveLength(2); // [0] is the construction ping
+    expect(posted[1]).toMatchObject({
       channel: RRWEB_EMBEDDED_CHANNEL,
       version: RRWEB_EMBEDDED_PROTOCOL_VERSION,
       message: { type: 'play', timeOffset: 1234 },
@@ -171,5 +184,73 @@ describe('EmbeddedReplayerClient', () => {
     deliver({ type: 'time', currentTime: 999 }, { fake: true });
     expect(onTime).not.toHaveBeenCalled();
     expect(client.getCurrentTime()).toBe(0);
+  });
+});
+
+describe('EmbeddedReplayerHost', () => {
+  const PARENT_ORIGIN = 'https://parent.example';
+
+  // Stand-in for window.parent: captures what the host posts back.
+  function makeHost() {
+    const parentWindow = {
+      postMessage: vi.fn(),
+    } as unknown as Window;
+    const host = new EmbeddedReplayerHost({
+      expectedParentOrigin: PARENT_ORIGIN,
+      parentWindow,
+    });
+    return {
+      host,
+      posted: parentWindow.postMessage as ReturnType<typeof vi.fn>,
+      parentWindow,
+    };
+  }
+
+  function deliverCommand(
+    message: unknown,
+    { origin = PARENT_ORIGIN, source }: { origin?: string; source: unknown },
+  ) {
+    const event = new MessageEvent('message', { data: wrap(message), origin });
+    Object.defineProperty(event, 'source', { value: source });
+    window.dispatchEvent(event);
+  }
+
+  it('announces ready on start and re-announces on ping', () => {
+    const { host, posted, parentWindow } = makeHost();
+    host.start();
+    expect(posted).toHaveBeenCalledTimes(1);
+    expect(posted.mock.calls[0][0]).toMatchObject({
+      message: { type: 'ready' },
+    });
+    expect(posted.mock.calls[0][1]).toBe(PARENT_ORIGIN);
+
+    // A late-attaching client probes with ping; the host must re-announce.
+    deliverCommand({ type: 'ping' }, { source: parentWindow });
+    expect(posted).toHaveBeenCalledTimes(2);
+    expect(posted.mock.calls[1][0]).toMatchObject({
+      message: { type: 'ready' },
+    });
+    host.stop();
+  });
+
+  it('ignores commands from the wrong origin', () => {
+    const { host, posted, parentWindow } = makeHost();
+    host.start();
+    posted.mockClear();
+    deliverCommand(
+      { type: 'ping' },
+      { origin: 'https://evil.example', source: parentWindow },
+    );
+    expect(posted).not.toHaveBeenCalled();
+    host.stop();
+  });
+
+  it('ignores commands whose source is not the parent window', () => {
+    const { host, posted } = makeHost();
+    host.start();
+    posted.mockClear();
+    deliverCommand({ type: 'ping' }, { source: { fake: true } });
+    expect(posted).not.toHaveBeenCalled();
+    host.stop();
   });
 });

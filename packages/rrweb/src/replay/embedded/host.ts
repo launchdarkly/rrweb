@@ -2,10 +2,10 @@
  * `EmbeddedReplayerHost` — runs INSIDE the isolated replay iframe.
  *
  * It receives the recorded events + a data-only config from the parent over
- * `postMessage`, constructs a normal rrweb `Replayer` in *this* realm (so all
- * untrusted-data handling — including canvas-argument deserialization — happens
- * here, not in the parent's privileged origin), forwards `Replayer` events back
- * to the parent, and applies playback commands.
+ * `postMessage`, constructs a normal rrweb `Replayer` in *this* realm (so the
+ * replay of untrusted recording data happens here rather than in the parent's
+ * privileged origin), forwards `Replayer` events back to the parent, and
+ * applies playback commands.
  *
  * Security invariants (see ./protocol.ts):
  * - Only messages whose `event.origin` equals the trusted parent origin AND
@@ -88,7 +88,7 @@ export class EmbeddedReplayerHost {
   /** Tear everything down (also invoked on a `destroy` command). */
   stop(): void {
     window.removeEventListener('message', this.onMessage);
-    this.stopTimePump();
+    this.setPlaying(false);
     this.replayer?.destroy();
     this.replayer = null;
     this.started = false;
@@ -113,6 +113,10 @@ export class EmbeddedReplayerHost {
 
   private handle(command: HostCommand): void {
     switch (command.type) {
+      case 'ping':
+        // Re-announce readiness for clients that attached after start().
+        this.post({ type: 'ready' });
+        return;
       case 'init':
         this.init(command.events, command.config, command.autoplay);
         return;
@@ -158,8 +162,10 @@ export class EmbeddedReplayerHost {
     autoplay?: boolean,
   ): void {
     if (this.replayer) {
+      // setPlaying (not a bare stopTimePump) so the `playing` flag resets too;
+      // otherwise the next setPlaying(true) no-ops and the pump never restarts.
+      this.setPlaying(false);
       this.replayer.destroy();
-      this.stopTimePump();
     }
 
     // Data-only config from the parent, plus locally-owned, non-transferable
