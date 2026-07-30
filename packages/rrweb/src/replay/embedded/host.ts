@@ -25,6 +25,7 @@ import {
   wrap,
   type HostCommand,
   type HostMessage,
+  type ReplayAnchor,
 } from './protocol';
 
 export interface EmbeddedReplayerHostOptions {
@@ -61,6 +62,12 @@ export class EmbeddedReplayerHost {
   private playing = false;
   private timer: ReturnType<typeof setInterval> | null = null;
   private started = false;
+  /**
+   * Last layout the parent asked for. Retained because each `Replayer` builds
+   * its own wrapper element, so a re-init would otherwise drop the scaling and
+   * render the replay at 1:1 in the corner.
+   */
+  private layout: { scale: number; anchor: ReplayAnchor } | null = null;
 
   constructor(options: EmbeddedReplayerHostOptions = {}) {
     this.root = options.root ?? document.body;
@@ -133,6 +140,14 @@ export class EmbeddedReplayerHost {
         this.replayer?.resume(command.timeOffset ?? 0);
         this.setPlaying(true);
         return;
+      case 'setLayout':
+        this.layout = {
+          scale: command.scale,
+          anchor: command.anchor ?? 'center',
+        };
+        this.applyLayout();
+        this.postDimensions();
+        return;
       case 'setConfig':
         this.replayer?.setConfig(pickSerializableConfig(command.config));
         return;
@@ -178,12 +193,50 @@ export class EmbeddedReplayerHost {
 
     this.replayer = new Replayer(events, replayerConfig);
     this.wireEvents(this.replayer);
+    this.applyLayout(); // new Replayer == new wrapper, so re-apply
     this.postInitialized();
+    this.postDimensions();
 
     if (autoplay) {
       this.replayer.play(0);
       this.setPlaying(true);
     }
+  }
+
+  /**
+   * Translate the parent's layout intent into styles on the replay wrapper.
+   *
+   * Mirrors what an embedder would otherwise apply from its own stylesheet:
+   * `transform-origin: top left` with `left: 50%` to center horizontally, and
+   * either `top: 50%` + a -50% Y translate to center vertically, or `top: 0`
+   * with no Y translate to anchor at the top edge.
+   */
+  private applyLayout(): void {
+    const wrapper = this.replayer?.wrapper;
+    if (!wrapper || !this.layout) return;
+    const { scale, anchor } = this.layout;
+    const top = anchor === 'top';
+    wrapper.style.position = 'absolute';
+    wrapper.style.transformOrigin = 'top left';
+    wrapper.style.left = '50%';
+    wrapper.style.top = top ? '0' : '50%';
+    wrapper.style.transform = top
+      ? `scale(${scale}) translate(-50%, 0)`
+      : `scale(${scale}) translate(-50%, -50%)`;
+  }
+
+  /** Report the wrapper's rendered geometry; the parent cannot measure it. */
+  private postDimensions(): void {
+    const wrapper = this.replayer?.wrapper;
+    if (!wrapper) return;
+    const rect = wrapper.getBoundingClientRect();
+    this.post({
+      type: 'dimensions',
+      width: rect.width,
+      height: rect.height,
+      top: rect.top,
+      left: rect.left,
+    });
   }
 
   /** Push the stable getters (metadata, activity intervals) to the parent. */
@@ -204,6 +257,10 @@ export class EmbeddedReplayerHost {
         if (name === ReplayerEvents.Finish) {
           this.setPlaying(false);
           this.postTime(); // settled end position, after the pump has stopped
+        }
+        if (name === ReplayerEvents.Resize) {
+          // The recorded viewport changed, so the rendered size did too.
+          this.postDimensions();
         }
         this.post(
           PAYLOAD_EVENTS.has(name) && payload !== undefined

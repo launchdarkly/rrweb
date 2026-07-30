@@ -126,6 +126,52 @@ describe('EmbeddedReplayerClient', () => {
     });
   });
 
+  it('sends layout intent, not styles, and defaults the anchor host-side', () => {
+    const { client, posted } = makeClient();
+    client.setLayout(0.5, 'top');
+    expect(posted[1]).toMatchObject({
+      message: { type: 'setLayout', scale: 0.5, anchor: 'top' },
+    });
+
+    // Anchor omitted: the host applies its own default rather than the client
+    // inventing one, so both sides agree on exactly one default.
+    client.setLayout(0.25);
+    expect(posted[2]).toMatchObject({
+      message: { type: 'setLayout', scale: 0.25 },
+    });
+    expect(
+      (posted[2] as { message: Record<string, unknown> }).message.anchor,
+    ).toBeUndefined();
+  });
+
+  it('caches reported dimensions and emits them', () => {
+    const { client } = makeClient();
+    expect(client.getDimensions()).toBeNull();
+    const onDimensions = vi.fn();
+    client.on('dimensions', onDimensions);
+
+    deliver({
+      type: 'dimensions',
+      width: 452,
+      height: 242,
+      top: 119,
+      left: 224,
+    });
+
+    expect(client.getDimensions()).toEqual({
+      width: 452,
+      height: 242,
+      top: 119,
+      left: 224,
+    });
+    expect(onDimensions).toHaveBeenCalledWith({
+      width: 452,
+      height: 242,
+      top: 119,
+      left: 224,
+    });
+  });
+
   it('resolves whenReady on the ready handshake', async () => {
     const { client } = makeClient();
     let resolved = false;

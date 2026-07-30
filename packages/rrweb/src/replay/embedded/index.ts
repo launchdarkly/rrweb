@@ -17,6 +17,7 @@ export {
 export {
   EmbeddedReplayerClient,
   type EmbeddedReplayerClientOptions,
+  type ReplayDimensions,
 } from './client';
 export { buildHostDocument, type HostDocumentOptions } from './host-document';
 export {
@@ -28,6 +29,7 @@ export {
   wrap,
   type SerializableReplayerConfig,
   type SerializableConfigKey,
+  type ReplayAnchor,
   type HostCommand,
   type HostMessage,
   type Envelope,

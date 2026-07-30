@@ -87,6 +87,7 @@ describe('embedded replayer e2e', function (this: ISuite) {
           times: [] as number[],
           replayerEvents: [] as string[],
           errors: [] as string[],
+          dimensionsCount: 0,
         };
         w.__received = received;
 
@@ -103,6 +104,9 @@ describe('embedded replayer e2e', function (this: ISuite) {
           received.replayerEvents.push('fullsnapshot-rebuilded'),
         );
         client.on('error', (message: string) => received.errors.push(message));
+        client.on('dimensions', () => {
+          received.dimensionsCount += 1;
+        });
         /* eslint-enable @typescript-eslint/no-explicit-any */
       },
       `${hostServerURL}/html/embedded-host.html`,
@@ -220,6 +224,64 @@ describe('embedded replayer e2e', function (this: ISuite) {
     expect(
       (await page.evaluate('window.__received.times')) as number[],
     ).not.toContain(0);
+  });
+
+  it('applies parent-driven scaling in the host realm and reports the geometry back', async () => {
+    await bootEmbedded();
+
+    await page.evaluate(
+      'window.__client.init(JSON.parse(window.__eventsJson), {}, false)',
+    );
+    await page.waitForFunction('window.__client.getDimensions() !== null');
+
+    const dims = () =>
+      page.evaluate('window.__client.getDimensions()') as Promise<{
+        width: number;
+        height: number;
+        top: number;
+        left: number;
+      }>;
+
+    // Scaling is applied to a wrapper the parent cannot touch or measure, so
+    // the reported geometry is the only observable. Halving the scale must
+    // halve the reported size.
+    await page.evaluate('window.__client.setLayout(1, "center")');
+    await page.waitForFunction('window.__client.getDimensions().width > 0');
+    const full = await dims();
+
+    await page.evaluate('window.__client.setLayout(0.5, "center")');
+    await page.waitForFunction(
+      `Math.abs(window.__client.getDimensions().width - ${full.width / 2}) < 2`,
+      { timeout: 10_000 },
+    );
+    const half = await dims();
+    expect(half.height).toBeCloseTo(full.height / 2, 0);
+
+    // Anchoring must move the replay without resizing it: a top anchor puts the
+    // wrapper's top edge at the top of the host viewport.
+    await page.evaluate('window.__client.setLayout(0.5, "top")');
+    await page.waitForFunction(
+      'Math.abs(window.__client.getDimensions().top) < 2',
+      { timeout: 10_000 },
+    );
+    const topAnchored = await dims();
+    expect(topAnchored.width).toBeCloseTo(half.width, 0);
+    expect(Math.abs(topAnchored.top - half.top)).toBeGreaterThan(1);
+
+    // A re-init builds a new Replayer, and therefore a new wrapper. The host
+    // must re-apply the retained layout or the replay would snap back to 1:1.
+    await page.evaluate(
+      'window.__client.init(JSON.parse(window.__eventsJson), {}, false)',
+    );
+    await page.waitForFunction('window.__received.initializedCount >= 2');
+    await page.waitForFunction(
+      `Math.abs(window.__client.getDimensions().width - ${half.width}) < 2`,
+      { timeout: 10_000 },
+    );
+
+    expect(
+      (await page.evaluate('window.__received.errors')) as string[],
+    ).toEqual([]);
   });
 
   it('resolves whenReady for a client attached after the host booted', async () => {

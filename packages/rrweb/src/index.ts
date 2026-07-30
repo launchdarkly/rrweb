@@ -37,6 +37,8 @@ export {
   type EmbeddedReplayerClientOptions,
   type HostDocumentOptions,
   type SerializableReplayerConfig,
+  type ReplayAnchor,
+  type ReplayDimensions,
   type HostCommand,
   type HostMessage,
 } from './replay/embedded';

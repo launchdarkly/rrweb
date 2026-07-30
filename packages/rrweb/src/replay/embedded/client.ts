@@ -18,6 +18,7 @@ import {
   wrap,
   type HostCommand,
   type HostMessage,
+  type ReplayAnchor,
   type SerializableReplayerConfig,
 } from './protocol';
 import type {
@@ -39,6 +40,14 @@ export interface EmbeddedReplayerClientOptions {
 
 type Listener = (payload?: unknown) => void;
 
+/** Rendered geometry of the replay wrapper, as measured in the host realm. */
+export interface ReplayDimensions {
+  width: number;
+  height: number;
+  top: number;
+  left: number;
+}
+
 export class EmbeddedReplayerClient {
   private readonly iframe: HTMLIFrameElement;
   private readonly hostOrigin: string;
@@ -47,6 +56,7 @@ export class EmbeddedReplayerClient {
 
   private metadata: playerMetaData | null = null;
   private activityIntervals: SessionInterval[] = [];
+  private dimensions: ReplayDimensions | null = null;
   private lastCurrentTime = 0;
   private ready = false;
   private readyResolvers: Array<() => void> = [];
@@ -103,6 +113,16 @@ export class EmbeddedReplayerClient {
 
   setConfig(config: SerializableReplayerConfig): void {
     this.send({ type: 'setConfig', config });
+  }
+
+  /**
+   * Scale and position the replay. Compute `scale` from your own container size
+   * and the recorded viewport, as you would when driving a local `Replayer`;
+   * the host applies it, since the wrapper element is not reachable from here.
+   * The layout is retained across re-inits.
+   */
+  setLayout(scale: number, anchor?: ReplayAnchor): void {
+    this.send({ type: 'setLayout', scale, anchor });
   }
 
   replaceEvents(events: eventWithTime[]): void {
@@ -167,6 +187,15 @@ export class EmbeddedReplayerClient {
     return this.activityIntervals;
   }
 
+  /**
+   * Rendered geometry of the replay, in the host document's coordinate space —
+   * the cross-origin stand-in for `replayer.wrapper.getBoundingClientRect()`.
+   * Null until the host has reported it (listen for `'dimensions'`).
+   */
+  getDimensions(): ReplayDimensions | null {
+    return this.dimensions;
+  }
+
   /* --- internals -------------------------------------------------------- */
 
   private send(command: HostCommand): void {
@@ -204,6 +233,15 @@ export class EmbeddedReplayerClient {
       case 'time':
         this.lastCurrentTime = message.currentTime;
         this.emit('time', message.currentTime);
+        return;
+      case 'dimensions':
+        this.dimensions = {
+          width: message.width,
+          height: message.height,
+          top: message.top,
+          left: message.left,
+        };
+        this.emit('dimensions', this.dimensions);
         return;
       case 'error':
         this.emit('error', message.message);

@@ -94,6 +94,13 @@ export function pickSerializableConfig(
 /* Parent -> Host (commands)                                                  */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Where the scaled replay sits in the host viewport. `center` centers it on
+ * both axes; `top` centers horizontally and anchors to the top edge, so the
+ * replay grows downward as the frame gets taller.
+ */
+export type ReplayAnchor = 'top' | 'center';
+
 export type HostCommand =
   /**
    * Handshake probe. The host answers with `ready`. Sent by the client on
@@ -107,6 +114,17 @@ export type HostCommand =
       config?: SerializableReplayerConfig;
       autoplay?: boolean;
     }
+  /**
+   * Scale and position the replay inside the host viewport.
+   *
+   * The embedder computes `scale` itself — it knows its own container size and
+   * the recorded viewport — but cannot apply it, because the replay wrapper
+   * lives in the host realm. So intent crosses the boundary and the host
+   * translates it into styles. Deliberately NOT a CSS string or class name: a
+   * class from the embedder's stylesheet means nothing in the host document and
+   * would silently do nothing.
+   */
+  | { type: 'setLayout'; scale: number; anchor?: ReplayAnchor }
   | { type: 'play'; timeOffset?: number }
   | { type: 'pause'; timeOffset?: number }
   | { type: 'resume'; timeOffset?: number }
@@ -138,6 +156,18 @@ export type HostMessage =
   | { type: 'replayer-event'; event: string; payload?: unknown }
   /** Periodic current-time push while playing, so the parent scrubber can track without sync getters. */
   | { type: 'time'; currentTime: number }
+  /**
+   * Rendered geometry of the replay wrapper, in the host document's coordinate
+   * space. The parent cannot measure across the boundary, so the host reports
+   * it after init, after a layout change, and whenever the replay resizes.
+   */
+  | {
+      type: 'dimensions';
+      width: number;
+      height: number;
+      top: number;
+      left: number;
+    }
   /** Host-side failure surfaced for logging. */
   | { type: 'error'; message: string };
 
