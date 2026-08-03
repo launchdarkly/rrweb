@@ -61,6 +61,14 @@ export class EmbeddedReplayerClient {
   private ready = false;
   private readyResolvers: Array<() => void> = [];
   private disposed = false;
+  /**
+   * Commands issued before the host handshakes. A command posted while the
+   * iframe is still on its initial `about:blank` (which carries the PARENT's
+   * origin) is rejected by the browser as an origin mismatch and lost — the
+   * viewer calls `setLayout` on mount, well before the host boots. Buffer until
+   * `ready`, then flush; by then the frame is on the host origin.
+   */
+  private pending: HostCommand[] = [];
 
   constructor(
     iframe: HTMLIFrameElement,
@@ -199,9 +207,25 @@ export class EmbeddedReplayerClient {
   /* --- internals -------------------------------------------------------- */
 
   private send(command: HostCommand): void {
+    // Hold commands until the host is ready (see `pending`), so they aren't
+    // posted at the host origin while the frame is still on about:blank.
+    if (!this.ready) {
+      this.pending.push(command);
+      return;
+    }
+    this.postToHost(command);
+  }
+
+  private postToHost(command: HostCommand): void {
     const target = this.iframe.contentWindow;
     if (!target) return;
     target.postMessage(wrap(command), this.hostOrigin);
+  }
+
+  private flushPending(): void {
+    const queued = this.pending;
+    this.pending = [];
+    queued.forEach((command) => this.postToHost(command));
   }
 
   /** Data-free handshake probe; see the note in the constructor. */
@@ -219,6 +243,7 @@ export class EmbeddedReplayerClient {
     switch (message.type) {
       case 'ready':
         this.ready = true;
+        this.flushPending(); // deliver commands buffered before the handshake
         this.readyResolvers.forEach((r) => r());
         this.readyResolvers = [];
         return;
