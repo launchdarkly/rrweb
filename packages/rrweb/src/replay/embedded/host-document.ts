@@ -81,7 +81,7 @@ export function buildHostDocument(options: HostDocumentOptions): string {
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="${escapeAttr(csp)}">
-<style>html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#fff}</style>
+<style>html,body{margin:0;padding:0;height:100%;overflow:hidden;background:transparent}</style>
 ${styleTag}
 <script type="module" src="${escapeAttr(options.scriptUrl)}"></script>
 </head>
