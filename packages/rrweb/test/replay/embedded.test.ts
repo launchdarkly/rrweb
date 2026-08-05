@@ -117,6 +117,7 @@ describe('EmbeddedReplayerClient', () => {
 
   it('posts namespaced command envelopes', () => {
     const { client, posted } = makeClient();
+    deliver({ type: 'ready' }); // handshake first, so commands post instead of queueing
     client.play(1234);
     expect(posted).toHaveLength(2); // [0] is the construction ping
     expect(posted[1]).toMatchObject({
@@ -126,8 +127,22 @@ describe('EmbeddedReplayerClient', () => {
     });
   });
 
+  it('buffers commands issued before the handshake and flushes them on ready', () => {
+    const { client, posted } = makeClient();
+    // Before `ready`, a command is held back — only the construction ping posted.
+    client.play(1234);
+    expect(posted).toHaveLength(1);
+    // The handshake flushes the queue, in order.
+    deliver({ type: 'ready' });
+    expect(posted).toHaveLength(2);
+    expect(posted[1]).toMatchObject({
+      message: { type: 'play', timeOffset: 1234 },
+    });
+  });
+
   it('sends layout intent, not styles, and defaults the anchor host-side', () => {
     const { client, posted } = makeClient();
+    deliver({ type: 'ready' }); // handshake first, so commands post instead of queueing
     client.setLayout(0.5, 'top');
     expect(posted[1]).toMatchObject({
       message: { type: 'setLayout', scale: 0.5, anchor: 'top' },
