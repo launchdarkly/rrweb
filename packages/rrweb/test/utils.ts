@@ -60,7 +60,7 @@ export const startServer = (defaultPort = 3030) =>
 
       let pathname = path.join(__dirname, sanitizePath);
       if (/^\/rrweb.*\.c?js.*/.test(sanitizePath)) {
-        pathname = path.join(__dirname, `../dist/main`, sanitizePath);
+        pathname = path.join(__dirname, `../dist`, sanitizePath);
       }
 
       try {
@@ -329,6 +329,17 @@ export async function assertSnapshot(
 
 export function replaceLast(str: string, find: string, replace: string) {
   const index = str.lastIndexOf(find);
+  if (index === -1) {
+    return str;
+  }
+  return str.substring(0, index) + replace + str.substring(index + find.length);
+}
+
+// For anchors like '<head>' that must target the document's real head: the
+// inlined rrweb bundle can contain the same text in a string literal (e.g.
+// buildHostDocument's HTML template), so the last occurrence is not safe.
+export function replaceFirst(str: string, find: string, replace: string) {
+  const index = str.indexOf(find);
   if (index === -1) {
     return str;
   }
