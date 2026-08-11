@@ -60,6 +60,17 @@ export type recordOptions<T> = {
   slimDOMOptions?: SlimDOMOptions | 'all' | true;
   ignoreCSSAttributes?: Set<string>;
   /**
+   * How often, in milliseconds, to reconcile CSSOM driven stylesheets (the
+   * `<style>` elements emotion, styled-components and friends write into via
+   * `insertRule`) against what has actually been recorded, re-sending any rules
+   * that were missed. Guards against other scripts on the page displacing our
+   * `CSSStyleSheet.prototype.insertRule` patch, which otherwise leaves the
+   * replay stuck with whatever CSS existed at snapshot time.
+   *
+   * Set to `0` to disable. Defaults to 2000.
+   */
+  styleSheetResyncInterval?: number;
+  /**
    * @deprecated Since 2.0.0. This option is still supported, but is planned to
    * be superseded by future captureAssets asset recording APIs.
    */
@@ -140,6 +151,7 @@ export type observerParam = {
   canvasManager: CanvasManager;
   processedNodeManager: ProcessedNodeManager;
   ignoreCSSAttributes: Set<string>;
+  styleSheetResyncInterval: number;
   plugins: Array<{
     observer: (
       cb: (...arg: Array<unknown>) => void,

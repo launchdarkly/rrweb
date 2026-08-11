@@ -100,6 +100,7 @@ function record<T = eventWithTime>(
     keepIframeSrcFn = () => false,
     privacySetting = 'default',
     ignoreCSSAttributes = new Set([]),
+    styleSheetResyncInterval = 2000,
     errorHandler,
     logger,
   } = options;
@@ -563,6 +564,7 @@ function record<T = eventWithTime>(
           processedNodeManager,
           canvasManager,
           ignoreCSSAttributes,
+          styleSheetResyncInterval,
           privacySetting,
           plugins:
             plugins
