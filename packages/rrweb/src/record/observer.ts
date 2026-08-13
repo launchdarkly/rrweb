@@ -3,6 +3,7 @@ import {
   maskInputValue,
   Mirror,
   getInputType,
+  isCSSImportRule,
   toLowerCase,
 } from 'rrweb-snapshot';
 import type { FontFaceSet } from 'css-font-loading-module';
@@ -35,6 +36,8 @@ import type {
   listenerHandler,
   scrollCallback,
   styleSheetRuleCallback,
+  styleSheetAddRule,
+  styleSheetDeleteRule,
   viewportResizeCallback,
   inputValue,
   inputCallback,
@@ -602,8 +605,42 @@ function getIdAndStyleId(
   };
 }
 
+/**
+ * Undo one of our monkey patches, but only while it is still the installed one.
+ *
+ * We are not the only script that patches these CSSOM methods: analytics and
+ * session replay vendors do it too, as does a second copy of rrweb when an app
+ * bundles one by accident. Each of them captures whatever is installed at load
+ * time and reinstalls it on teardown, so restoring unconditionally here would
+ * throw away their patch -- and anything layered on top of it -- leaving them
+ * silently blind for the rest of the page's lifetime. Only unwind our own layer.
+ */
+function restorePatchedMethod<T, K extends keyof T>(
+  target: T,
+  key: K,
+  ours: T[K],
+  restoreTo: T[K],
+): void {
+  if (target[key] === ours) {
+    target[key] = restoreTo;
+  }
+}
+
+/**
+ * How many times we will reinstall a displaced CSSOM patch before giving up and
+ * relying solely on the periodic reconciliation. Bounded so that a script which
+ * fights us on every tick cannot grow an unbounded chain of proxies.
+ */
+const MAX_CSSOM_REPATCH_ATTEMPTS = 5;
+
 function initStyleSheetObserver(
-  { styleSheetRuleCb, mirror, stylesheetManager }: observerParam,
+  {
+    styleSheetRuleCb,
+    mirror,
+    stylesheetManager,
+    doc,
+    styleSheetResyncInterval,
+  }: observerParam,
   { win }: { win: IWindow },
 ): listenerHandler {
   if (!win.CSSStyleSheet || !win.CSSStyleSheet.prototype) {
@@ -613,37 +650,156 @@ function initStyleSheetObserver(
     };
   }
 
+  /**
+   * Per stylesheet bookkeeping for `resyncCssomStyleSheets`:
+   * - `reported`: how many top level rules the replayer is known to hold.
+   * - `everSeen`: the most rules the sheet has ever had, an upper bound on what
+   *   the replayer can be holding.
+   */
+  const reportedRuleCounts = new WeakMap<
+    CSSStyleSheet,
+    { reported: number; everSeen: number }
+  >();
+  /** Sheets whose rule indices we cannot reason about, see resyncCssomStyleSheets. */
+  const unreconcilableSheets = new WeakSet<CSSStyleSheet>();
+
+  /** Set while `captureIsHealthy` is checking that our patch still runs. */
+  let probing = false;
+  let probeInsertObserved = false;
+  let probeDeleteObserved = false;
+  let probeSheet: CSSStyleSheet | undefined;
+
+  /**
+   * Set on teardown. A proxy of ours that another script has wrapped stays in
+   * the call chain after we stop -- see `restorePatchedMethod` -- so it has to
+   * fall silent by itself rather than relying on being uninstalled.
+   */
+  let stopped = false;
+
+  /**
+   * Reinstalling a displaced patch chains it over whatever is installed now,
+   * which can leave an earlier proxy of ours further down the same chain. Both
+   * would otherwise report the same call. Only the outermost one does.
+   */
+  let insideInsertRule = false;
+  let insideDeleteRule = false;
+
+  const noteReportedRules = (sheet: CSSStyleSheet, delta: number) => {
+    const state = reportedRuleCounts.get(sheet);
+    if (state) {
+      state.reported = Math.max(0, state.reported + delta);
+      state.everSeen = Math.max(state.everSeen, state.reported);
+    }
+  };
+
+  const patchInsertRule = (
+    target: typeof win.CSSStyleSheet.prototype.insertRule,
+  ) =>
+    new Proxy(target, {
+      apply: callbackWrapper(
+        (
+          nativeFn: typeof target,
+          thisArg: CSSStyleSheet,
+          argumentsList: [string, number | undefined],
+        ) => {
+          if (probing) {
+            probeInsertObserved = true;
+            return nativeFn.apply(thisArg, argumentsList);
+          }
+          if (stopped || insideInsertRule) {
+            return nativeFn.apply(thisArg, argumentsList);
+          }
+          const [rule, index] = argumentsList;
+
+          const { id, styleId } = getIdAndStyleId(
+            thisArg,
+            mirror,
+            stylesheetManager.styleMirror,
+          );
+
+          const reported = (id && id !== -1) || (styleId && styleId !== -1);
+          if (reported) {
+            styleSheetRuleCb({
+              id,
+              styleId,
+              adds: [{ rule, index }],
+            });
+          }
+          insideInsertRule = true;
+          let result;
+          try {
+            result = nativeFn.apply(thisArg, argumentsList);
+          } finally {
+            insideInsertRule = false;
+          }
+          // Only once the rule actually landed, so that a rule the browser
+          // rejects does not desynchronise our bookkeeping.
+          if (reported) {
+            noteReportedRules(thisArg, 1);
+          }
+          return result;
+        },
+      ),
+    });
+
+  const patchDeleteRule = (
+    target: typeof win.CSSStyleSheet.prototype.deleteRule,
+  ) =>
+    new Proxy(target, {
+      apply: callbackWrapper(
+        (
+          nativeFn: typeof target,
+          thisArg: CSSStyleSheet,
+          argumentsList: [number],
+        ) => {
+          if (probing) {
+            probeDeleteObserved = true;
+            return nativeFn.apply(thisArg, argumentsList);
+          }
+          if (stopped || insideDeleteRule) {
+            return nativeFn.apply(thisArg, argumentsList);
+          }
+          const [index] = argumentsList;
+
+          const { id, styleId } = getIdAndStyleId(
+            thisArg,
+            mirror,
+            stylesheetManager.styleMirror,
+          );
+
+          const reported = (id && id !== -1) || (styleId && styleId !== -1);
+          if (reported) {
+            styleSheetRuleCb({
+              id,
+              styleId,
+              removes: [{ index }],
+            });
+          }
+          insideDeleteRule = true;
+          let result;
+          try {
+            result = nativeFn.apply(thisArg, argumentsList);
+          } finally {
+            insideDeleteRule = false;
+          }
+          if (reported) {
+            noteReportedRules(thisArg, -1);
+          }
+          return result;
+        },
+      ),
+    });
+
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const insertRule = win.CSSStyleSheet.prototype.insertRule;
-  win.CSSStyleSheet.prototype.insertRule = new Proxy(insertRule, {
-    apply: callbackWrapper(
-      (
-        target: typeof insertRule,
-        thisArg: CSSStyleSheet,
-        argumentsList: [string, number | undefined],
-      ) => {
-        const [rule, index] = argumentsList;
-
-        const { id, styleId } = getIdAndStyleId(
-          thisArg,
-          mirror,
-          stylesheetManager.styleMirror,
-        );
-
-        if ((id && id !== -1) || (styleId && styleId !== -1)) {
-          styleSheetRuleCb({
-            id,
-            styleId,
-            adds: [{ rule, index }],
-          });
-        }
-        return target.apply(thisArg, argumentsList);
-      },
-    ),
-  });
+  let insertRuleProxy = patchInsertRule(insertRule);
+  let restoreInsertRuleTo = insertRule;
+  win.CSSStyleSheet.prototype.insertRule = insertRuleProxy;
 
   // Support for deprecated addRule method
-  win.CSSStyleSheet.prototype.addRule = function (
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const addRule = win.CSSStyleSheet.prototype.addRule;
+  const addRuleShim = function (
     this: CSSStyleSheet,
     selector: string,
     styleBlock: string,
@@ -652,56 +808,36 @@ function initStyleSheetObserver(
     const rule = `${selector} { ${styleBlock} }`;
     return win.CSSStyleSheet.prototype.insertRule.apply(this, [rule, index]);
   };
+  win.CSSStyleSheet.prototype.addRule = addRuleShim;
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const deleteRule = win.CSSStyleSheet.prototype.deleteRule;
-  win.CSSStyleSheet.prototype.deleteRule = new Proxy(deleteRule, {
-    apply: callbackWrapper(
-      (
-        target: typeof deleteRule,
-        thisArg: CSSStyleSheet,
-        argumentsList: [number],
-      ) => {
-        const [index] = argumentsList;
-
-        const { id, styleId } = getIdAndStyleId(
-          thisArg,
-          mirror,
-          stylesheetManager.styleMirror,
-        );
-
-        if ((id && id !== -1) || (styleId && styleId !== -1)) {
-          styleSheetRuleCb({
-            id,
-            styleId,
-            removes: [{ index }],
-          });
-        }
-        return target.apply(thisArg, argumentsList);
-      },
-    ),
-  });
+  let deleteRuleProxy = patchDeleteRule(deleteRule);
+  let restoreDeleteRuleTo = deleteRule;
+  win.CSSStyleSheet.prototype.deleteRule = deleteRuleProxy;
 
   // Support for deprecated removeRule method
-  win.CSSStyleSheet.prototype.removeRule = function (
-    this: CSSStyleSheet,
-    index: number,
-  ) {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const removeRule = win.CSSStyleSheet.prototype.removeRule;
+  const removeRuleShim = function (this: CSSStyleSheet, index: number) {
     return win.CSSStyleSheet.prototype.deleteRule.apply(this, [index]);
   };
+  win.CSSStyleSheet.prototype.removeRule = removeRuleShim;
 
   let replace: (text: string) => Promise<CSSStyleSheet>;
+  let replaceProxy: typeof replace | undefined;
 
   if (win.CSSStyleSheet.prototype.replace) {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     replace = win.CSSStyleSheet.prototype.replace;
-    win.CSSStyleSheet.prototype.replace = new Proxy(replace, {
+    replaceProxy = new Proxy(replace, {
       apply: callbackWrapper(
         (
           target: typeof replace,
           thisArg: CSSStyleSheet,
           argumentsList: [string],
         ) => {
+          if (stopped) return target.apply(thisArg, argumentsList);
           const [text] = argumentsList;
 
           const { id, styleId } = getIdAndStyleId(
@@ -721,19 +857,22 @@ function initStyleSheetObserver(
         },
       ),
     });
+    win.CSSStyleSheet.prototype.replace = replaceProxy;
   }
 
   let replaceSync: (text: string) => void;
+  let replaceSyncProxy: typeof replaceSync | undefined;
   if (win.CSSStyleSheet.prototype.replaceSync) {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     replaceSync = win.CSSStyleSheet.prototype.replaceSync;
-    win.CSSStyleSheet.prototype.replaceSync = new Proxy(replaceSync, {
+    replaceSyncProxy = new Proxy(replaceSync, {
       apply: callbackWrapper(
         (
           target: typeof replaceSync,
           thisArg: CSSStyleSheet,
           argumentsList: [string],
         ) => {
+          if (stopped) return target.apply(thisArg, argumentsList);
           const [text] = argumentsList;
 
           const { id, styleId } = getIdAndStyleId(
@@ -753,6 +892,7 @@ function initStyleSheetObserver(
         },
       ),
     });
+    win.CSSStyleSheet.prototype.replaceSync = replaceSyncProxy;
   }
 
   const supportedNestedCSSRuleTypes: {
@@ -776,11 +916,15 @@ function initStyleSheetObserver(
     }
   }
 
+  type NestedRuleFunctions = {
+    insertRule: (rule: string, index?: number) => number;
+    deleteRule: (index: number) => void;
+  };
   const unmodifiedFunctions: {
-    [key: string]: {
-      insertRule: (rule: string, index?: number) => number;
-      deleteRule: (index: number) => void;
-    };
+    [key: string]: NestedRuleFunctions;
+  } = {};
+  const nestedProxies: {
+    [key: string]: NestedRuleFunctions;
   } = {};
 
   Object.entries(supportedNestedCSSRuleTypes).forEach(([typeKey, type]) => {
@@ -790,8 +934,9 @@ function initStyleSheetObserver(
       // eslint-disable-next-line @typescript-eslint/unbound-method
       deleteRule: type.prototype.deleteRule,
     };
+    nestedProxies[typeKey] = {} as NestedRuleFunctions;
 
-    type.prototype.insertRule = new Proxy(
+    nestedProxies[typeKey].insertRule = new Proxy(
       unmodifiedFunctions[typeKey].insertRule,
       {
         apply: callbackWrapper(
@@ -800,6 +945,7 @@ function initStyleSheetObserver(
             thisArg: CSSRule,
             argumentsList: [string, number | undefined],
           ) => {
+            if (stopped) return target.apply(thisArg, argumentsList);
             const [rule, index] = argumentsList;
 
             const { id, styleId } = getIdAndStyleId(
@@ -829,7 +975,7 @@ function initStyleSheetObserver(
       },
     );
 
-    type.prototype.deleteRule = new Proxy(
+    nestedProxies[typeKey].deleteRule = new Proxy(
       unmodifiedFunctions[typeKey].deleteRule,
       {
         apply: callbackWrapper(
@@ -838,6 +984,7 @@ function initStyleSheetObserver(
             thisArg: CSSRule,
             argumentsList: [number],
           ) => {
+            if (stopped) return target.apply(thisArg, argumentsList);
             const [index] = argumentsList;
 
             const { id, styleId } = getIdAndStyleId(
@@ -860,16 +1007,235 @@ function initStyleSheetObserver(
         ),
       },
     );
+
+    type.prototype.insertRule = nestedProxies[typeKey].insertRule;
+    type.prototype.deleteRule = nestedProxies[typeKey].deleteRule;
   });
 
+  type CssomCaptureHealth = { insertRule: boolean; deleteRule: boolean };
+
+  /**
+   * Are our `insertRule` and `deleteRule` patches still being invoked?
+   *
+   * Comparing `CSSStyleSheet.prototype.insertRule` against our proxy is not
+   * enough: a well behaved script that patched on top of us still calls through,
+   * so identity differs while capture is perfectly healthy. Insert a rule into a
+   * throwaway constructed stylesheet instead and see whether our patch runs. It
+   * touches no DOM, so it produces no mutations of its own.
+   *
+   * The two methods are reported separately because scripts routinely displace
+   * only one of them, and reinstalling a patch that is still in the chain would
+   * put two of our proxies in it.
+   */
+  const captureIsHealthy = (): CssomCaptureHealth => {
+    probing = true;
+    probeInsertObserved = false;
+    probeDeleteObserved = false;
+    try {
+      // A constructed sheet has no owner node and is not in the document, so
+      // nothing observes this but us.
+      const probe = probeSheet ?? (probeSheet = new win.CSSStyleSheet());
+      probe.insertRule(':root {}', 0);
+      probe.deleteRule(0);
+    } catch (error) {
+      // No constructed stylesheet support (older Safari); fall back to comparing
+      // identity, which at least catches an outright replacement. It also reads
+      // a cooperative wrapper as a displacement, hence the re-entrancy guards in
+      // the proxies: chaining over ourselves must not report a call twice.
+      return {
+        insertRule: win.CSSStyleSheet.prototype.insertRule === insertRuleProxy,
+        deleteRule: win.CSSStyleSheet.prototype.deleteRule === deleteRuleProxy,
+      };
+    } finally {
+      probing = false;
+    }
+    return {
+      insertRule: probeInsertObserved,
+      deleteRule: probeDeleteObserved,
+    };
+  };
+
+  let repatchAttempts = 0;
+  /**
+   * Reinstall whichever of our `insertRule`/`deleteRule` patches has been
+   * displaced, chaining over whatever is installed now rather than over the
+   * native method so that we do not in turn blind the script that displaced us.
+   */
+  const repatch = (health: CssomCaptureHealth) => {
+    if (repatchAttempts >= MAX_CSSOM_REPATCH_ATTEMPTS) return;
+    repatchAttempts += 1;
+    if (!health.insertRule) {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      restoreInsertRuleTo = win.CSSStyleSheet.prototype.insertRule;
+      insertRuleProxy = patchInsertRule(restoreInsertRuleTo);
+      win.CSSStyleSheet.prototype.insertRule = insertRuleProxy;
+    }
+    if (!health.deleteRule) {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      restoreDeleteRuleTo = win.CSSStyleSheet.prototype.deleteRule;
+      deleteRuleProxy = patchDeleteRule(restoreDeleteRuleTo);
+      win.CSSStyleSheet.prototype.deleteRule = deleteRuleProxy;
+    }
+  };
+
+  /**
+   * Re-send CSS rules that never made it into the recording.
+   *
+   * Every rule a CSS-in-JS library (emotion, styled-components, goober, ...)
+   * adds at runtime reaches the replayer through the `insertRule` patch above:
+   * the `<style>` elements they own carry no text, so the only other copy of
+   * their contents is the `_cssText` captured when the element was serialized.
+   * That makes the patch a single point of failure, and it is one that fails in
+   * the wild -- a script that reinstalls a previously captured
+   * `CSSStyleSheet.prototype.insertRule` unhooks us without a trace, and from
+   * then on the replay is frozen with whatever CSS existed at snapshot time. Real
+   * sessions have been seen keeping only 734 of 2929 emotion rules this way,
+   * which renders a MUI heavy UI completely unstyled.
+   *
+   * While the patch is healthy the replayer is in step with us by construction,
+   * so there is nothing to do and we only remember where each sheet has got to.
+   * Once it is not, we top the replayer up: the tail for a sheet that has grown
+   * (which is all any CSS-in-JS library does), or a wholesale replacement when we
+   * cannot tell which rules survived.
+   */
+  const resyncCssomStyleSheets = (trusted: boolean) => {
+    for (let i = 0; i < doc.styleSheets.length; i++) {
+      const sheet = doc.styleSheets[i];
+      if (unreconcilableSheets.has(sheet)) continue;
+
+      const owner = sheet.ownerNode as HTMLElement | null;
+      if (!owner || toLowerCase(owner.nodeName) !== 'style') continue;
+      // A `<style>` element holding text is also recorded through text
+      // mutations, a channel that does not depend on our CSSOM patches.
+      if ((owner.textContent || '').trim().length) continue;
+
+      const id = mirror.getId(owner);
+      if (!id || id === -1) continue; // not serialized yet, nothing to top up
+
+      let rules: CSSRuleList;
+      try {
+        rules = sheet.cssRules;
+      } catch (error) {
+        continue; // cross origin, unreadable
+      }
+      const live = rules.length;
+
+      let state = reportedRuleCounts.get(sheet);
+      if (!state) {
+        // `@import`ed rules are inlined into `_cssText`, so the replayer holds a
+        // different number of rules than the sheet reports and every index we
+        // could derive would be wrong.
+        if (Array.from(rules).some((rule) => isCSSImportRule(rule))) {
+          unreconcilableSheets.add(sheet);
+          continue;
+        }
+        state = { reported: live, everSeen: live };
+        reportedRuleCounts.set(sheet, state);
+        if (trusted) continue; // `_cssText` plus our reports already cover it
+        // Capture was already broken when we first looked at this sheet, so we
+        // have no idea how much of it the replayer received. Replace the lot.
+        replaceReplayerCopy(id, state, rules);
+        continue;
+      }
+      state.everSeen = Math.max(state.everSeen, live);
+
+      if (live === state.reported) continue;
+
+      if (live > state.reported) {
+        const adds: styleSheetAddRule[] = [];
+        for (let index = state.reported; index < live; index++) {
+          adds.push({ rule: rules[index].cssText, index });
+        }
+        styleSheetRuleCb({ id, adds });
+        state.reported = live;
+      } else {
+        // Shrunk, so it was rewritten rather than appended to.
+        replaceReplayerCopy(id, state, rules);
+      }
+    }
+  };
+
+  /**
+   * Discard the replayer's copy of a stylesheet and re-send it in full.
+   *
+   * Deletes have to precede the inserts, and `applyStyleSheetRule` handles a
+   * single event's `adds` before its `removes`, so this takes two events. The
+   * deletes run from the highest rule count we have ever seen for the sheet
+   * (an upper bound on what the replayer can be holding) downwards, because
+   * deleting shifts every later index; over-deleting is harmless as the replayer
+   * ignores out of range indices.
+   */
+  function replaceReplayerCopy(
+    id: number,
+    state: { reported: number; everSeen: number },
+    rules: CSSRuleList,
+  ) {
+    const removes: styleSheetDeleteRule[] = [];
+    for (let index = state.everSeen - 1; index >= 0; index--) {
+      removes.push({ index });
+    }
+    if (removes.length) styleSheetRuleCb({ id, removes });
+    styleSheetRuleCb({
+      id,
+      adds: Array.from(rules, (rule, index) => ({
+        rule: rule.cssText,
+        index,
+      })),
+    });
+    state.reported = rules.length;
+    state.everSeen = rules.length;
+  }
+
+  let resyncTimer: number | undefined;
+  if (styleSheetResyncInterval > 0) {
+    resyncTimer = win.setInterval(
+      callbackWrapper(() => {
+        const health = captureIsHealthy();
+        const healthy = health.insertRule && health.deleteRule;
+        if (!healthy) repatch(health);
+        resyncCssomStyleSheets(healthy);
+      }),
+      styleSheetResyncInterval,
+    );
+  }
+
   return callbackWrapper(() => {
-    win.CSSStyleSheet.prototype.insertRule = insertRule;
-    win.CSSStyleSheet.prototype.deleteRule = deleteRule;
-    replace && (win.CSSStyleSheet.prototype.replace = replace);
-    replaceSync && (win.CSSStyleSheet.prototype.replaceSync = replaceSync);
+    if (resyncTimer !== undefined) win.clearInterval(resyncTimer);
+    // Any of our proxies that another script has wrapped stays in the call
+    // chain below their patch, so they check this before reporting anything.
+    stopped = true;
+    const proto = win.CSSStyleSheet.prototype;
+    restorePatchedMethod(
+      proto,
+      'insertRule',
+      insertRuleProxy,
+      restoreInsertRuleTo,
+    );
+    restorePatchedMethod(
+      proto,
+      'deleteRule',
+      deleteRuleProxy,
+      restoreDeleteRuleTo,
+    );
+    restorePatchedMethod(proto, 'addRule', addRuleShim, addRule);
+    restorePatchedMethod(proto, 'removeRule', removeRuleShim, removeRule);
+    replaceProxy &&
+      restorePatchedMethod(proto, 'replace', replaceProxy, replace);
+    replaceSyncProxy &&
+      restorePatchedMethod(proto, 'replaceSync', replaceSyncProxy, replaceSync);
     Object.entries(supportedNestedCSSRuleTypes).forEach(([typeKey, type]) => {
-      type.prototype.insertRule = unmodifiedFunctions[typeKey].insertRule;
-      type.prototype.deleteRule = unmodifiedFunctions[typeKey].deleteRule;
+      restorePatchedMethod(
+        type.prototype,
+        'insertRule',
+        nestedProxies[typeKey].insertRule,
+        unmodifiedFunctions[typeKey].insertRule,
+      );
+      restorePatchedMethod(
+        type.prototype,
+        'deleteRule',
+        nestedProxies[typeKey].deleteRule,
+        unmodifiedFunctions[typeKey].deleteRule,
+      );
     });
   });
 }
