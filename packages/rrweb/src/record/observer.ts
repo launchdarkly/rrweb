@@ -665,8 +665,24 @@ function initStyleSheetObserver(
 
   /** Set while `captureIsHealthy` is checking that our patch still runs. */
   let probing = false;
-  let probeWasObserved = false;
+  let probeInsertObserved = false;
+  let probeDeleteObserved = false;
   let probeSheet: CSSStyleSheet | undefined;
+
+  /**
+   * Set on teardown. A proxy of ours that another script has wrapped stays in
+   * the call chain after we stop -- see `restorePatchedMethod` -- so it has to
+   * fall silent by itself rather than relying on being uninstalled.
+   */
+  let stopped = false;
+
+  /**
+   * Reinstalling a displaced patch chains it over whatever is installed now,
+   * which can leave an earlier proxy of ours further down the same chain. Both
+   * would otherwise report the same call. Only the outermost one does.
+   */
+  let insideInsertRule = false;
+  let insideDeleteRule = false;
 
   const noteReportedRules = (sheet: CSSStyleSheet, delta: number) => {
     const state = reportedRuleCounts.get(sheet);
@@ -687,7 +703,10 @@ function initStyleSheetObserver(
           argumentsList: [string, number | undefined],
         ) => {
           if (probing) {
-            probeWasObserved = true;
+            probeInsertObserved = true;
+            return nativeFn.apply(thisArg, argumentsList);
+          }
+          if (stopped || insideInsertRule) {
             return nativeFn.apply(thisArg, argumentsList);
           }
           const [rule, index] = argumentsList;
@@ -706,7 +725,13 @@ function initStyleSheetObserver(
               adds: [{ rule, index }],
             });
           }
-          const result = nativeFn.apply(thisArg, argumentsList);
+          insideInsertRule = true;
+          let result;
+          try {
+            result = nativeFn.apply(thisArg, argumentsList);
+          } finally {
+            insideInsertRule = false;
+          }
           // Only once the rule actually landed, so that a rule the browser
           // rejects does not desynchronise our bookkeeping.
           if (reported) {
@@ -727,7 +752,13 @@ function initStyleSheetObserver(
           thisArg: CSSStyleSheet,
           argumentsList: [number],
         ) => {
-          if (probing) return nativeFn.apply(thisArg, argumentsList);
+          if (probing) {
+            probeDeleteObserved = true;
+            return nativeFn.apply(thisArg, argumentsList);
+          }
+          if (stopped || insideDeleteRule) {
+            return nativeFn.apply(thisArg, argumentsList);
+          }
           const [index] = argumentsList;
 
           const { id, styleId } = getIdAndStyleId(
@@ -744,7 +775,13 @@ function initStyleSheetObserver(
               removes: [{ index }],
             });
           }
-          const result = nativeFn.apply(thisArg, argumentsList);
+          insideDeleteRule = true;
+          let result;
+          try {
+            result = nativeFn.apply(thisArg, argumentsList);
+          } finally {
+            insideDeleteRule = false;
+          }
           if (reported) {
             noteReportedRules(thisArg, -1);
           }
@@ -800,6 +837,7 @@ function initStyleSheetObserver(
           thisArg: CSSStyleSheet,
           argumentsList: [string],
         ) => {
+          if (stopped) return target.apply(thisArg, argumentsList);
           const [text] = argumentsList;
 
           const { id, styleId } = getIdAndStyleId(
@@ -834,6 +872,7 @@ function initStyleSheetObserver(
           thisArg: CSSStyleSheet,
           argumentsList: [string],
         ) => {
+          if (stopped) return target.apply(thisArg, argumentsList);
           const [text] = argumentsList;
 
           const { id, styleId } = getIdAndStyleId(
@@ -906,6 +945,7 @@ function initStyleSheetObserver(
             thisArg: CSSRule,
             argumentsList: [string, number | undefined],
           ) => {
+            if (stopped) return target.apply(thisArg, argumentsList);
             const [rule, index] = argumentsList;
 
             const { id, styleId } = getIdAndStyleId(
@@ -944,6 +984,7 @@ function initStyleSheetObserver(
             thisArg: CSSRule,
             argumentsList: [number],
           ) => {
+            if (stopped) return target.apply(thisArg, argumentsList);
             const [index] = argumentsList;
 
             const { id, styleId } = getIdAndStyleId(
@@ -971,18 +1012,25 @@ function initStyleSheetObserver(
     type.prototype.deleteRule = nestedProxies[typeKey].deleteRule;
   });
 
+  type CssomCaptureHealth = { insertRule: boolean; deleteRule: boolean };
+
   /**
-   * Is our `insertRule` patch still being invoked?
+   * Are our `insertRule` and `deleteRule` patches still being invoked?
    *
    * Comparing `CSSStyleSheet.prototype.insertRule` against our proxy is not
    * enough: a well behaved script that patched on top of us still calls through,
    * so identity differs while capture is perfectly healthy. Insert a rule into a
    * throwaway constructed stylesheet instead and see whether our patch runs. It
    * touches no DOM, so it produces no mutations of its own.
+   *
+   * The two methods are reported separately because scripts routinely displace
+   * only one of them, and reinstalling a patch that is still in the chain would
+   * put two of our proxies in it.
    */
-  const captureIsHealthy = (): boolean => {
+  const captureIsHealthy = (): CssomCaptureHealth => {
     probing = true;
-    probeWasObserved = false;
+    probeInsertObserved = false;
+    probeDeleteObserved = false;
     try {
       // A constructed sheet has no owner node and is not in the document, so
       // nothing observes this but us.
@@ -991,29 +1039,43 @@ function initStyleSheetObserver(
       probe.deleteRule(0);
     } catch (error) {
       // No constructed stylesheet support (older Safari); fall back to comparing
-      // identity, which at least catches an outright replacement.
-      return win.CSSStyleSheet.prototype.insertRule === insertRuleProxy;
+      // identity, which at least catches an outright replacement. It also reads
+      // a cooperative wrapper as a displacement, hence the re-entrancy guards in
+      // the proxies: chaining over ourselves must not report a call twice.
+      return {
+        insertRule: win.CSSStyleSheet.prototype.insertRule === insertRuleProxy,
+        deleteRule: win.CSSStyleSheet.prototype.deleteRule === deleteRuleProxy,
+      };
     } finally {
       probing = false;
     }
-    return probeWasObserved;
+    return {
+      insertRule: probeInsertObserved,
+      deleteRule: probeDeleteObserved,
+    };
   };
 
   let repatchAttempts = 0;
   /**
-   * Reinstall our `insertRule`/`deleteRule` patches, chaining over whatever is
-   * installed now rather than over the native method so that we do not in turn
-   * blind the script that displaced us.
+   * Reinstall whichever of our `insertRule`/`deleteRule` patches has been
+   * displaced, chaining over whatever is installed now rather than over the
+   * native method so that we do not in turn blind the script that displaced us.
    */
-  const repatch = () => {
+  const repatch = (health: CssomCaptureHealth) => {
     if (repatchAttempts >= MAX_CSSOM_REPATCH_ATTEMPTS) return;
     repatchAttempts += 1;
-    restoreInsertRuleTo = win.CSSStyleSheet.prototype.insertRule;
-    insertRuleProxy = patchInsertRule(restoreInsertRuleTo);
-    win.CSSStyleSheet.prototype.insertRule = insertRuleProxy;
-    restoreDeleteRuleTo = win.CSSStyleSheet.prototype.deleteRule;
-    deleteRuleProxy = patchDeleteRule(restoreDeleteRuleTo);
-    win.CSSStyleSheet.prototype.deleteRule = deleteRuleProxy;
+    if (!health.insertRule) {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      restoreInsertRuleTo = win.CSSStyleSheet.prototype.insertRule;
+      insertRuleProxy = patchInsertRule(restoreInsertRuleTo);
+      win.CSSStyleSheet.prototype.insertRule = insertRuleProxy;
+    }
+    if (!health.deleteRule) {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      restoreDeleteRuleTo = win.CSSStyleSheet.prototype.deleteRule;
+      deleteRuleProxy = patchDeleteRule(restoreDeleteRuleTo);
+      win.CSSStyleSheet.prototype.deleteRule = deleteRuleProxy;
+    }
   };
 
   /**
@@ -1038,7 +1100,7 @@ function initStyleSheetObserver(
    */
   const resyncCssomStyleSheets = (trusted: boolean) => {
     for (let i = 0; i < doc.styleSheets.length; i++) {
-      const sheet = doc.styleSheets[i] as CSSStyleSheet;
+      const sheet = doc.styleSheets[i];
       if (unreconcilableSheets.has(sheet)) continue;
 
       const owner = sheet.ownerNode as HTMLElement | null;
@@ -1128,8 +1190,9 @@ function initStyleSheetObserver(
   if (styleSheetResyncInterval > 0) {
     resyncTimer = win.setInterval(
       callbackWrapper(() => {
-        const healthy = captureIsHealthy();
-        if (!healthy) repatch();
+        const health = captureIsHealthy();
+        const healthy = health.insertRule && health.deleteRule;
+        if (!healthy) repatch(health);
         resyncCssomStyleSheets(healthy);
       }),
       styleSheetResyncInterval,
@@ -1138,6 +1201,9 @@ function initStyleSheetObserver(
 
   return callbackWrapper(() => {
     if (resyncTimer !== undefined) win.clearInterval(resyncTimer);
+    // Any of our proxies that another script has wrapped stays in the call
+    // chain below their patch, so they check this before reporting anything.
+    stopped = true;
     const proto = win.CSSStyleSheet.prototype;
     restorePatchedMethod(
       proto,

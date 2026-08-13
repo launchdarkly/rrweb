@@ -25,4 +25,7 @@ existing replayers need no changes.
 
 Teardown no longer restores these CSSOM methods unconditionally: it only unwinds
 its own layer, so stopping a recorder can no longer blind another script that
-patched on top of it.
+patched on top of it. A patch that has to stay installed for that reason falls
+silent once recording has stopped, and only the outermost of the recorder's own
+patches reports a call, so a method reinstalled over an earlier patch of ours
+cannot report the same rule twice.
