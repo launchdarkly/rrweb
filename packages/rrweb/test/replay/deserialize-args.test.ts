@@ -156,6 +156,94 @@ describe('deserializeArg', () => {
     expect(deserialized.size).toEqual(expected.size);
   });
 
+  it('should deserialize ImageData values', async () => {
+    expect(
+      await deserializeArg(
+        new Map(),
+        context,
+      )({
+        rr_type: 'ImageData',
+        args: [{ rr_type: 'Uint8ClampedArray', args: [[1, 2, 3, 4]] }, 1, 1],
+      }),
+    ).toEqual(new ImageData(new Uint8ClampedArray([1, 2, 3, 4]), 1, 1));
+  });
+
+  describe('constructor allowlist', () => {
+    const recorderEmittedTypes = [
+      'Int8Array',
+      'Int16Array',
+      'Int32Array',
+      'Uint8Array',
+      'Uint8ClampedArray',
+      'Uint16Array',
+      'Uint32Array',
+      'Float32Array',
+      'Float64Array',
+    ];
+
+    it.each(recorderEmittedTypes)(
+      'should deserialize %s values',
+      async (rr_type) => {
+        const deserialized = await deserializeArg(
+          new Map(),
+          context,
+        )({ rr_type, args: [[1, 2, 3, 4]] });
+
+        expect(deserialized).toEqual(
+          new (window[rr_type as keyof Window] as Uint8ArrayConstructor)([
+            1, 2, 3, 4,
+          ]),
+        );
+      },
+    );
+
+    it('should deserialize the Array wrapper older clients emit', async () => {
+      expect(
+        await deserializeArg(
+          new Map(),
+          context,
+        )({
+          rr_type: 'Array',
+          args: [{ rr_type: 'Float32Array', args: [[1, 2]] }],
+        }),
+      ).toEqual([new Float32Array([1, 2])]);
+    });
+
+    it.each(['Function', 'Promise', 'XMLHttpRequest', 'Object'])(
+      'should not construct %s from a serialized arg',
+      async (rr_type) => {
+        expect(
+          await deserializeArg(new Map(), context)({ rr_type, args: [] }),
+        ).toBeNull();
+      },
+    );
+
+    it('should not evaluate a string passed to a constructor it does not know', async () => {
+      const canary = '__deserializeArgCanary';
+      delete (globalThis as Record<string, unknown>)[canary];
+
+      const deserialized = await deserializeArg(
+        new Map(),
+        context,
+      )({
+        rr_type: 'Function',
+        args: [`globalThis[${JSON.stringify(canary)}] = true;`],
+      });
+
+      expect(deserialized).toBeNull();
+      expect((globalThis as Record<string, unknown>)[canary]).toBeUndefined();
+    });
+
+    it('should reject unknown types nested in an arg list', async () => {
+      expect(
+        await deserializeArg(
+          new Map(),
+          context,
+        )([1, { rr_type: 'Function', args: ['return 1'] }, 3]),
+      ).toEqual([1, null, 3]);
+    });
+  });
+
   describe('isUnchanged', () => {
     it('should set isUnchanged:true when non of the args are changed', async () => {
       const status = {

@@ -27,6 +27,33 @@ export function variableListFor(
   return contextMap.get(ctor) as any[];
 }
 
+/**
+ * The `rr_type` values that the canvas recorder rebuilds by calling a
+ * constructor of that name — see `record/observers/canvas/serialize-args.ts`
+ * for the matching serialization. A recording is untrusted input at replay
+ * time, so `rr_type` is matched against this set rather than resolved as an
+ * arbitrary global.
+ */
+const canvasArgConstructors = new Set([
+  'Int8Array',
+  'Int16Array',
+  'Int32Array',
+  'Uint8Array',
+  'Uint8ClampedArray',
+  'Uint16Array',
+  'Uint32Array',
+  'Float32Array',
+  'Float64Array',
+  'DataView',
+  'ImageData',
+  // normally serialized as base64, but reachable in `args` form through
+  // recordings made by older clients and through nested `DataView` args.
+  'ArrayBuffer',
+  // wraps nested args in recordings made by older clients — see the
+  // `preloadAllImages` tests for the shape.
+  'Array',
+]);
+
 export function isSerializedArg(arg: unknown): arg is SerializedCanvasArg {
   return Boolean(arg && typeof arg === 'object' && 'rr_type' in arg);
 }
@@ -57,6 +84,12 @@ export function deserializeArg(
         return variableListFor(ctx, name)[index];
       } else if ('args' in arg) {
         const { rr_type: name, args } = arg;
+        if (!canvasArgConstructors.has(name)) {
+          console.warn(
+            `[replayer] refusing to construct canvas arg of unknown type: ${name}`,
+          );
+          return null;
+        }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const ctor = window[name as keyof Window];
 
