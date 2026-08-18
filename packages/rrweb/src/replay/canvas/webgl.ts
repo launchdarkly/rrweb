@@ -57,12 +57,14 @@ export default async function webglMutation({
   type,
   imageMap,
   errorHandler,
+  enforceCanvasArgAllowlist,
 }: {
   mutation: canvasMutationCommand;
   target: HTMLCanvasElement;
   type: CanvasContext;
   imageMap: Replayer['imageMap'];
   errorHandler: Replayer['warnCanvasMutationFailed'];
+  enforceCanvasArgAllowlist?: boolean;
 }): Promise<void> {
   try {
     const ctx = getContext(target, type);
@@ -86,7 +88,9 @@ export default async function webglMutation({
     ) => void;
 
     const args = await Promise.all(
-      mutation.args.map(deserializeArg(imageMap, ctx)),
+      mutation.args.map(
+        deserializeArg(imageMap, ctx, undefined, enforceCanvasArgAllowlist),
+      ),
     );
     const result = original.apply(ctx, args);
     saveToWebGLVarMap(ctx, result);

@@ -56,6 +56,7 @@ export const SERIALIZABLE_CONFIG_KEYS = [
   'insertStyleRules',
   'triggerFocus',
   'UNSAFE_replayCanvas',
+  'enforceCanvasArgAllowlist',
   'cspContent',
   'pauseAnimation',
   'mouseTail',

@@ -156,19 +156,10 @@ describe('deserializeArg', () => {
     expect(deserialized.size).toEqual(expected.size);
   });
 
-  it('should deserialize ImageData values', async () => {
-    expect(
-      await deserializeArg(
-        new Map(),
-        context,
-      )({
-        rr_type: 'ImageData',
-        args: [{ rr_type: 'Uint8ClampedArray', args: [[1, 2, 3, 4]] }, 1, 1],
-      }),
-    ).toEqual(new ImageData(new Uint8ClampedArray([1, 2, 3, 4]), 1, 1));
-  });
-
   describe('constructor allowlist', () => {
+    // the allowlist is opt-in; `enforceCanvasArgAllowlist` is the 4th arg
+    const enforcing = () => deserializeArg(new Map(), context, undefined, true);
+
     const recorderEmittedTypes = [
       'Int8Array',
       'Int16Array',
@@ -182,14 +173,9 @@ describe('deserializeArg', () => {
     ];
 
     it.each(recorderEmittedTypes)(
-      'should deserialize %s values',
+      'should deserialize %s values while enforcing',
       async (rr_type) => {
-        const deserialized = await deserializeArg(
-          new Map(),
-          context,
-        )({ rr_type, args: [[1, 2, 3, 4]] });
-
-        expect(deserialized).toEqual(
+        expect(await enforcing()({ rr_type, args: [[1, 2, 3, 4]] })).toEqual(
           new (window[rr_type as keyof Window] as Uint8ArrayConstructor)([
             1, 2, 3, 4,
           ]),
@@ -197,35 +183,72 @@ describe('deserializeArg', () => {
       },
     );
 
+    it('should deserialize ImageData while enforcing', async () => {
+      expect(
+        await enforcing()({
+          rr_type: 'ImageData',
+          args: [{ rr_type: 'Uint8ClampedArray', args: [[1, 2, 3, 4]] }, 1, 1],
+        }),
+      ).toEqual(new ImageData(new Uint8ClampedArray([1, 2, 3, 4]), 1, 1));
+    });
+
+    it('should deserialize DataView over a base64 ArrayBuffer while enforcing', async () => {
+      expect(
+        await enforcing()({
+          rr_type: 'DataView',
+          args: [
+            { rr_type: 'ArrayBuffer', base64: 'AAAAAAAAAAAAAAAAAAAAAA==' },
+            0,
+            16,
+          ],
+        }),
+      ).toStrictEqual(new DataView(new ArrayBuffer(16), 0, 16));
+    });
+
     it('should deserialize the Array wrapper older clients emit', async () => {
       expect(
-        await deserializeArg(
-          new Map(),
-          context,
-        )({
+        await enforcing()({
           rr_type: 'Array',
           args: [{ rr_type: 'Float32Array', args: [[1, 2]] }],
         }),
       ).toEqual([new Float32Array([1, 2])]);
     });
 
+    it('should leave the src and data branches alone while enforcing', async () => {
+      const image = new Image();
+      image.src = 'http://example.com/image.png';
+      expect(
+        await enforcing()({
+          rr_type: 'HTMLImageElement',
+          src: 'http://example.com/image.png',
+        }),
+      ).toStrictEqual(image);
+
+      expect(
+        await enforcing()({
+          rr_type: 'Blob',
+          data: [{ rr_type: 'ArrayBuffer', base64: 'AQIABA==' }],
+          type: 'image/png',
+        }),
+      ).toEqual(
+        new Blob([new Uint8Array([1, 2, 0, 4]).buffer], {
+          type: 'image/png',
+        }),
+      );
+    });
+
     it.each(['Function', 'Promise', 'XMLHttpRequest', 'Object'])(
-      'should not construct %s from a serialized arg',
+      'should not construct %s while enforcing',
       async (rr_type) => {
-        expect(
-          await deserializeArg(new Map(), context)({ rr_type, args: [] }),
-        ).toBeNull();
+        expect(await enforcing()({ rr_type, args: [] })).toBeNull();
       },
     );
 
-    it('should not evaluate a string passed to a constructor it does not know', async () => {
+    it('should not evaluate a string passed to a type it does not know', async () => {
       const canary = '__deserializeArgCanary';
       delete (globalThis as Record<string, unknown>)[canary];
 
-      const deserialized = await deserializeArg(
-        new Map(),
-        context,
-      )({
+      const deserialized = await enforcing()({
         rr_type: 'Function',
         args: [`globalThis[${JSON.stringify(canary)}] = true;`],
       });
@@ -236,11 +259,17 @@ describe('deserializeArg', () => {
 
     it('should reject unknown types nested in an arg list', async () => {
       expect(
+        await enforcing()([1, { rr_type: 'Function', args: ['return 1'] }, 3]),
+      ).toEqual([1, null, 3]);
+    });
+
+    it('should not filter anything when enforcement is off (the default)', async () => {
+      expect(
         await deserializeArg(
           new Map(),
           context,
-        )([1, { rr_type: 'Function', args: ['return 1'] }, 3]),
-      ).toEqual([1, null, 3]);
+        )({ rr_type: 'Object', args: [] }),
+      ).toEqual({});
     });
   });
 

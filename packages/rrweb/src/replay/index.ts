@@ -204,6 +204,7 @@ export class Replayer {
       insertStyleRules: [],
       triggerFocus: true,
       UNSAFE_replayCanvas: false,
+      enforceCanvasArgAllowlist: false,
       pauseAnimation: true,
       mouseTail: defaultMouseTailConfig,
       useVirtualDom: true, // Virtual-dom optimization is enabled by default.
@@ -243,6 +244,7 @@ export class Replayer {
               imageMap: this.imageMap,
               canvasEventMap: this.canvasEventMap,
               errorHandler: this.warnCanvasMutationFailed.bind(this),
+              enforceCanvasArgAllowlist: this.config.enforceCanvasArgAllowlist,
             });
           },
           applyInput: this.applyInput.bind(this),
@@ -1254,7 +1256,14 @@ export class Replayer {
         const commands = await Promise.all(
           data.commands.map(async (c) => {
             const args = await Promise.all(
-              c.args.map(deserializeArg(this.imageMap, null, status)),
+              c.args.map(
+                deserializeArg(
+                  this.imageMap,
+                  null,
+                  status,
+                  this.config.enforceCanvasArgAllowlist,
+                ),
+              ),
             );
             return { ...c, args };
           }),
@@ -1263,7 +1272,14 @@ export class Replayer {
           this.canvasEventMap.set(event, { ...data, commands });
       } else {
         const args = await Promise.all(
-          data.args.map(deserializeArg(this.imageMap, null, status)),
+          data.args.map(
+            deserializeArg(
+              this.imageMap,
+              null,
+              status,
+              this.config.enforceCanvasArgAllowlist,
+            ),
+          ),
         );
         if (status.isUnchanged === false)
           this.canvasEventMap.set(event, { ...data, args });
@@ -1515,6 +1531,7 @@ export class Replayer {
             imageMap: this.imageMap,
             canvasEventMap: this.canvasEventMap,
             errorHandler: this.warnCanvasMutationFailed.bind(this),
+            enforceCanvasArgAllowlist: this.config.enforceCanvasArgAllowlist,
           });
         }
         break;

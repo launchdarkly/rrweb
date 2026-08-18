@@ -15,6 +15,7 @@ export default async function canvasMutation({
   imageMap,
   canvasEventMap,
   errorHandler,
+  enforceCanvasArgAllowlist,
 }: {
   event: Parameters<Replayer['applyIncremental']>[0];
   mutation: canvasMutationData;
@@ -22,6 +23,7 @@ export default async function canvasMutation({
   imageMap: Replayer['imageMap'];
   canvasEventMap: Replayer['canvasEventMap'];
   errorHandler: Replayer['warnCanvasMutationFailed'];
+  enforceCanvasArgAllowlist?: boolean;
 }): Promise<void> {
   try {
     const precomputedMutation: canvasMutationParam =
@@ -41,6 +43,7 @@ export default async function canvasMutation({
           target,
           imageMap,
           errorHandler,
+          enforceCanvasArgAllowlist,
         });
       }
       return;
@@ -52,6 +55,7 @@ export default async function canvasMutation({
       target,
       imageMap,
       errorHandler,
+      enforceCanvasArgAllowlist,
     });
   } catch (error) {
     errorHandler(mutation, error);

@@ -68,13 +68,19 @@ export function deserializeArg(
   preload?: {
     isUnchanged: boolean;
   },
+  enforceCanvasArgAllowlist = false,
 ): (arg: CanvasArg) => Promise<any> {
   return async (arg: CanvasArg): Promise<any> => {
     if (arg && typeof arg === 'object' && 'rr_type' in arg) {
       if (preload) preload.isUnchanged = false;
       if (arg.rr_type === 'ImageBitmap' && 'args' in arg) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const args = await deserializeArg(imageMap, ctx, preload)(arg.args);
+        const args = await deserializeArg(
+          imageMap,
+          ctx,
+          preload,
+          enforceCanvasArgAllowlist,
+        )(arg.args);
         // eslint-disable-next-line prefer-spread
         return await createImageBitmap.apply(null, args);
       } else if ('index' in arg) {
@@ -84,7 +90,7 @@ export function deserializeArg(
         return variableListFor(ctx, name)[index];
       } else if ('args' in arg) {
         const { rr_type: name, args } = arg;
-        if (!canvasArgConstructors.has(name)) {
+        if (enforceCanvasArgAllowlist && !canvasArgConstructors.has(name)) {
           console.warn(
             `[replayer] refusing to construct canvas arg of unknown type: ${name}`,
           );
@@ -96,7 +102,9 @@ export function deserializeArg(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
         return new ctor(
           ...(await Promise.all(
-            args.map(deserializeArg(imageMap, ctx, preload)),
+            args.map(
+              deserializeArg(imageMap, ctx, preload, enforceCanvasArgAllowlist),
+            ),
           )),
         );
       } else if ('base64' in arg) {
@@ -113,7 +121,9 @@ export function deserializeArg(
         }
       } else if ('data' in arg && arg.rr_type === 'Blob') {
         const blobContents = await Promise.all(
-          arg.data.map(deserializeArg(imageMap, ctx, preload)),
+          arg.data.map(
+            deserializeArg(imageMap, ctx, preload, enforceCanvasArgAllowlist),
+          ),
         );
         const blob = new Blob(blobContents, {
           type: arg.type,
@@ -122,7 +132,9 @@ export function deserializeArg(
       }
     } else if (Array.isArray(arg)) {
       const result = await Promise.all(
-        arg.map(deserializeArg(imageMap, ctx, preload)),
+        arg.map(
+          deserializeArg(imageMap, ctx, preload, enforceCanvasArgAllowlist),
+        ),
       );
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return result;

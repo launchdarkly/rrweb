@@ -9,12 +9,14 @@ export default async function canvasMutation({
   target,
   imageMap,
   errorHandler,
+  enforceCanvasArgAllowlist,
 }: {
   event: Parameters<Replayer['applyIncremental']>[0];
   mutations: canvasMutationCommand[];
   target: HTMLCanvasElement;
   imageMap: Replayer['imageMap'];
   errorHandler: Replayer['warnCanvasMutationFailed'];
+  enforceCanvasArgAllowlist?: boolean;
 }): Promise<void> {
   const ctx = target.getContext('2d');
 
@@ -29,7 +31,11 @@ export default async function canvasMutation({
   // step 1, deserialize args, they may be async
   const mutationArgsPromises = mutations.map(
     async (mutation: canvasMutationCommand): Promise<unknown[]> => {
-      return Promise.all(mutation.args.map(deserializeArg(imageMap, ctx)));
+      return Promise.all(
+        mutation.args.map(
+          deserializeArg(imageMap, ctx, undefined, enforceCanvasArgAllowlist),
+        ),
+      );
     },
   );
   const args = await Promise.all(mutationArgsPromises);
