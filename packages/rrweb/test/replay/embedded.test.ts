@@ -51,12 +51,14 @@ describe('embedded replay protocol', () => {
         speed: 2,
         skipInactive: true,
         UNSAFE_replayCanvas: false,
+        enforceCanvasArgAllowlist: true,
         cspContent: "script-src 'none'",
       });
       expect(out).toEqual({
         speed: 2,
         skipInactive: true,
         UNSAFE_replayCanvas: false,
+        enforceCanvasArgAllowlist: true,
         cspContent: "script-src 'none'",
       });
     });

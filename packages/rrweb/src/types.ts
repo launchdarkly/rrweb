@@ -218,6 +218,14 @@ export type playerConfig = {
   triggerFocus: boolean;
   UNSAFE_replayCanvas: boolean;
   /**
+   * Rebuild canvas mutation args only from the constructors the recorder
+   * emits, dropping any other `rr_type` instead of resolving it off `window`
+   * (see `replay/canvas/deserialize-args.ts`). Off by default so the embedding
+   * app can roll it out; canvas replay of args this list doesn't cover
+   * degrades to a blank draw rather than failing the session.
+   */
+  enforceCanvasArgAllowlist: boolean;
+  /**
    * Optional Content-Security-Policy applied to the replay iframe. When set, a
    * `<meta http-equiv="Content-Security-Policy">` carrying this policy is added
    * to the iframe's <head> during full-snapshot rebuild, before the rebuilt DOM
