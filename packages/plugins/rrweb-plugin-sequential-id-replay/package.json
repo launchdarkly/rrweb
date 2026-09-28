@@ -51,7 +51,7 @@
     "@highlight-run/rrweb": "workspace:*",
     "@highlight-run/rrweb-rrweb-plugin-sequential-id-record": "workspace:*",
     "typescript": "^5.4.5",
-    "vite": "^6.4.2",
+    "vite": "^8.0.16",
     "vite-plugin-dts": "^3.9.1"
   },
   "peerDependencies": {
