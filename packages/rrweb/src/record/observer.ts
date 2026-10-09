@@ -36,7 +36,6 @@ import type {
   listenerHandler,
   scrollCallback,
   styleSheetRuleCallback,
-  styleSheetAddRule,
   styleSheetDeleteRule,
   viewportResizeCallback,
   inputValue,
@@ -1094,9 +1093,8 @@ function initStyleSheetObserver(
    *
    * While the patch is healthy the replayer is in step with us by construction,
    * so there is nothing to do and we only remember where each sheet has got to.
-   * Once it is not, we top the replayer up: the tail for a sheet that has grown
-   * (which is all any CSS-in-JS library does), or a wholesale replacement when we
-   * cannot tell which rules survived.
+   * Once it is not, we replace the replayer's copy of any sheet whose rule count
+   * no longer matches what we reported.
    */
   const resyncCssomStyleSheets = (trusted: boolean) => {
     for (let i = 0; i < doc.styleSheets.length; i++) {
@@ -1141,17 +1139,10 @@ function initStyleSheetObserver(
 
       if (live === state.reported) continue;
 
-      if (live > state.reported) {
-        const adds: styleSheetAddRule[] = [];
-        for (let index = state.reported; index < live; index++) {
-          adds.push({ rule: rules[index].cssText, index });
-        }
-        styleSheetRuleCb({ id, adds });
-        state.reported = live;
-      } else {
-        // Shrunk, so it was rewritten rather than appended to.
-        replaceReplayerCopy(id, state, rules);
-      }
+      // The count alone cannot say where the missed rules went. Libraries that
+      // order rules by component (styled-components) insert mid-sheet, so
+      // re-sending the tail would duplicate shifted rules and drop the new ones.
+      replaceReplayerCopy(id, state, rules);
     }
   };
 
