@@ -125,6 +125,61 @@ describe('stylesheet resync', function (this: ISuite) {
     expect(addedRules(ctx.events)).toContain('body { color: rgb(1, 2, 3); }');
   });
 
+  it('keeps the replayer in step when a missed rule was inserted mid-sheet', async () => {
+    const live = await ctx.page.evaluate(() => {
+      const { record } = (window as unknown as IWindow).rrweb;
+      const pristine = CSSStyleSheet.prototype.insertRule;
+
+      record({
+        emit: (window as unknown as IWindow).emit,
+        styleSheetResyncInterval: 50,
+      });
+
+      const styleElement = document.createElement('style');
+      document.head.appendChild(styleElement);
+      const sheet = styleElement.sheet as CSSStyleSheet;
+
+      return new Promise<string[]>((resolve) => {
+        setTimeout(() => {
+          sheet.insertRule('.first { color: rgb(1, 1, 1); }', 0);
+          sheet.insertRule('.second { color: rgb(2, 2, 2); }', 1);
+          sheet.insertRule('.third { color: rgb(3, 3, 3); }', 2);
+        }, 200);
+        setTimeout(() => {
+          CSSStyleSheet.prototype.insertRule = pristine;
+          // Libraries that group rules by component insert at the group's
+          // offset rather than appending.
+          sheet.insertRule('.missed { color: rgb(4, 4, 4); }', 1);
+        }, 300);
+        setTimeout(() => {
+          resolve(Array.from(sheet.cssRules, (rule) => rule.cssText));
+        }, 600);
+      });
+    });
+
+    // Apply the recorded rule events the way the replayer does: each event's
+    // adds before its removes, ignoring indices out of range.
+    const replayed: string[] = [];
+    for (const data of styleSheetRuleEvents(ctx.events)) {
+      for (const { rule, index } of data.adds ?? []) {
+        const at = typeof index === 'number' ? index : replayed.length;
+        if (at <= replayed.length) replayed.splice(at, 0, rule);
+      }
+      for (const { index } of data.removes ?? []) {
+        const at = index as number;
+        if (at < replayed.length) replayed.splice(at, 1);
+      }
+    }
+
+    expect(live).toEqual([
+      '.first { color: rgb(1, 1, 1); }',
+      '.missed { color: rgb(4, 4, 4); }',
+      '.second { color: rgb(2, 2, 2); }',
+      '.third { color: rgb(3, 3, 3); }',
+    ]);
+    expect(replayed).toEqual(live);
+  });
+
   it('records rules again once the patch has been reinstated', async () => {
     await ctx.page.evaluate(() => {
       const { record } = (window as unknown as IWindow).rrweb;
