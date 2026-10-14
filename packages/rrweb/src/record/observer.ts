@@ -36,6 +36,7 @@ import type {
   listenerHandler,
   scrollCallback,
   styleSheetRuleCallback,
+  styleSheetAddRule,
   styleSheetDeleteRule,
   viewportResizeCallback,
   inputValue,
@@ -650,15 +651,13 @@ function initStyleSheetObserver(
   }
 
   /**
-   * Per stylesheet bookkeeping for `resyncCssomStyleSheets`:
-   * - `reported`: how many top level rules the replayer is known to hold.
-   * - `everSeen`: the most rules the sheet has ever had, an upper bound on what
-   *   the replayer can be holding.
+   * Per stylesheet bookkeeping for `resyncCssomStyleSheets`: the top level rules
+   * the replayer holds, in its order, as the live `CSSRule` objects they were
+   * recorded from. CSSOM rule objects keep their identity as other rules are
+   * inserted around them, so comparing this against `sheet.cssRules` shows
+   * exactly which rules the replayer is missing or still holds.
    */
-  const reportedRuleCounts = new WeakMap<
-    CSSStyleSheet,
-    { reported: number; everSeen: number }
-  >();
+  const replayerRules = new WeakMap<CSSStyleSheet, CSSRule[]>();
   /** Sheets whose rule indices we cannot reason about, see resyncCssomStyleSheets. */
   const unreconcilableSheets = new WeakSet<CSSStyleSheet>();
 
@@ -683,12 +682,21 @@ function initStyleSheetObserver(
   let insideInsertRule = false;
   let insideDeleteRule = false;
 
-  const noteReportedRules = (sheet: CSSStyleSheet, delta: number) => {
-    const state = reportedRuleCounts.get(sheet);
-    if (state) {
-      state.reported = Math.max(0, state.reported + delta);
-      state.everSeen = Math.max(state.everSeen, state.reported);
-    }
+  // Both mirror `applyStyleSheetRule` in the replayer, which clamps an insert
+  // index to the sheet length and ignores a delete that is out of range.
+  const noteReportedInsert = (
+    sheet: CSSStyleSheet,
+    index: number | undefined,
+    landedAt: number,
+  ) => {
+    const rules = replayerRules.get(sheet);
+    const rule = sheet.cssRules[landedAt];
+    if (!rules || !rule) return;
+    rules.splice(Math.min(index ?? 0, rules.length), 0, rule);
+  };
+  const noteReportedDelete = (sheet: CSSStyleSheet, index: number) => {
+    const rules = replayerRules.get(sheet);
+    if (rules && index >= 0 && index < rules.length) rules.splice(index, 1);
   };
 
   const patchInsertRule = (
@@ -734,7 +742,12 @@ function initStyleSheetObserver(
           // Only once the rule actually landed, so that a rule the browser
           // rejects does not desynchronise our bookkeeping.
           if (reported) {
-            noteReportedRules(thisArg, 1);
+            // Another script's wrapper may not pass the native return value on.
+            noteReportedInsert(
+              thisArg,
+              index,
+              typeof result === 'number' ? result : index ?? 0,
+            );
           }
           return result;
         },
@@ -782,7 +795,7 @@ function initStyleSheetObserver(
             insideDeleteRule = false;
           }
           if (reported) {
-            noteReportedRules(thisArg, -1);
+            noteReportedDelete(thisArg, index);
           }
           return result;
         },
@@ -1092,9 +1105,10 @@ function initStyleSheetObserver(
    * which renders a MUI heavy UI completely unstyled.
    *
    * While the patch is healthy the replayer is in step with us by construction,
-   * so there is nothing to do and we only remember where each sheet has got to.
-   * Once it is not, we replace the replayer's copy of any sheet whose rule count
-   * no longer matches what we reported.
+   * so there is nothing to send. Once it is not, we send each sheet only the
+   * rules the replayer is missing and remove the ones it should no longer hold,
+   * so recovering from a missed insert costs that one rule rather than the
+   * whole sheet.
    */
   const resyncCssomStyleSheets = (trusted: boolean) => {
     for (let i = 0; i < doc.styleSheets.length; i++) {
@@ -1116,10 +1130,8 @@ function initStyleSheetObserver(
       } catch (error) {
         continue; // cross origin, unreadable
       }
-      const live = rules.length;
-
-      let state = reportedRuleCounts.get(sheet);
-      if (!state) {
+      const recorded = replayerRules.get(sheet);
+      if (!recorded) {
         // `@import`ed rules are inlined into `_cssText`, so the replayer holds a
         // different number of rules than the sheet reports and every index we
         // could derive would be wrong.
@@ -1127,42 +1139,78 @@ function initStyleSheetObserver(
           unreconcilableSheets.add(sheet);
           continue;
         }
-        state = { reported: live, everSeen: live };
-        reportedRuleCounts.set(sheet, state);
+        replayerRules.set(sheet, Array.from(rules));
         if (trusted) continue; // `_cssText` plus our reports already cover it
         // Capture was already broken when we first looked at this sheet, so we
         // have no idea how much of it the replayer received. Replace the lot.
-        replaceReplayerCopy(id, state, rules);
+        replaceReplayerCopy(id, rules);
         continue;
       }
-      state.everSeen = Math.max(state.everSeen, live);
 
-      if (live === state.reported) continue;
-
-      // The count alone cannot say where the missed rules went. Libraries that
-      // order rules by component (styled-components) insert mid-sheet, so
-      // re-sending the tail would duplicate shifted rules and drop the new ones.
-      replaceReplayerCopy(id, state, rules);
+      // While capture is healthy the replayer is in step by construction.
+      if (trusted && rules.length === recorded.length) continue;
+      syncReplayerCopy(id, sheet, recorded, rules);
     }
   };
 
   /**
-   * Discard the replayer's copy of a stylesheet and re-send it in full.
+   * Bring the replayer's copy of a sheet in line with the live one, sending only
+   * the difference.
    *
-   * Deletes have to precede the inserts, and `applyStyleSheetRule` handles a
-   * single event's `adds` before its `removes`, so this takes two events. The
-   * deletes run from the highest rule count we have ever seen for the sheet
-   * (an upper bound on what the replayer can be holding) downwards, because
-   * deleting shifts every later index; over-deleting is harmless as the replayer
-   * ignores out of range indices.
+   * Rules the replayer holds are kept as long as they are still live and in
+   * live order; the rest are removed, highest index first so that each removal
+   * leaves the lower indices alone. Every live rule the replayer then lacks is
+   * added at its live index, lowest first, so that everything before it is
+   * already in place. `applyStyleSheetRule` handles a single event's `adds`
+   * before its `removes`, hence two events.
    */
-  function replaceReplayerCopy(
+  function syncReplayerCopy(
     id: number,
-    state: { reported: number; everSeen: number },
+    sheet: CSSStyleSheet,
+    recorded: CSSRule[],
     rules: CSSRuleList,
   ) {
+    const live = Array.from(rules);
+    if (
+      live.length === recorded.length &&
+      live.every((rule, index) => rule === recorded[index])
+    ) {
+      return;
+    }
+
+    const liveIndex = new Map(live.map((rule, index) => [rule, index]));
+    const kept = new Set<CSSRule>();
+    let lastKept = -1;
     const removes: styleSheetDeleteRule[] = [];
-    for (let index = state.everSeen - 1; index >= 0; index--) {
+    recorded.forEach((rule, index) => {
+      const at = liveIndex.get(rule);
+      if (at !== undefined && at > lastKept && !kept.has(rule)) {
+        kept.add(rule);
+        lastKept = at;
+      } else {
+        removes.push({ index });
+      }
+    });
+    removes.reverse();
+    const adds: styleSheetAddRule[] = [];
+    live.forEach((rule, index) => {
+      if (!kept.has(rule)) adds.push({ rule: rule.cssText, index });
+    });
+
+    if (removes.length) styleSheetRuleCb({ id, removes });
+    if (adds.length) styleSheetRuleCb({ id, adds });
+    replayerRules.set(sheet, live);
+  }
+
+  /**
+   * Discard the replayer's copy of a stylesheet and re-send it in full, for a
+   * sheet we know nothing about. The deletes run from the highest index down,
+   * because deleting shifts every later index; over-deleting is harmless as the
+   * replayer ignores out of range indices.
+   */
+  function replaceReplayerCopy(id: number, rules: CSSRuleList) {
+    const removes: styleSheetDeleteRule[] = [];
+    for (let index = rules.length - 1; index >= 0; index--) {
       removes.push({ index });
     }
     if (removes.length) styleSheetRuleCb({ id, removes });
@@ -1173,8 +1221,6 @@ function initStyleSheetObserver(
         index,
       })),
     });
-    state.reported = rules.length;
-    state.everSeen = rules.length;
   }
 
   let resyncTimer: number | undefined;
