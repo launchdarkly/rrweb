@@ -83,6 +83,25 @@ const removedIndices = (events: eventWithTime[]) =>
     .map((remove) => remove.index);
 
 /**
+ * Rebuild a sheet from the recorded rule events the way the replayer does: each
+ * event's adds before its removes, ignoring indices out of range.
+ */
+const replayedRules = (events: eventWithTime[]) => {
+  const replayed: string[] = [];
+  for (const data of styleSheetRuleEvents(events)) {
+    for (const { rule, index } of data.adds ?? []) {
+      const at = typeof index === 'number' ? index : 0;
+      replayed.splice(Math.min(at, replayed.length), 0, rule);
+    }
+    for (const { index } of data.removes ?? []) {
+      const at = index as number;
+      if (at < replayed.length) replayed.splice(at, 1);
+    }
+  }
+  return replayed;
+};
+
+/**
  * A CSS-in-JS library's `<style>` element holds no text, so the rules it writes
  * through `insertRule` only reach the replayer via our CSSOM patch. Other
  * scripts on the page patch the same methods and reinstall what they captured
@@ -157,27 +176,133 @@ describe('stylesheet resync', function (this: ISuite) {
       });
     });
 
-    // Apply the recorded rule events the way the replayer does: each event's
-    // adds before its removes, ignoring indices out of range.
-    const replayed: string[] = [];
-    for (const data of styleSheetRuleEvents(ctx.events)) {
-      for (const { rule, index } of data.adds ?? []) {
-        const at = typeof index === 'number' ? index : replayed.length;
-        if (at <= replayed.length) replayed.splice(at, 0, rule);
-      }
-      for (const { index } of data.removes ?? []) {
-        const at = index as number;
-        if (at < replayed.length) replayed.splice(at, 1);
-      }
-    }
-
     expect(live).toEqual([
       '.first { color: rgb(1, 1, 1); }',
       '.missed { color: rgb(4, 4, 4); }',
       '.second { color: rgb(2, 2, 2); }',
       '.third { color: rgb(3, 3, 3); }',
     ]);
-    expect(replayed).toEqual(live);
+    expect(replayedRules(ctx.events)).toEqual(live);
+    // Only the missed rule is sent, not the rest of the sheet again.
+    expect(addedRules(ctx.events)).toHaveLength(4);
+    expect(removedIndices(ctx.events)).toEqual([]);
+  });
+
+  it('sends only the missed rule when it was appended', async () => {
+    const live = await ctx.page.evaluate(() => {
+      const { record } = (window as unknown as IWindow).rrweb;
+      const pristine = CSSStyleSheet.prototype.insertRule;
+
+      record({
+        emit: (window as unknown as IWindow).emit,
+        styleSheetResyncInterval: 50,
+      });
+
+      const styleElement = document.createElement('style');
+      document.head.appendChild(styleElement);
+      const sheet = styleElement.sheet as CSSStyleSheet;
+
+      return new Promise<string[]>((resolve) => {
+        setTimeout(() => {
+          sheet.insertRule('.first { color: rgb(1, 1, 1); }', 0);
+          sheet.insertRule('.second { color: rgb(2, 2, 2); }', 1);
+        }, 200);
+        setTimeout(() => {
+          CSSStyleSheet.prototype.insertRule = pristine;
+          // Libraries such as emotion always append.
+          sheet.insertRule('.missed { color: rgb(3, 3, 3); }', 2);
+        }, 300);
+        setTimeout(() => {
+          resolve(Array.from(sheet.cssRules, (rule) => rule.cssText));
+        }, 600);
+      });
+    });
+
+    expect(replayedRules(ctx.events)).toEqual(live);
+    expect(addedRules(ctx.events)).toHaveLength(3);
+    expect(removedIndices(ctx.events)).toEqual([]);
+  });
+
+  it('sends only the difference when deletes were missed too', async () => {
+    const live = await ctx.page.evaluate(() => {
+      const { record } = (window as unknown as IWindow).rrweb;
+      const pristineInsert = CSSStyleSheet.prototype.insertRule;
+      const pristineDelete = CSSStyleSheet.prototype.deleteRule;
+
+      record({
+        emit: (window as unknown as IWindow).emit,
+        styleSheetResyncInterval: 50,
+      });
+
+      const styleElement = document.createElement('style');
+      document.head.appendChild(styleElement);
+      const sheet = styleElement.sheet as CSSStyleSheet;
+
+      return new Promise<string[]>((resolve) => {
+        setTimeout(() => {
+          sheet.insertRule('.first { color: rgb(1, 1, 1); }', 0);
+          sheet.insertRule('.second { color: rgb(2, 2, 2); }', 1);
+          sheet.insertRule('.third { color: rgb(3, 3, 3); }', 2);
+        }, 200);
+        setTimeout(() => {
+          CSSStyleSheet.prototype.insertRule = pristineInsert;
+          CSSStyleSheet.prototype.deleteRule = pristineDelete;
+          sheet.deleteRule(0);
+          sheet.insertRule('.missed { color: rgb(4, 4, 4); }', 1);
+        }, 300);
+        setTimeout(() => {
+          resolve(Array.from(sheet.cssRules, (rule) => rule.cssText));
+        }, 600);
+      });
+    });
+
+    expect(live).toEqual([
+      '.second { color: rgb(2, 2, 2); }',
+      '.missed { color: rgb(4, 4, 4); }',
+      '.third { color: rgb(3, 3, 3); }',
+    ]);
+    expect(replayedRules(ctx.events)).toEqual(live);
+    expect(addedRules(ctx.events)).toHaveLength(4);
+    expect(removedIndices(ctx.events)).toEqual([0]);
+  });
+
+  it('keeps sending only new rules while a script keeps displacing the patch', async () => {
+    const live = await ctx.page.evaluate(() => {
+      const { record } = (window as unknown as IWindow).rrweb;
+      const pristine = CSSStyleSheet.prototype.insertRule;
+
+      record({
+        emit: (window as unknown as IWindow).emit,
+        styleSheetResyncInterval: 50,
+      });
+
+      const styleElement = document.createElement('style');
+      document.head.appendChild(styleElement);
+      const sheet = styleElement.sheet as CSSStyleSheet;
+
+      return new Promise<string[]>((resolve) => {
+        setTimeout(() => {
+          sheet.insertRule('.first { color: rgb(1, 1, 1); }', 0);
+          sheet.insertRule('.second { color: rgb(2, 2, 2); }', 1);
+        }, 200);
+        // Displaced again after every repatch, with the sheet growing each time,
+        // well past the point where we stop repatching.
+        Array.from({ length: 8 }, (_, n) => 300 + n * 150).forEach((at, n) => {
+          setTimeout(() => {
+            CSSStyleSheet.prototype.insertRule = pristine;
+            sheet.insertRule(`.missed-${n} { color: rgb(${n}, 0, 0); }`, n);
+          }, at);
+        });
+        setTimeout(() => {
+          resolve(Array.from(sheet.cssRules, (rule) => rule.cssText));
+        }, 1700);
+      });
+    });
+
+    expect(live).toHaveLength(10);
+    expect(replayedRules(ctx.events)).toEqual(live);
+    expect(addedRules(ctx.events)).toHaveLength(10);
+    expect(removedIndices(ctx.events)).toEqual([]);
   });
 
   it('records rules again once the patch has been reinstated', async () => {
