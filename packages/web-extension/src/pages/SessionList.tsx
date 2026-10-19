@@ -326,7 +326,7 @@ export function SessionList() {
                       isNumeric={meta?.isNumeric}
                       onClick={() => {
                         if (index !== 0)
-                          navigate(`/session/${row.original.id}`);
+                          void navigate(`/session/${row.original.id}`);
                       }}
                     >
                       {flexRender(
